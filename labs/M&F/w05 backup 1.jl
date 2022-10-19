@@ -4,13 +4,13 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 1e21396a-4714-11ed-0fb2-39200d1fb39c
+# ╔═╡ 52782722-488c-11ed-3556-97ef5ad6a103
 using CommonMark
 
-# ╔═╡ e8dfe1a0-0c0f-4bca-86a4-29ef819d6556
-using CSV, Dates, DataFrames, StatsPlots, Indicators, Statistics;
+# ╔═╡ 852a2f8b-50ea-4c23-933e-f114dac469da
+using CSV, Dates, DataFrames, StatsPlots, Indicators, Statistics, StateSpaceModels;
 
-# ╔═╡ 20f18bd2-172d-457d-96ad-9621e5052361
+# ╔═╡ 203744f1-cdd8-4106-a5fa-c6bc6f2e2427
 cm"""
 ---
 <div align="center">
@@ -23,10 +23,10 @@ cm"""
 
 <br/><br/>
 
-Лабораторна робота 4
+Лабораторна робота 5
 
 
-Прогнозування методом ковзного середнього
+Використання метoдa експоненціального згладжування
 
 
 Варіант 20
@@ -56,44 +56,38 @@ cm"""
 ---
 """
 
-# ╔═╡ 277c9eac-69ee-46d4-8400-b48a2c3ca343
+# ╔═╡ 18db02d6-313b-41ed-9893-f990994485db
 cm"""
 
 #### В роботі використано мову Julia та її пакети
 
 """
 
-# ╔═╡ 89626688-518c-4828-a140-f96df6b70c5d
+# ╔═╡ 9d2e5181-1367-4424-bffe-cfeaa07379a7
 csv = CSV.File("data.csv"; select=["year", "total"], types=Dict(:year => Date));
 
-# ╔═╡ cc783f42-f791-4d25-a1b0-5c92c2146b9b
+# ╔═╡ c24341bd-a359-448b-b974-e7fdd9e0cdeb
 df = csv |> DataFrame
 
-# ╔═╡ 82abbbf1-9f6a-458a-908e-29dea042e327
-cm"""
+# ╔═╡ 0b72a438-5133-4d9b-aebb-643a526c7abe
+s = collect(0.1:0.1:1.0)
 
-### Висновок
-
-Для складання прогнозу краще використовувати модель ковзного середнього із 2-річним інтервалом, де менша похибка
-
-"""
-
-# ╔═╡ 09e16707-ed42-4742-a683-d3c9b929fe1e
+# ╔═╡ f535ac28-4148-49cf-8264-68cabf0a5bbc
 function rmse(abs_err)
     rmse = sqrt(mean(abs_err .* abs_err))
     return rmse
 end
 
-# ╔═╡ 7b9c7b91-b7fc-40ef-b2f8-7ce60a4b16f8
+# ╔═╡ 84c0cadc-49ca-4de6-8fe2-ba7119064b6e
 res = let
 	source = df[!, :total]
 	ks = 2:5
 	k = []
 	for i in ks
-		push!(k,sma(source, n=i))
+		push!(k, ema(source, n=i))
 	end
 	
-	fig = plot(source, label="source", title="Simple Moving Average")
+	fig = plot(source, label="source", title="Exponential Moving Average")
 	j = 1
 	for i in ks
 		plot!(k[j], label="k=$i")
@@ -110,11 +104,10 @@ res = let
 	(fig, out, source, ks, k)
 end;
 
-
-# ╔═╡ dce0a1ae-ea52-461a-9bb6-9caaefa364c2
+# ╔═╡ 47d70364-d01a-4964-8105-9a3d14f65d42
 res[1]
 
-# ╔═╡ 8e44ccbf-f5e8-4252-b18a-2d33b2fb0d51
+# ╔═╡ 85c8f391-6749-41f3-b9c4-3ea5ada5b7d3
 Text(res[2])
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1356,16 +1349,16 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─1e21396a-4714-11ed-0fb2-39200d1fb39c
-# ╟─20f18bd2-172d-457d-96ad-9621e5052361
-# ╟─277c9eac-69ee-46d4-8400-b48a2c3ca343
-# ╠═e8dfe1a0-0c0f-4bca-86a4-29ef819d6556
-# ╠═89626688-518c-4828-a140-f96df6b70c5d
-# ╠═cc783f42-f791-4d25-a1b0-5c92c2146b9b
-# ╠═7b9c7b91-b7fc-40ef-b2f8-7ce60a4b16f8
-# ╠═dce0a1ae-ea52-461a-9bb6-9caaefa364c2
-# ╠═8e44ccbf-f5e8-4252-b18a-2d33b2fb0d51
-# ╟─82abbbf1-9f6a-458a-908e-29dea042e327
-# ╠═09e16707-ed42-4742-a683-d3c9b929fe1e
+# ╟─52782722-488c-11ed-3556-97ef5ad6a103
+# ╟─203744f1-cdd8-4106-a5fa-c6bc6f2e2427
+# ╟─18db02d6-313b-41ed-9893-f990994485db
+# ╠═852a2f8b-50ea-4c23-933e-f114dac469da
+# ╠═9d2e5181-1367-4424-bffe-cfeaa07379a7
+# ╠═c24341bd-a359-448b-b974-e7fdd9e0cdeb
+# ╠═84c0cadc-49ca-4de6-8fe2-ba7119064b6e
+# ╠═0b72a438-5133-4d9b-aebb-643a526c7abe
+# ╠═47d70364-d01a-4964-8105-9a3d14f65d42
+# ╠═85c8f391-6749-41f3-b9c4-3ea5ada5b7d3
+# ╠═f535ac28-4148-49cf-8264-68cabf0a5bbc
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

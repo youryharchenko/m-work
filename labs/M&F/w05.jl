@@ -4,13 +4,13 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 1e21396a-4714-11ed-0fb2-39200d1fb39c
+# ╔═╡ 52782722-488c-11ed-3556-97ef5ad6a103
 using CommonMark
 
-# ╔═╡ e8dfe1a0-0c0f-4bca-86a4-29ef819d6556
-using CSV, Dates, DataFrames, StatsPlots, Indicators, Statistics;
+# ╔═╡ 852a2f8b-50ea-4c23-933e-f114dac469da
+using CSV, Dates, DataFrames, StatsPlots, Statistics ;
 
-# ╔═╡ 20f18bd2-172d-457d-96ad-9621e5052361
+# ╔═╡ 203744f1-cdd8-4106-a5fa-c6bc6f2e2427
 cm"""
 ---
 <div align="center">
@@ -23,10 +23,10 @@ cm"""
 
 <br/><br/>
 
-Лабораторна робота 4
+Лабораторна робота 5
 
 
-Прогнозування методом ковзного середнього
+Використання метoдa експоненціального згладжування
 
 
 Варіант 20
@@ -56,66 +56,103 @@ cm"""
 ---
 """
 
-# ╔═╡ 277c9eac-69ee-46d4-8400-b48a2c3ca343
+# ╔═╡ 18db02d6-313b-41ed-9893-f990994485db
 cm"""
 
 #### В роботі використано мову Julia та її пакети
 
 """
 
-# ╔═╡ 89626688-518c-4828-a140-f96df6b70c5d
+# ╔═╡ 9d2e5181-1367-4424-bffe-cfeaa07379a7
 csv = CSV.File("data.csv"; select=["year", "total"], types=Dict(:year => Date));
 
-# ╔═╡ cc783f42-f791-4d25-a1b0-5c92c2146b9b
+# ╔═╡ c24341bd-a359-448b-b974-e7fdd9e0cdeb
 df = csv |> DataFrame
 
-# ╔═╡ 82abbbf1-9f6a-458a-908e-29dea042e327
+# ╔═╡ 84c0cadc-49ca-4de6-8fe2-ba7119064b6e
+function SES_weight(α, l0, time_serie)
+    N = length(time_serie)
+    y_pred = 0
+    pred = []
+    
+    for i in 1:(N)
+        if i == 1
+            y_pred = l0
+        else
+            y_pred = time_serie[i - 1] * α + y_pred * (1 - α)
+        end
+    
+        push!(pred, y_pred)     
+    end
+    
+    return pred
+end
+
+# ╔═╡ de82e3ec-5535-4b76-8ba3-4f2c7e13178d
+ts = df[!, "total"]
+
+# ╔═╡ a25e692a-6e5a-4f5f-94a5-f3e8b815611a
+pred_1 = SES_weight(0.2, ts[1], ts)
+
+# ╔═╡ 7267c809-ce79-4532-9eb6-bf2c6ad783d6
+pred_2 = SES_weight(0.5, ts[1], ts)
+
+# ╔═╡ 68d63bc0-6147-47ff-bccf-c88d53334253
+pred_3 = SES_weight(0.8, ts[1], ts)
+
+# ╔═╡ 0ff2ce56-139e-4f29-9321-39b025680174
+begin
+    plot(ts, label="Data", legend=:topleft)
+    p1 = plot!(pred_1, label="α=0.2 fit")
+    
+    plot(ts, label="Data", legend=:topleft)
+    p2 = plot!(pred_2, label="α=0.5 fit")
+    
+    plot(ts, label="Data", legend=:topleft)
+    p3 = plot!(pred_3, label="α=0.8 fit")
+    
+    plot(p1, p2, p3)    
+end
+
+# ╔═╡ 61f09eda-3244-45e7-9975-bb85be290500
+function SES_weight_loss(α, l0, time_serie)
+    loss = 0
+    N = length(time_serie)
+    y_pred = 0
+    
+    for i in 1:(N)
+        if i == 1
+            y_pred = l0
+        else
+            y_pred = time_serie[i - 1] * α + y_pred * (1 - α)
+        end
+    
+        loss += (time_serie[i] - y_pred)^2  
+    end
+    
+    return loss
+end
+
+# ╔═╡ e44d3596-c21c-4e46-bf99-2aa30dea4939
+begin
+    aplhas = collect(0:0.01:1)
+    a = Array{Float64}(undef, length(aplhas))
+    
+    for i in eachindex(aplhas)
+        a[i] = SES_weight_loss(aplhas[i], ts[1], ts)
+    end
+    
+    plot(0:0.01:1, a, xlabel="Alpha", ylabel="Loss", legend=false, title="Функція помилки для різних значень альфа")
+end
+
+# ╔═╡ 3bcf4b3b-15f3-4e6b-aabe-549f9c9dde80
 cm"""
 
 ### Висновок
 
-Для складання прогнозу краще використовувати модель ковзного середнього із 2-річним інтервалом, де менша похибка
+Для складання прогнозу краще брати α близьким до 1
 
 """
-
-# ╔═╡ 09e16707-ed42-4742-a683-d3c9b929fe1e
-function rmse(abs_err)
-    rmse = sqrt(mean(abs_err .* abs_err))
-    return rmse
-end
-
-# ╔═╡ 7b9c7b91-b7fc-40ef-b2f8-7ce60a4b16f8
-res = let
-	source = df[!, :total]
-	ks = 2:5
-	k = []
-	for i in ks
-		push!(k,sma(source, n=i))
-	end
-	
-	fig = plot(source, label="source", title="Simple Moving Average")
-	j = 1
-	for i in ks
-		plot!(k[j], label="k=$i")
-		j += 1
-	end
-	
-	out = "RMSE:\n"
-	j = 1
-	for i in ks
-		r = rmse(abs.(source[i:end] .- k[j][i:end]))
-		out = out * "k = $i : $(round(r, digits=4))\n"
-		j += 1
-	end
-	(fig, out, source, ks, k)
-end;
-
-
-# ╔═╡ dce0a1ae-ea52-461a-9bb6-9caaefa364c2
-res[1]
-
-# ╔═╡ 8e44ccbf-f5e8-4252-b18a-2d33b2fb0d51
-Text(res[2])
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -124,7 +161,6 @@ CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-Indicators = "70c4c096-89a6-5ec6-8236-da8aa3bd86fd"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
@@ -132,7 +168,6 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 CSV = "~0.10.4"
 CommonMark = "~0.8.6"
 DataFrames = "~1.4.1"
-Indicators = "~0.8.1"
 StatsPlots = "~0.15.4"
 """
 
@@ -181,6 +216,11 @@ version = "1.0.1"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.BitFlags]]
+git-tree-sha1 = "84259bb6172806304b9101094a7cc4bc6f56dbc6"
+uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
+version = "0.1.5"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -475,10 +515,10 @@ uuid = "42e2da0e-8278-4e71-bc24-59509adca0fe"
 version = "1.0.2"
 
 [[deps.HTTP]]
-deps = ["Base64", "Dates", "IniFile", "Logging", "MbedTLS", "NetworkOptions", "Sockets", "URIs"]
-git-tree-sha1 = "0fa77022fe4b511826b39c894c90daf5fce3334a"
+deps = ["Base64", "CodecZlib", "Dates", "IniFile", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
+git-tree-sha1 = "4abede886fcba15cd5fd041fef776b230d004cee"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "0.9.17"
+version = "1.4.0"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -491,12 +531,6 @@ deps = ["DualNumbers", "LinearAlgebra", "OpenLibm_jll", "SpecialFunctions", "Tes
 git-tree-sha1 = "709d864e3ed6e3545230601f94e11ebc65994641"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.11"
-
-[[deps.Indicators]]
-deps = ["Random", "Statistics", "Temporal", "Test"]
-git-tree-sha1 = "73eab01e7648446f1dac380ff1b7bf53625e4a0a"
-uuid = "70c4c096-89a6-5ec6-8236-da8aa3bd86fd"
-version = "0.8.1"
 
 [[deps.IniFile]]
 git-tree-sha1 = "f550e6e32074c939295eb5ea6de31849ac2c9625"
@@ -689,6 +723,12 @@ version = "0.3.18"
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
+[[deps.LoggingExtras]]
+deps = ["Dates", "Logging"]
+git-tree-sha1 = "5d4d2d9904227b8bd66386c1138cf4d5ffa826bf"
+uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
+version = "0.4.9"
+
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
 git-tree-sha1 = "41d162ae9c868218b1f3fe78cba878aa348c2d26"
@@ -777,6 +817,12 @@ uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
+
+[[deps.OpenSSL]]
+deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
+git-tree-sha1 = "ebe81469e9d7b471d7ddb611d9e147ea16de0add"
+uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
+version = "1.2.1"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -967,6 +1013,11 @@ git-tree-sha1 = "91eddf657aca81df9ae6ceb20b959ae5653ad1de"
 uuid = "992d4aef-0814-514b-bc4d-f2e9a6c4116f"
 version = "1.0.3"
 
+[[deps.SimpleBufferStream]]
+git-tree-sha1 = "874e8867b33a00e784c8a7e4b60afe9e037b74e1"
+uuid = "777ac1f9-54b0-4bf8-805c-2214025038e7"
+version = "1.1.0"
+
 [[deps.SnoopPrecompile]]
 git-tree-sha1 = "f604441450a3c0569830946e5b33b78c928e1a85"
 uuid = "66db9d55-30c0-4569-8b51-7e840670fc0c"
@@ -1064,12 +1115,6 @@ version = "1.9.0"
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-
-[[deps.Temporal]]
-deps = ["Dates", "HTTP", "JSON", "Pkg", "Printf", "Random", "RecipesBase", "Statistics", "Test"]
-git-tree-sha1 = "7460d64abf6f204f2b100c92a055c3b89c5cc481"
-uuid = "a110ec8f-48c8-5d59-8f7e-f91bc4cc0c3d"
-version = "0.8.1"
 
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
@@ -1356,16 +1401,20 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─1e21396a-4714-11ed-0fb2-39200d1fb39c
-# ╟─20f18bd2-172d-457d-96ad-9621e5052361
-# ╟─277c9eac-69ee-46d4-8400-b48a2c3ca343
-# ╠═e8dfe1a0-0c0f-4bca-86a4-29ef819d6556
-# ╠═89626688-518c-4828-a140-f96df6b70c5d
-# ╠═cc783f42-f791-4d25-a1b0-5c92c2146b9b
-# ╠═7b9c7b91-b7fc-40ef-b2f8-7ce60a4b16f8
-# ╠═dce0a1ae-ea52-461a-9bb6-9caaefa364c2
-# ╠═8e44ccbf-f5e8-4252-b18a-2d33b2fb0d51
-# ╟─82abbbf1-9f6a-458a-908e-29dea042e327
-# ╠═09e16707-ed42-4742-a683-d3c9b929fe1e
+# ╟─52782722-488c-11ed-3556-97ef5ad6a103
+# ╟─203744f1-cdd8-4106-a5fa-c6bc6f2e2427
+# ╟─18db02d6-313b-41ed-9893-f990994485db
+# ╠═852a2f8b-50ea-4c23-933e-f114dac469da
+# ╠═9d2e5181-1367-4424-bffe-cfeaa07379a7
+# ╠═c24341bd-a359-448b-b974-e7fdd9e0cdeb
+# ╠═84c0cadc-49ca-4de6-8fe2-ba7119064b6e
+# ╠═de82e3ec-5535-4b76-8ba3-4f2c7e13178d
+# ╠═a25e692a-6e5a-4f5f-94a5-f3e8b815611a
+# ╠═7267c809-ce79-4532-9eb6-bf2c6ad783d6
+# ╠═68d63bc0-6147-47ff-bccf-c88d53334253
+# ╠═0ff2ce56-139e-4f29-9321-39b025680174
+# ╠═61f09eda-3244-45e7-9975-bb85be290500
+# ╠═e44d3596-c21c-4e46-bf99-2aa30dea4939
+# ╟─3bcf4b3b-15f3-4e6b-aabe-549f9c9dde80
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

@@ -4,13 +4,13 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 1e21396a-4714-11ed-0fb2-39200d1fb39c
+# ╔═╡ ab9a2a96-493e-11ed-10df-9963f6aea1a0
 using CommonMark
 
-# ╔═╡ e8dfe1a0-0c0f-4bca-86a4-29ef819d6556
-using CSV, Dates, DataFrames, StatsPlots, Indicators, Statistics;
+# ╔═╡ dc330679-8015-4519-b26e-8a055949de97
+using CSV, DataFrames, StatsPlots, Statistics , GLM;
 
-# ╔═╡ 20f18bd2-172d-457d-96ad-9621e5052361
+# ╔═╡ 919c96df-0675-4457-8fea-e533ed1eb264
 cm"""
 ---
 <div align="center">
@@ -23,10 +23,10 @@ cm"""
 
 <br/><br/>
 
-Лабораторна робота 4
+Лабораторна робота 6
 
 
-Прогнозування методом ковзного середнього
+Парна лінійна регресія в прогнозуванні соціально-економічних процесів
 
 
 Варіант 20
@@ -56,66 +56,80 @@ cm"""
 ---
 """
 
-# ╔═╡ 277c9eac-69ee-46d4-8400-b48a2c3ca343
+# ╔═╡ b8eaadeb-86fb-4692-be4d-21ef3b8a304a
 cm"""
 
 #### В роботі використано мову Julia та її пакети
 
 """
 
-# ╔═╡ 89626688-518c-4828-a140-f96df6b70c5d
-csv = CSV.File("data.csv"; select=["year", "total"], types=Dict(:year => Date));
+# ╔═╡ eebfbc9f-96aa-4bd6-9af9-45f4feec4c9a
+csv = CSV.File("data6.csv"; select=["prod", "fond"], types=Dict(:prod => Float64, :fond => Float64));
 
-# ╔═╡ cc783f42-f791-4d25-a1b0-5c92c2146b9b
+# ╔═╡ 91960780-9e1e-4439-a11f-574e5b2ceea4
 df = csv |> DataFrame
 
-# ╔═╡ 82abbbf1-9f6a-458a-908e-29dea042e327
+# ╔═╡ 23cd16cd-9df6-4b34-93b3-32e2658afe8b
+x = df[!, "fond"][1:20]
+
+# ╔═╡ 64135cf2-d7e6-45a7-9d7d-1782d836afff
+y = df[!, "prod"][1:20]
+
+# ╔═╡ 3f573a40-2690-4f8e-a962-c49d613f2088
+scatter(x, y, label=nothing, xlabel="Фондомісткість", ylabel="Продуктивності праці")
+
+# ╔═╡ 1daaca84-70e2-4bb4-b5b9-24df5b75110d
+cor(x, y)
+
+# ╔═╡ 531fae40-abb3-44e4-bad3-a91d61f4bbad
+model = lm(x[:,:], y);
+
+# ╔═╡ c83e1783-fa9e-495a-bc16-6e07da3b2dc0
+model
+
+# ╔═╡ ab9a79ce-cfa5-4113-8239-2c622ddac713
+R² = r2(model)
+
+# ╔═╡ f7571a25-c0b1-4fe4-8063-0b8568ede2c4
+round.(stderror(model), digits=5)
+
+# ╔═╡ 9ee6b0ed-1ff4-43b3-9b6d-bc3a3101594c
+round.(predict(model), digits=5)
+
+# ╔═╡ 6e8e6b51-e0be-4b7b-a9c8-1be06acfe7b3
+round.(coef(model), digits=5)
+
+# ╔═╡ 047d2f88-6155-4a39-a93a-239dade60294
+begin
+	scatter(x, y, label=nothing, xlabel="Фондомісткість", ylabel="Продуктивності праці")
+	a = round(coef(model)[1], digits = 4)
+	plot!(x -> x*coef(model)[1], label="y~$(a)x")
+end
+
+# ╔═╡ ee094525-f51f-442f-9cce-3fcc7ef28f01
+xf = df[!, "fond"][21:24]
+
+# ╔═╡ b0dd2c24-36a1-4427-802d-60e8aaf4d6e5
+cm"""
+
+#### Прогноз
+
+"""
+
+# ╔═╡ ef3c065a-8835-4ea8-bdd0-abcc8aae31c7
+yf = [x*coef(model)[1] for x in xf]
+
+# ╔═╡ d881c3d9-827f-4dfc-9828-c5e260e26a2a
 cm"""
 
 ### Висновок
 
-Для складання прогнозу краще використовувати модель ковзного середнього із 2-річним інтервалом, де менша похибка
+Отриманий коефіцент лінійної регресії 1.6755. Вільний член дорівнює 0.
+Значення p-value показує, що коефіцент має значимість. 
+Довірчій інтервал [1.61568 1.73532].
+Коефіцент детермінації високий 0.5514.
 
 """
-
-# ╔═╡ 09e16707-ed42-4742-a683-d3c9b929fe1e
-function rmse(abs_err)
-    rmse = sqrt(mean(abs_err .* abs_err))
-    return rmse
-end
-
-# ╔═╡ 7b9c7b91-b7fc-40ef-b2f8-7ce60a4b16f8
-res = let
-	source = df[!, :total]
-	ks = 2:5
-	k = []
-	for i in ks
-		push!(k,sma(source, n=i))
-	end
-	
-	fig = plot(source, label="source", title="Simple Moving Average")
-	j = 1
-	for i in ks
-		plot!(k[j], label="k=$i")
-		j += 1
-	end
-	
-	out = "RMSE:\n"
-	j = 1
-	for i in ks
-		r = rmse(abs.(source[i:end] .- k[j][i:end]))
-		out = out * "k = $i : $(round(r, digits=4))\n"
-		j += 1
-	end
-	(fig, out, source, ks, k)
-end;
-
-
-# ╔═╡ dce0a1ae-ea52-461a-9bb6-9caaefa364c2
-res[1]
-
-# ╔═╡ 8e44ccbf-f5e8-4252-b18a-2d33b2fb0d51
-Text(res[2])
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -123,8 +137,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-Indicators = "70c4c096-89a6-5ec6-8236-da8aa3bd86fd"
+GLM = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
@@ -132,7 +145,7 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 CSV = "~0.10.4"
 CommonMark = "~0.8.6"
 DataFrames = "~1.4.1"
-Indicators = "~0.8.1"
+GLM = "~1.8.0"
 StatsPlots = "~0.15.4"
 """
 
@@ -181,6 +194,11 @@ version = "1.0.1"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.BitFlags]]
+git-tree-sha1 = "84259bb6172806304b9101094a7cc4bc6f56dbc6"
+uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
+version = "0.1.5"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -439,6 +457,12 @@ git-tree-sha1 = "d972031d28c8c8d9d7b41a536ad7bb0c2579caca"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.3.8+0"
 
+[[deps.GLM]]
+deps = ["Distributions", "LinearAlgebra", "Printf", "Reexport", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "StatsModels"]
+git-tree-sha1 = "039118892476c2bf045a43b88fcb75ed566000ff"
+uuid = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
+version = "1.8.0"
+
 [[deps.GR]]
 deps = ["Base64", "DelimitedFiles", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "Test", "UUIDs"]
 git-tree-sha1 = "cf7bf90e483228f6c988e474b420064e5351b892"
@@ -475,10 +499,10 @@ uuid = "42e2da0e-8278-4e71-bc24-59509adca0fe"
 version = "1.0.2"
 
 [[deps.HTTP]]
-deps = ["Base64", "Dates", "IniFile", "Logging", "MbedTLS", "NetworkOptions", "Sockets", "URIs"]
-git-tree-sha1 = "0fa77022fe4b511826b39c894c90daf5fce3334a"
+deps = ["Base64", "CodecZlib", "Dates", "IniFile", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
+git-tree-sha1 = "4abede886fcba15cd5fd041fef776b230d004cee"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "0.9.17"
+version = "1.4.0"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -491,12 +515,6 @@ deps = ["DualNumbers", "LinearAlgebra", "OpenLibm_jll", "SpecialFunctions", "Tes
 git-tree-sha1 = "709d864e3ed6e3545230601f94e11ebc65994641"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.11"
-
-[[deps.Indicators]]
-deps = ["Random", "Statistics", "Temporal", "Test"]
-git-tree-sha1 = "73eab01e7648446f1dac380ff1b7bf53625e4a0a"
-uuid = "70c4c096-89a6-5ec6-8236-da8aa3bd86fd"
-version = "0.8.1"
 
 [[deps.IniFile]]
 git-tree-sha1 = "f550e6e32074c939295eb5ea6de31849ac2c9625"
@@ -689,6 +707,12 @@ version = "0.3.18"
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
+[[deps.LoggingExtras]]
+deps = ["Dates", "Logging"]
+git-tree-sha1 = "5d4d2d9904227b8bd66386c1138cf4d5ffa826bf"
+uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
+version = "0.4.9"
+
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
 git-tree-sha1 = "41d162ae9c868218b1f3fe78cba878aa348c2d26"
@@ -778,6 +802,12 @@ uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
 
+[[deps.OpenSSL]]
+deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
+git-tree-sha1 = "ebe81469e9d7b471d7ddb611d9e147ea16de0add"
+uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
+version = "1.2.1"
+
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "e60321e3f2616584ff98f0a4f18d98ae6f89bbb3"
@@ -813,9 +843,9 @@ version = "0.11.16"
 
 [[deps.Parsers]]
 deps = ["Dates"]
-git-tree-sha1 = "3d5bf43e3e8b412656404ed9466f1dcbf7c50269"
+git-tree-sha1 = "595c0b811cf2bab8b0849a70d9bd6379cc1cfb52"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.4.0"
+version = "2.4.1"
 
 [[deps.Pipe]]
 git-tree-sha1 = "6842804e7867b115ca9de748a0cf6b364523c16d"
@@ -950,9 +980,9 @@ version = "1.1.1"
 
 [[deps.SentinelArrays]]
 deps = ["Dates", "Random"]
-git-tree-sha1 = "c0f56940fc967f3d5efed58ba829747af5f8b586"
+git-tree-sha1 = "efd23b378ea5f2db53a55ae53d3133de4e080aa9"
 uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
-version = "1.3.15"
+version = "1.3.16"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -961,11 +991,21 @@ uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 deps = ["Distributed", "Mmap", "Random", "Serialization"]
 uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
+[[deps.ShiftedArrays]]
+git-tree-sha1 = "503688b59397b3307443af35cd953a13e8005c16"
+uuid = "1277b4bf-5013-50f5-be3d-901d8477a67a"
+version = "2.0.0"
+
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
 git-tree-sha1 = "91eddf657aca81df9ae6ceb20b959ae5653ad1de"
 uuid = "992d4aef-0814-514b-bc4d-f2e9a6c4116f"
 version = "1.0.3"
+
+[[deps.SimpleBufferStream]]
+git-tree-sha1 = "874e8867b33a00e784c8a7e4b60afe9e037b74e1"
+uuid = "777ac1f9-54b0-4bf8-805c-2214025038e7"
+version = "1.1.0"
 
 [[deps.SnoopPrecompile]]
 git-tree-sha1 = "f604441450a3c0569830946e5b33b78c928e1a85"
@@ -1024,6 +1064,12 @@ git-tree-sha1 = "5783b877201a82fc0014cbf381e7e6eb130473a4"
 uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 version = "1.0.1"
 
+[[deps.StatsModels]]
+deps = ["DataAPI", "DataStructures", "LinearAlgebra", "Printf", "REPL", "ShiftedArrays", "SparseArrays", "StatsBase", "StatsFuns", "Tables"]
+git-tree-sha1 = "a5e15f27abd2692ccb61a99e0854dfb7d48017db"
+uuid = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
+version = "0.6.33"
+
 [[deps.StatsPlots]]
 deps = ["AbstractFFTs", "Clustering", "DataStructures", "DataValues", "Distributions", "Interpolations", "KernelDensity", "LinearAlgebra", "MultivariateStats", "NaNMath", "Observables", "Plots", "RecipesBase", "RecipesPipeline", "Reexport", "StatsBase", "TableOperations", "Tables", "Widgets"]
 git-tree-sha1 = "e0d5bc26226ab1b7648278169858adcfbd861780"
@@ -1064,12 +1110,6 @@ version = "1.9.0"
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-
-[[deps.Temporal]]
-deps = ["Dates", "HTTP", "JSON", "Pkg", "Printf", "Random", "RecipesBase", "Statistics", "Test"]
-git-tree-sha1 = "7460d64abf6f204f2b100c92a055c3b89c5cc481"
-uuid = "a110ec8f-48c8-5d59-8f7e-f91bc4cc0c3d"
-version = "0.8.1"
 
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
@@ -1356,16 +1396,26 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─1e21396a-4714-11ed-0fb2-39200d1fb39c
-# ╟─20f18bd2-172d-457d-96ad-9621e5052361
-# ╟─277c9eac-69ee-46d4-8400-b48a2c3ca343
-# ╠═e8dfe1a0-0c0f-4bca-86a4-29ef819d6556
-# ╠═89626688-518c-4828-a140-f96df6b70c5d
-# ╠═cc783f42-f791-4d25-a1b0-5c92c2146b9b
-# ╠═7b9c7b91-b7fc-40ef-b2f8-7ce60a4b16f8
-# ╠═dce0a1ae-ea52-461a-9bb6-9caaefa364c2
-# ╠═8e44ccbf-f5e8-4252-b18a-2d33b2fb0d51
-# ╟─82abbbf1-9f6a-458a-908e-29dea042e327
-# ╠═09e16707-ed42-4742-a683-d3c9b929fe1e
+# ╟─ab9a2a96-493e-11ed-10df-9963f6aea1a0
+# ╟─919c96df-0675-4457-8fea-e533ed1eb264
+# ╠═b8eaadeb-86fb-4692-be4d-21ef3b8a304a
+# ╠═dc330679-8015-4519-b26e-8a055949de97
+# ╠═eebfbc9f-96aa-4bd6-9af9-45f4feec4c9a
+# ╠═91960780-9e1e-4439-a11f-574e5b2ceea4
+# ╠═23cd16cd-9df6-4b34-93b3-32e2658afe8b
+# ╠═64135cf2-d7e6-45a7-9d7d-1782d836afff
+# ╠═3f573a40-2690-4f8e-a962-c49d613f2088
+# ╠═1daaca84-70e2-4bb4-b5b9-24df5b75110d
+# ╠═531fae40-abb3-44e4-bad3-a91d61f4bbad
+# ╠═c83e1783-fa9e-495a-bc16-6e07da3b2dc0
+# ╠═ab9a79ce-cfa5-4113-8239-2c622ddac713
+# ╠═f7571a25-c0b1-4fe4-8063-0b8568ede2c4
+# ╠═9ee6b0ed-1ff4-43b3-9b6d-bc3a3101594c
+# ╠═6e8e6b51-e0be-4b7b-a9c8-1be06acfe7b3
+# ╠═047d2f88-6155-4a39-a93a-239dade60294
+# ╠═ee094525-f51f-442f-9cce-3fcc7ef28f01
+# ╟─b0dd2c24-36a1-4427-802d-60e8aaf4d6e5
+# ╠═ef3c065a-8835-4ea8-bdd0-abcc8aae31c7
+# ╟─d881c3d9-827f-4dfc-9828-c5e260e26a2a
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
