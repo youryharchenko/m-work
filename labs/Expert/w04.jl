@@ -29,9 +29,9 @@ cm"""
 
 <br/><br/>
 
-Лабораторна робота 3
+Лабораторна робота 4
 
-Семантична модель представлення знань
+Фреймова модель представлення знань
 
 </div>
 
@@ -84,37 +84,37 @@ end
 
 # ╔═╡ e454b1ca-6e3e-4058-bd4c-4065890ead78
 cm"""
-#### Семантична мережа ієрархії тварин
+#### Фреймова модель ієрархії тварин
 """
 
 # ╔═╡ a4fc4dfb-d387-4ff1-bc17-fd8dcf0cbbdc
 rules = HerbSWIPL.@julog [
-	isa(канарка, птах) <<= true,
-	isa(малинівка, птах) <<= true,
-	isa(страус, птах) <<= true,
-	isa(пінгвін, птах) <<= true,
-	isa(птах, тварина) <<= true,
-	isa(риба, тварина) <<= true,
-	isa(опус, пінгвін) <<= true,
-	isa(твіт, канарка) <<= true,
-	hasprop(твіт, кольоровий, білий) <<= true,
-	hasprop(малиновка, колір, червоний) <<= true,
-	hasprop(канарка, колір, жовтий) <<= true,
-	hasprop(твіт, колір, білий) <<= true,
-	hasprop(пінгвін, колір, коричневий) <<= true,
-	hasprop(птах, подорож, літати) <<= true,
-	hasprop(страус, подорож, ходити) <<= true,
-	hasprop(пінгвін, подорож, ходити) <<= true,
-	hasprop(риба, подорож, плавати) <<= true,
-	hasprop(малинівка, звук, спів) <<= true,
-	hasprop(канарка, звук, спів) <<= true,
-	hasprop(птах, покриття, перо) <<= true,
-	hasprop(тварина, покриття, шкіра) <<= true,
-	hasproperty(Object, Property, Value) <<=
-		hasprop(Object, Property, Value),
-	hasproperty(Object, Property, Value) <<=
-		isa(Object, Parent) &
-		hasproperty(Parent, Property, Value),
+	frame(name(bird),
+		isa(animal),
+		[travel(flies), feathers],
+		[ ]) <<= true,
+	frame(name(penguin),
+		isa(bird),
+		[color(brown)],
+		[travel(walks)]) <<= true,
+	frame(name(canary),
+		isa(bird),
+		[color(yellow), call(sing)],
+		[size(small)]) <<= true,
+	frame(name(tweety),
+		isa(canary),
+		[ ],
+		[color(white)]) <<= true,
+	get(Prop, Object) <<=
+		frame(name(Object), _, List_of_properties, _) &
+		member(Prop, List_of_properties),
+	get(Prop, Object) <<=
+		frame(name(Object), _, _, List_of_defaults) &
+		member(Prop, List_of_defaults),
+	get(Prop, Object) <<=
+		frame(name(Object), isa(Parent), _, _) &
+		get(Prop, Parent),
+	
 ]
 
 # ╔═╡ 53a18b1d-43d7-4d63-bd58-9476f624530d
@@ -129,62 +129,62 @@ end
 
 # ╔═╡ e8de56da-bed6-44cd-a6df-680f2fa8b0a1
 cm"""
-#### Запити до семантичної мережі
+#### Запити до системи фреймів
 """
 
 # ╔═╡ 73413d37-7975-47c7-9f63-ffe0fa514d39
 cm"""
-#### Які є види птахів?
+#### Птахи літають?
 """
 
 # ╔═╡ 92bf58f5-e8db-416c-8d7a-7738ebf1347a
 ask(prolog, 
-	HerbSWIPL.@julog(isa(X, птах)),
+	HerbSWIPL.@julog(get(travel(flies), bird)),
+	rules
+)
+
+# ╔═╡ 0b0236c3-cc54-4e8c-b296-93abed91e6bd
+cm"""
+#### Канарка літає?
+"""
+
+# ╔═╡ 58af9c8b-068a-4c09-9de5-173f1e9a19c7
+ask(prolog, 
+	HerbSWIPL.@julog(get(travel(flies), canary)),
 	rules
 )
 
 # ╔═╡ 14eac272-5085-4545-96e7-f6c7ebcc9d35
 cm"""
-#### Хто ходить?
+#### Пінгвін ходить?
 """
 
 # ╔═╡ 758ec793-30ab-481b-a7f2-86c179675d13
 ask(prolog, 
-	HerbSWIPL.@julog(hasproperty(X, подорож, ходити)),
+	HerbSWIPL.@julog(get(travel(walks), penguin)),
 	rules
 )
 
-# ╔═╡ 51963453-9be8-45c8-94ff-b2b65fcdcad3
+# ╔═╡ 7422ee2d-6a7d-4ae3-a09e-0d0ab3d2ec79
 cm"""
-#### Хто вкритий пір'ям?
+#### Канарка ходить?
 """
 
-# ╔═╡ b5db8c5b-d6da-4a62-9c95-15038da5f61a
+# ╔═╡ 589af0b5-be2e-48d8-9b1f-31a936345054
 ask(prolog, 
-	HerbSWIPL.@julog(hasproperty(X, покриття, перо)),
-	rules
-)
-
-# ╔═╡ a887a5e9-5623-4053-b78b-e305bc6a5757
-cm"""
-#### Хто співає?
-"""
-
-# ╔═╡ ad464148-8830-4c7b-830a-402ccb54d2e1
-ask(prolog, 
-	HerbSWIPL.@julog(hasproperty(X, звук, спів)),
+	HerbSWIPL.@julog(get(travel(walks), canary)),
 	rules
 )
 
 # ╔═╡ bd5fef63-36ab-44a9-9392-c45f00a3f3c6
 cm"""
-#### Висновок. За допомогою мови Julia та системи логічного програмування SWI-Prolog можливо представити семантичну мережу та робити до неї запити
+#### Висновок. За допомогою мови Julia та системи логічного програмування SWI-Prolog можливо представити фреймову модель та робити до неї запити
 """
 
 # ╔═╡ Cell order:
 # ╟─4490c1a4-59e0-11ed-2db6-e7129cee06c8
 # ╟─35958426-1bfe-4ead-b8de-66afd8c72b15
-# ╠═cfd6d5d4-eb95-4876-96a2-66af391ad27f
+# ╟─cfd6d5d4-eb95-4876-96a2-66af391ad27f
 # ╠═36a5bf8a-fb1b-48b6-a528-28b99d6e540b
 # ╠═fbbea5a6-17d1-4fd8-8ac5-3f9c6b58e721
 # ╠═f433bd64-7cf4-4381-af03-c7c18107886c
@@ -198,10 +198,10 @@ cm"""
 # ╟─e8de56da-bed6-44cd-a6df-680f2fa8b0a1
 # ╟─73413d37-7975-47c7-9f63-ffe0fa514d39
 # ╠═92bf58f5-e8db-416c-8d7a-7738ebf1347a
+# ╟─0b0236c3-cc54-4e8c-b296-93abed91e6bd
+# ╠═58af9c8b-068a-4c09-9de5-173f1e9a19c7
 # ╟─14eac272-5085-4545-96e7-f6c7ebcc9d35
 # ╠═758ec793-30ab-481b-a7f2-86c179675d13
-# ╟─51963453-9be8-45c8-94ff-b2b65fcdcad3
-# ╠═b5db8c5b-d6da-4a62-9c95-15038da5f61a
-# ╟─a887a5e9-5623-4053-b78b-e305bc6a5757
-# ╠═ad464148-8830-4c7b-830a-402ccb54d2e1
+# ╟─7422ee2d-6a7d-4ae3-a09e-0d0ab3d2ec79
+# ╠═589af0b5-be2e-48d8-9b1f-31a936345054
 # ╟─bd5fef63-36ab-44a9-9392-c45f00a3f3c6

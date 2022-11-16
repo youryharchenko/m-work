@@ -22,6 +22,13 @@ using HerbSWIPL
 # ╔═╡ c1de69a1-0b2b-4d2b-95cf-f325e100c85f
 cm"""
 ---
+
+<style>
+@media print {
+    .pagebreak { page-break-before: always; } /* page-break-after works, as well */
+}
+</style>
+
 <div align="center">
 
 Національний університет біоресурсів і природокористування України
@@ -51,6 +58,7 @@ cm"""
 </div>
 
 <br/><br/>
+<br/><br/>
 
 <div align="center">
 
@@ -58,11 +66,20 @@ cm"""
 
 </div>
 
+
+
+
+
+
+
+
 ---
+
 """
 
 # ╔═╡ 2762d0ba-10e0-4a9e-9f32-2f1937b98db6
 cm"""
+<div class="pagebreak"> </div>
 
 #### В роботі використано мову Julia та її пакети, а також SWI-Prolog
 
@@ -270,4 +287,4 @@ cm"""
 # ╠═d996f719-57c5-465f-bac9-fc25df56e8df
 # ╟─9b9211c2-92b2-4c57-bede-d44628497eaf
 # ╠═37072af2-0fc7-477b-a6ce-f21e92df4a27
-# ╟─ca9181fb-e5b1-4405-8d2e-ae79054b11da
+# ╠═ca9181fb-e5b1-4405-8d2e-ae79054b11da
