@@ -195,7 +195,7 @@ rows = [sample[1] for sample in samples]
 labels = [sample[2] for sample in samples]
 
 # ╔═╡ ace0cf9f-5ecd-4d97-9c54-bb4413ab4bb3
-preds = predictbatch(task2, model2, rows; context = Validation())
+preds = predictbatch(task2, model2, rows)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1662,9 +1662,9 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 
 [[deps.protoc_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "57608ab80c2c34032b89ff149495310791890aac"
+git-tree-sha1 = "72308afa0aa106884e4e46aef64dfccb4071be66"
 uuid = "c7845625-083e-5bbe-8504-b32d602b7110"
-version = "3.21.4+0"
+version = "3.21.4+1"
 """
 
 # ╔═╡ Cell order:

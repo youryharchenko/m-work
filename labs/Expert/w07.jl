@@ -4,82 +4,193 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ c5097cfc-64e6-11ed-36bb-0f602eef1d89
-using Flux, Statistics
+# ╔═╡ 9f9fbce5-b5f8-43e0-9e15-3a23cb4b5f6e
+using CommonMark
 
-# ╔═╡ d5218af0-1354-4f80-abc0-29b2c5ad91a6
-using Plots
+# ╔═╡ 9492d8f0-6709-11ed-0b4a-5ff5854d181d
+using Flux, Statistics, Plots
 
-# ╔═╡ 38e1b868-9ed9-4ff1-9d72-e9087301c496
-noisy = rand(Float32, 2, 1000)  
+# ╔═╡ 29123160-4226-4ed0-9e34-200902f3dd79
+cm"""
+---
+<div align="center">
 
-# ╔═╡ de8bdd71-acc3-4499-835f-9146748cc417
-noisy .> 0.5
+Національний університет біоресурсів і природокористування України
 
-# ╔═╡ ba4466d2-510c-4bdc-aef1-d80baec6d6aa
+Факультет інформаційних технологій
+
+Кафедра комп'ютерних наук
+
+<br/><br/>
+
+Лабораторна робота 7
+
+Багатошаровий персептрон із прихованим шаром 
+
+</div>
+
+<br/><br/>
+
+<div align="right">
+
+Виконав
+
+Студент групи ІУСТ-22001м
+
+Харченко Юрій
+
+</div>
+
+<br/><br/>
+
+<div align="center">
+
+Київ – 2022
+
+</div>
+
+---
+"""
+
+# ╔═╡ a99449b9-ffeb-41d8-af16-0249b67b0b7b
+cm"""
+### Персептрон і проблема XOR (Minsky & Papert, 1969). 
+
+Демонстрація подолання обмеження одношарового персептрона через використання багатошарового персептрона і правила навчання зворотнім поширенням. Багатошаровий персептрон із прихованим шаром вирішує проблему XOR.
+
+"""
+
+# ╔═╡ c0a24183-a356-4744-a5bb-17c309ef8069
+cm"""
+##### В роботі використано мову Julia та її пакети
+"""
+
+# ╔═╡ a18cf179-3aff-451e-84f9-1386afe4e864
+cm"""
+#### Генеруємо дані для задачі XOR: вектори випадкових чисел [0; 1] довжини 2 як стовпці матриці
+"""
+
+# ╔═╡ 3f07feef-bd98-480b-8034-fce68d6df918
+noisy = rand(Float32, 2, 1000)
+
+# ╔═╡ 3258b5e7-2a00-42b8-af1d-c9836b3a1a73
+cm"""
+#### Розрахуємо бульовий вектор як результат оперції XOR над результатом поріняння елеметів стовпця з 0.5 (якщо обидва елементи одночасно більше чи менше 0.5, то false, інакше - true)
+"""
+
+# ╔═╡ 36259f1a-6c04-4009-88cc-7bcf528b077b
 truth = map(col -> xor(col...), eachcol(noisy .> 0.5))
 
-# ╔═╡ 46835068-bd47-4d21-aad2-72e686fe4db4
+# ╔═╡ 5864cfc9-a2cc-4a56-8d31-d51f958d1ce2
+cm"""
+#### Зобразимо дані та результати XOR (світлі - true, темні - false)
+"""
+
+# ╔═╡ 7eac3245-3cf0-4031-bebd-70f0f1885b7b
+scatter(noisy[1,:], noisy[2,:], zcolor=truth, title="Фактична класифікація", legend=false)
+
+# ╔═╡ fd0d2af1-ab17-42a8-b3f6-44f5b5b1dcb6
+cm"""
+#### Побудуємо модель 3-шарового персептрону з одним прихованим шаром 
+"""
+
+# ╔═╡ 03a59cd0-45fd-418b-9fe1-e46e5fcab1ff
 model = Chain(Dense(2 => 3, tanh), BatchNorm(3), Dense(3 => 2), softmax)
 
-# ╔═╡ 596182f5-339a-4cfa-ae84-6ad2f32a5ac7
-out1 = model(noisy) 
+# ╔═╡ 3fa5ff36-72c4-4994-aba9-c3675d186d29
+cm"""
+#### Використаємо побудовану модель (нетреновану) для прогнозу операці XOR
+"""
 
-# ╔═╡ 5fbbcb91-6171-4323-9121-82bc71413d8b
-mat = Flux.onehotbatch(truth, [true, false])
+# ╔═╡ 40a23b34-8fd6-4eee-aa31-0f455df8f6f0
+out_a = model(noisy) 
 
-# ╔═╡ c0a90361-b754-47c4-a418-ffa1b6a03647
-data = Flux.DataLoader((noisy, mat), batchsize=64, shuffle=true)
+# ╔═╡ 7f142c3c-531c-45ab-ab1b-e62e9f9b9719
+cm"""
+#### Так виглядають результати нетренованої моделі
+"""
 
-# ╔═╡ b28a1d15-5326-48dd-83a1-dbf6a6f76deb
-first(data) .|> summary
+# ╔═╡ e96d18f2-c1be-44dc-a4d9-4bb48d54e2a3
+scatter(noisy[1,:], noisy[2,:], zcolor=out_a[1,:], title="Нетренована модель", label="", clims=(0,1))
 
-# ╔═╡ eb33150e-81c1-4206-b06e-ebc6d711a59a
-pars = Flux.params(model)
+# ╔═╡ 75d11c4c-a446-40df-89aa-860ed2277355
+ cm"""
+#### Для навчання моделі ми використаємо партії з 64 зразків
+"""
 
-# ╔═╡ 6170d722-cfb4-4efc-9c25-aa11fbcedf39
-opt = Flux.Adam(0.01) 
+# ╔═╡ 6ba180f6-2cb8-4b9d-aa40-3265830f884f
+begin
+	mat = Flux.onehotbatch(truth, [true, false])
+	data = Flux.DataLoader((noisy, mat), batchsize=64, shuffle=true)
+end
 
-# ╔═╡ f79087fc-6825-4c39-bea1-2712c2b81f7c
+# ╔═╡ 14245fbc-9370-4390-b0cf-6d6606d88918
+cm"""
+#### Налаштуємо параметри тренування
+"""
+
+# ╔═╡ ad0fa4e8-8aaf-40c9-9f00-2a5f00a162fe
+begin
+	pars = Flux.params(model)
+	opt = Flux.Adam(0.01) 
+end
+
+# ╔═╡ 11d81efe-7179-47d3-bd00-2a3776a70817
+cm"""
+#### Виконаємо цикл тренування моделі
+"""
+
+# ╔═╡ 99dd04fa-f562-4c1e-99be-d413fe9bc21b
+# ╠═╡ show_logs = false
 for epoch in 1:1_000
     Flux.train!(pars, data, opt) do x, y
-        # First argument of train! is a loss function, here defined by a `do` block.
-        # This gets x and y, each a 2×64 Matrix, from data, and compares:
         Flux.crossentropy(model(x), y)
     end
 end
 
-# ╔═╡ 044c4e18-81be-4c48-909d-bbe2e67f1157
-pars
+# ╔═╡ ea3bb391-df2f-49fb-ac11-727175e2d889
+cm"""
+#### Використаємо треновану модель для прогнозу операці XOR
+"""
 
-# ╔═╡ fb600a98-8f92-4647-a230-ca9ba26f1524
-opt
+# ╔═╡ 048c2cc2-7e43-4c98-be3b-38a09789e7fb
+out_p = model(noisy)
 
-# ╔═╡ 56ddd83a-f5da-4af9-b384-12fb952e6218
-out2 = model(noisy)
+# ╔═╡ 4e2d677d-b8f9-4392-81a4-e1d9b0946557
+cm"""
+#### Точність моделі
+"""
 
-# ╔═╡ dae9f532-431f-47a2-9f45-2e33c0f558af
-mean((out2[1,:] .> 0.5) .== truth)
+# ╔═╡ 2a52f7f1-fd93-4b93-8037-29e9fc6c6ad8
+mean((out_p[1,:] .> 0.5) .== truth)
 
-# ╔═╡ cbf1ef12-1837-488a-b1ad-5f58b22ff783
-scatter(noisy[1,:], noisy[2,:], zcolor=truth, title="True classification", legend=false)
+# ╔═╡ e6604266-8aff-45d2-8da3-76b75d273577
+cm"""
+#### Результати тренованої моделі
+"""
 
-# ╔═╡ ef5be8fa-3dd7-4dcb-ab26-4153147d9bcd
-scatter(noisy[1,:], noisy[2,:], zcolor=out1[1,:], title="Untrained network", label="", clims=(0,1))
+# ╔═╡ 31bf589a-2153-420a-b76b-eb230d4b6449
+scatter(noisy[1,:], noisy[2,:], zcolor=out_p[1,:], title="Тренована модель", label="", clims=(0,1))
 
-# ╔═╡ 6ca0e08d-a1cf-4b48-a347-acfb03f31483
-scatter(noisy[1,:], noisy[2,:], zcolor=out2[1,:], title="Trained network", legend=false)
+# ╔═╡ 35441c4a-8587-436c-8564-4d9ea11de312
+cm"""
+#### Висновки.
+
+Мова Julia та її пакет Flux дали можливість побудувати 3-шаровий персептрон та підвердити, що використання багатошарового персептрона і правила навчання зворотнім поширенням дозволяє вирішити проблему поставлену Мінським і Папертом у 1969.
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
+CommonMark = "~0.8.7"
 Flux = "~0.13.7"
-Plots = "~1.36.1"
+Plots = "~1.36.2"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -117,9 +228,9 @@ uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 
 [[deps.ArrayInterface]]
 deps = ["ArrayInterfaceCore", "Compat", "IfElse", "LinearAlgebra", "Static"]
-git-tree-sha1 = "d6173480145eb632d6571c148d94b9d3d773820e"
+git-tree-sha1 = "6d0918cb9c0d3db7fe56bea2bc8638fc4014ac35"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "6.0.23"
+version = "6.0.24"
 
 [[deps.ArrayInterfaceCore]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
@@ -226,6 +337,12 @@ git-tree-sha1 = "417b0ed7b8b838aa6ca0a87aadf1bb9eb111ce40"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.8"
 
+[[deps.CommonMark]]
+deps = ["Crayons", "JSON", "URIs"]
+git-tree-sha1 = "86cce6fd164c26bad346cc51ca736e692c9f553c"
+uuid = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
+version = "0.8.7"
+
 [[deps.CommonSubexpressions]]
 deps = ["MacroTools", "Test"]
 git-tree-sha1 = "7b8a93dba8af7e3b42fecabf646260105ac373f7"
@@ -233,10 +350,10 @@ uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
 version = "0.3.0"
 
 [[deps.Compat]]
-deps = ["Dates", "LinearAlgebra", "UUIDs"]
-git-tree-sha1 = "3ca828fe1b75fa84b021a7860bd039eaea84d2f2"
+deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
+git-tree-sha1 = "78bee250c6826e1cf805a88b7f1e86025275d208"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.3.0"
+version = "3.46.0"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -263,6 +380,11 @@ version = "0.1.3"
 git-tree-sha1 = "d05d9e7b7aedff4e5b51a029dced05cfb6125781"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
 version = "0.6.2"
+
+[[deps.Crayons]]
+git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
+uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
+version = "4.1.1"
 
 [[deps.DataAPI]]
 git-tree-sha1 = "e08915633fcb3ea83bf9d6126292e5bc5c739922"
@@ -487,9 +609,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "Dates", "IniFile", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "0c0e8d05fdd5e9792b31b7c7841f11a2ff8ad633"
+git-tree-sha1 = "e1acc37ed078d99a714ed8376446f92a5535ca65"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.5.4"
+version = "1.5.5"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -700,9 +822,9 @@ uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.0.0"
 
 [[deps.MLStyle]]
-git-tree-sha1 = "43f9be9c281179fe44205e2dc19f22e71e022d41"
+git-tree-sha1 = "060ef7956fef2dc06b0e63b294f7dbfbcbdc7ea2"
 uuid = "d8e11817-5142-5d16-987a-aa16d5891078"
-version = "0.4.15"
+version = "0.4.16"
 
 [[deps.MLUtils]]
 deps = ["ChainRulesCore", "DelimitedFiles", "FLoops", "FoldsThreads", "Random", "ShowCases", "Statistics", "StatsBase", "Transducers"]
@@ -802,9 +924,9 @@ uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "5628f092c6186a80484bfefdf89ff64efdaec552"
+git-tree-sha1 = "df6830e37943c7aaa10023471ca47fb3065cc3c4"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.3.1"
+version = "1.3.2"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -841,9 +963,9 @@ uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
 
 [[deps.Parsers]]
 deps = ["Dates", "SnoopPrecompile"]
-git-tree-sha1 = "cceb0257b662528ecdf0b4b4302eb00e767b38e7"
+git-tree-sha1 = "b64719e8b4504983c7fca6cc9db3ebc8acc2a4d6"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.5.0"
+version = "2.5.1"
 
 [[deps.Pipe]]
 git-tree-sha1 = "6842804e7867b115ca9de748a0cf6b364523c16d"
@@ -874,9 +996,9 @@ version = "1.3.1"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SnoopPrecompile", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "Unzip"]
-git-tree-sha1 = "47e70b391ff314cc36e7c2400f7d2c5455dc9496"
+git-tree-sha1 = "5955a002262c08ab155ed2a6f1bb0787fedf5939"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.36.1"
+version = "1.36.2"
 
 [[deps.Preferences]]
 deps = ["TOML"]
@@ -939,9 +1061,9 @@ version = "1.3.1"
 
 [[deps.RecipesPipeline]]
 deps = ["Dates", "NaNMath", "PlotUtils", "RecipesBase", "SnoopPrecompile"]
-git-tree-sha1 = "a030182cccc5c461386c6f055c36ab8449ef1340"
+git-tree-sha1 = "e974477be88cb5e3040009f3767611bc6357846f"
 uuid = "01d81517-befc-4cb6-b9ec-a95719d0359c"
-version = "0.6.10"
+version = "0.6.11"
 
 [[deps.Reexport]]
 git-tree-sha1 = "45e428421666073eab6f2da5c9d310d99bb12f9b"
@@ -977,6 +1099,10 @@ deps = ["ConstructionBase", "Future", "MacroTools", "StaticArraysCore"]
 git-tree-sha1 = "e2cc6d8c88613c05e1defb55170bf5ff211fbeac"
 uuid = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 version = "1.1.1"
+
+[[deps.SharedArrays]]
+deps = ["Distributed", "Mmap", "Random", "Serialization"]
+uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [[deps.ShowCases]]
 git-tree-sha1 = "7f534ad62ab2bd48591bdeac81994ea8c445e4a5"
@@ -1026,15 +1152,15 @@ version = "0.1.15"
 
 [[deps.Static]]
 deps = ["IfElse"]
-git-tree-sha1 = "03170c1e8a94732c1d835ce4c5b904b4b52cba1c"
+git-tree-sha1 = "0559586098f3cbd2e835461254ea2fcffa4a61ba"
 uuid = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
-version = "0.7.8"
+version = "0.8.2"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "StaticArraysCore", "Statistics"]
-git-tree-sha1 = "f86b3a049e5d05227b10e15dbb315c5b90f14988"
+git-tree-sha1 = "4e051b85454b4e4f66e6a6b7bdc452ad9da3dcf6"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.5.9"
+version = "1.5.10"
 
 [[deps.StaticArraysCore]]
 git-tree-sha1 = "6b7ba252635a5eff6a0b0664a41ee140a1c9e72a"
@@ -1378,25 +1504,35 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═c5097cfc-64e6-11ed-36bb-0f602eef1d89
-# ╠═38e1b868-9ed9-4ff1-9d72-e9087301c496
-# ╠═de8bdd71-acc3-4499-835f-9146748cc417
-# ╠═ba4466d2-510c-4bdc-aef1-d80baec6d6aa
-# ╠═46835068-bd47-4d21-aad2-72e686fe4db4
-# ╠═596182f5-339a-4cfa-ae84-6ad2f32a5ac7
-# ╠═5fbbcb91-6171-4323-9121-82bc71413d8b
-# ╠═c0a90361-b754-47c4-a418-ffa1b6a03647
-# ╠═b28a1d15-5326-48dd-83a1-dbf6a6f76deb
-# ╠═eb33150e-81c1-4206-b06e-ebc6d711a59a
-# ╠═6170d722-cfb4-4efc-9c25-aa11fbcedf39
-# ╠═f79087fc-6825-4c39-bea1-2712c2b81f7c
-# ╠═044c4e18-81be-4c48-909d-bbe2e67f1157
-# ╠═fb600a98-8f92-4647-a230-ca9ba26f1524
-# ╠═56ddd83a-f5da-4af9-b384-12fb952e6218
-# ╠═dae9f532-431f-47a2-9f45-2e33c0f558af
-# ╠═d5218af0-1354-4f80-abc0-29b2c5ad91a6
-# ╠═cbf1ef12-1837-488a-b1ad-5f58b22ff783
-# ╠═ef5be8fa-3dd7-4dcb-ab26-4153147d9bcd
-# ╠═6ca0e08d-a1cf-4b48-a347-acfb03f31483
+# ╟─9f9fbce5-b5f8-43e0-9e15-3a23cb4b5f6e
+# ╟─29123160-4226-4ed0-9e34-200902f3dd79
+# ╟─a99449b9-ffeb-41d8-af16-0249b67b0b7b
+# ╟─c0a24183-a356-4744-a5bb-17c309ef8069
+# ╠═9492d8f0-6709-11ed-0b4a-5ff5854d181d
+# ╟─a18cf179-3aff-451e-84f9-1386afe4e864
+# ╠═3f07feef-bd98-480b-8034-fce68d6df918
+# ╟─3258b5e7-2a00-42b8-af1d-c9836b3a1a73
+# ╠═36259f1a-6c04-4009-88cc-7bcf528b077b
+# ╟─5864cfc9-a2cc-4a56-8d31-d51f958d1ce2
+# ╠═7eac3245-3cf0-4031-bebd-70f0f1885b7b
+# ╟─fd0d2af1-ab17-42a8-b3f6-44f5b5b1dcb6
+# ╠═03a59cd0-45fd-418b-9fe1-e46e5fcab1ff
+# ╟─3fa5ff36-72c4-4994-aba9-c3675d186d29
+# ╠═40a23b34-8fd6-4eee-aa31-0f455df8f6f0
+# ╟─7f142c3c-531c-45ab-ab1b-e62e9f9b9719
+# ╠═e96d18f2-c1be-44dc-a4d9-4bb48d54e2a3
+# ╟─75d11c4c-a446-40df-89aa-860ed2277355
+# ╠═6ba180f6-2cb8-4b9d-aa40-3265830f884f
+# ╟─14245fbc-9370-4390-b0cf-6d6606d88918
+# ╠═ad0fa4e8-8aaf-40c9-9f00-2a5f00a162fe
+# ╟─11d81efe-7179-47d3-bd00-2a3776a70817
+# ╠═99dd04fa-f562-4c1e-99be-d413fe9bc21b
+# ╟─ea3bb391-df2f-49fb-ac11-727175e2d889
+# ╠═048c2cc2-7e43-4c98-be3b-38a09789e7fb
+# ╟─4e2d677d-b8f9-4392-81a4-e1d9b0946557
+# ╠═2a52f7f1-fd93-4b93-8037-29e9fc6c6ad8
+# ╟─e6604266-8aff-45d2-8da3-76b75d273577
+# ╠═31bf589a-2153-420a-b76b-eb230d4b6449
+# ╟─35441c4a-8587-436c-8564-4d9ea11de312
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
