@@ -4,10 +4,10 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 6fbce466-6fae-11ed-32d7-efbe736d56ef
+# ╔═╡ ebdf79fe-70bb-11ed-1238-eb60f38082ec
 using SQLite, DBInterface, PlutoUI, CommonMark, TextAnalysis, Languages, DataFrames
 
-# ╔═╡ 924e25e6-ccf0-4e5a-a57e-e119051930bc
+# ╔═╡ d0fd59e4-d83d-4b18-8fd4-9781e171c3da
 cm"""
 ---
 
@@ -21,9 +21,9 @@ cm"""
 
 <br/><br/>
 
-Лабораторна робота 2
+Лабораторна робота 3
 
-Побудова сховища даних
+Заповнення сховища даних семантичної мережі
 
 </div>
 
@@ -50,251 +50,112 @@ cm"""
 
 """
 
-# ╔═╡ 5b74133a-2fc2-4dd1-b5cc-393197b3197f
+# ╔═╡ 829d12ee-d4cb-4555-b847-d0fa84b4f103
 cm"""
 #### В роботі використано мову Julia  [[1](https://julialang.org/)] та її пакети
 """
 
-# ╔═╡ a1c4f560-a988-4f2a-a3e4-f09c99416142
-TableOfContents()
+# ╔═╡ 54b57fcf-6f4d-4e9f-ac1d-a075a9f74507
+tables = [
+	(drop = true, create = true, file = "sql/create_C.sql", name = "C"),
+	(drop = true, create = true, file = "sql/create_R.sql", name = "R"),
+	(drop = true, create = true, file = "sql/create_A.sql", name = "A"),
+	(drop = true, create = true, file = "sql/create_V.sql", name = "V"),
+	(drop = true, create = true, file = "sql/create_RC.sql", name = "RC"),
+	(drop = true, create = true, file = "sql/create_AC.sql", name = "AC"),
+	(drop = true, create = true, file = "sql/create_AR.sql", name = "AR"),
+	(drop = true, create = true, file = "sql/create_ARC.sql", name = "ARC"),
+	(drop = true, create = true, file = "sql/create_O.sql", name = "O"),
+	(drop = true, create = true, file = "sql/create_CO.sql", name = "CO"),
+	(drop = true, create = true, file = "sql/create_ACO.sql", name = "ACO"),
+	(drop = true, create = true, file = "sql/create_RCO.sql", name = "RCO"),
+	(drop = true, create = true, file = "sql/create_ARCO.sql", name = "ARCO"),
+]
 
-# ╔═╡ 31e577cb-d486-4e47-aa9d-10ab9e735e35
-md"""
-## Створення бази даних семантичної мережі
-"""
-
-# ╔═╡ 25df4f66-238f-42ed-95e9-f3ea2fa7ffd8
+# ╔═╡ 7910d7c5-0741-4fc2-ab71-a37a4f63e366
 file = "semantic.sqlite"
 
-# ╔═╡ e65446e5-d882-4798-8a10-d59eed969279
-db = SQLite.DB(file)
-
-# ╔═╡ 2fe743ec-5d9d-499b-b8c8-f7ade9e38d5a
-
-
-# ╔═╡ f5705168-a7de-418b-8021-cecd77330a65
-tables = Dict(
-	:C => (drop = true, create = true, file = "sql/create_C.sql", name = "C"),
-	:R => (drop = true, create = true, file = "sql/create_R.sql", name = "R"),
-	:A => (drop = true, create = true, file = "sql/create_A.sql", name = "A"),
-	:V => (drop = true, create = true, file = "sql/create_V.sql", name = "V"),
-	:RC => (drop = true, create = true, file = "sql/create_RC.sql", name = "RC"),
-	:AC => (drop = true, create = true, file = "sql/create_AC.sql", name = "AC"),
-	:AR => (drop = true, create = true, file = "sql/create_AR.sql", name = "AR"),
-	:ARC => (drop = true, create = true, file = "sql/create_ARC.sql", name = "ARC"),
-	:O => (drop = true, create = true, file = "sql/create_O.sql", name = "O"),
-	:CO => (drop = true, create = true, file = "sql/create_CO.sql", name = "CO"),
-	:ACO => (drop = true, create = true, file = "sql/create_ACO.sql", name = "ACO"),
-	:RCO => (drop = true, create = true, file = "sql/create_RCO.sql", name = "RCO"),
-	:ARCO => (drop = true, create = true, file = "sql/create_ARCO.sql", name = "ARCO"),
-)
-
-# ╔═╡ 3c34a4cd-808e-47cb-96b9-56f053b3d8e0
-function create_table(ts::Symbol)
-	out = ""
-	t = tables[ts]
+# ╔═╡ d052f8bf-fd34-48dc-a19c-d634e74aa2bf
+function create_table(db, t)
+	o = ""
 	if t.drop
 		sql = "DROP TABLE IF EXISTS $(t.name)"
 		r = SQLite.execute(db, sql)
-		out = out * "executed:\n$sql\nresult: $r\n"
+		o = o * "executed:\n$sql\nresult: $r\n"
 	end
 	if t.create
 		sql = read(t.file, String)
 		r = SQLite.execute(db, sql)
-		out = out * "executed:\n$sql\nresult: $r\n"
+		o = o * "executed:\n$sql\nresult: $r\n"
 	end
-	out == "" ? Text("nothing executed") : Text(out)
+	o == "" ? "table: $t.name - nothing executed\n" : o
 end
 
-# ╔═╡ a6aab6d0-1655-418c-9c68-3e927000faac
-create_table(:C)
-
-# ╔═╡ a9e801b7-d661-4bec-aa70-84f07e557ef4
-create_table(:R)
-
-# ╔═╡ 40cd12ed-71c0-43ac-8055-5dc1a9b1b122
-create_table(:A)
-
-# ╔═╡ 65ee3348-b29d-4065-9862-038e777a4467
-create_table(:V)
-
-# ╔═╡ eca7b430-caf7-4d90-a8f5-7debd0c4b9f8
-create_table(:RC)
-
-# ╔═╡ c59217bf-95e3-4600-8087-ab7dccd10427
-create_table(:AC)
-
-# ╔═╡ da0a01d1-f6f2-48c5-ab98-53010e7169a5
-create_table(:AR)
-
-# ╔═╡ de014449-aa57-4bb4-91a1-daa6a735f0af
-create_table(:ARC)
-
-# ╔═╡ fb9b8f34-ea32-4d5a-852c-3c859acad6c0
-create_table(:O)
-
-# ╔═╡ 435de7a3-23b0-4ac3-8f3c-659001091cf0
-create_table(:CO)
-
-# ╔═╡ 89c6ae98-c466-4c26-8936-ba738182d1bd
-create_table(:ACO)
-
-# ╔═╡ a655c3a0-f151-4907-a3b5-6d8b7224effd
-create_table(:RCO)
-
-# ╔═╡ 2bc98c9e-0134-4641-891c-303da4e25d12
-create_table(:ARCO)
-
-# ╔═╡ 1fc50c5e-5e52-468a-af21-9475c56049c1
-md"""
-## Схема бази даних
-"""
-
-# ╔═╡ c4b58c32-535d-4800-bbeb-5562f925c5da
-LocalResource("db.png")
-
-# ╔═╡ c07eddcd-15d2-456b-a451-f8e3d6242f15
-md"""
-## Створення мета-даних
-"""
-
-# ╔═╡ 1dc3a01f-08f6-47f1-a9dd-e6cb60b0023c
-md"""
-### Атрибути
-"""
-
-# ╔═╡ 2faf7174-f2b6-41fb-9625-668d5631f02d
-A = let
-	df = DataFrame(
-		name = ["Назва", "Ім'я", "Номер"]
-	)
-	
-	for r in eachrow(df)
-		SQLite.execute(db, "INSERT OR IGNORE INTO A (name) VALUES(?)", [r.name])
+# ╔═╡ c1409952-da5f-4b80-a28e-a717d3e99fdd
+function create_kb(ts, file)
+	db = SQLite.DB(file)
+	out = ""
+	for t in ts
+		out = out * create_table(db, t)
 	end
-
-	DataFrame(DBInterface.execute(db, "SELECT * FROM A"))
-
-end
-	
-
-# ╔═╡ aa1ea5a4-7144-4b52-840c-fc55bca34090
-md"""
-### Категорії
-"""
-
-# ╔═╡ fd1ba072-58ff-454a-acd8-5b83f1ca10d4
-C = let
-	df = DataFrame(
-		name = ["Документ", "Автор", "Речення", "Слово"]
-	)
-	
-	for r in eachrow(df)
-		SQLite.execute(db, "INSERT OR IGNORE INTO C (name) VALUES(?)", [r.name])
-	end
-
-	DataFrame(DBInterface.execute(db, "SELECT * FROM C"))
-
+	(db, Text(out))
 end
 
-# ╔═╡ 3ed0749f-42b8-4966-b324-ac8225b169c3
-md"""
-### Відношення
-"""
+# ╔═╡ ac8b2fcc-723a-4e81-99f0-2ac2f2d273a5
+kb, out = create_kb(tables, file);
 
-# ╔═╡ e7d522c3-0b12-4cd1-bbc2-7f2be8e61dbf
-R = let
-	df = DataFrame(
-		name = ["є автором", "складається з"]
-	)
-	
-	for r in eachrow(df)
-		SQLite.execute(db, "INSERT OR IGNORE INTO R (name) VALUES(?)", [r.name])
-	end
+# ╔═╡ 48a1aed6-13bc-4e89-b4d7-b4f29da8c141
+pathname = "Лекція 1.txt"
 
-	DataFrame(DBInterface.execute(db, "SELECT * FROM R"))
+# ╔═╡ fd276cd8-1ce7-431d-8e88-7e3d0b9e2294
+l1 = StringDocument(text(FileDocument(pathname)))
 
+# ╔═╡ ab86f8cf-dde7-452c-b3d5-9ef1fdba6aa7
+TextAnalysis.remove_whitespace!(l1)
+
+# ╔═╡ f0ac46c9-3487-41ff-b84b-4bef00a0dd4a
+l1_sents = TextAnalysis.sentence_tokenize(Languages.Ukrainian(), text(l1))
+
+# ╔═╡ 191d1d5f-dc33-4613-a2f6-2d4b59532cc4
+DataFrame(text = l1_sents)
+
+# ╔═╡ a6321bad-cdcb-4848-b81a-c84ea1a013af
+l1_crps = Corpus([StringDocument(String(s)) for s in l1_sents])
+
+# ╔═╡ 166cc9a6-7a6a-4087-82f8-a4d6deb6fdf4
+languages!(l1_crps, Languages.Ukrainian())
+
+# ╔═╡ b5978aa3-b3b1-4dd3-8d8b-76ce9ec96ed4
+remove_case!(l1_crps)
+
+# ╔═╡ 38dcffdf-10e8-4ee9-867a-137e9a5b2075
+l1_sent_lcase = [text(d) for d in l1_crps]
+
+# ╔═╡ 78ba976e-9a0e-4cbd-8bed-89a7d97d8fa3
+
+
+# ╔═╡ 3d0d283c-36e2-4e9e-8c7a-c4094def901b
+DataFrame(text = l1_sent_lcase)
+
+# ╔═╡ 7b6a1ba7-49df-4b39-b851-1c97260ed3d8
+begin
+	prepare!(l1_crps, strip_punctuation | strip_numbers)
+	#remove_words!(l1_crps, ["на","і","що","в","до","не","для"])
+	update_lexicon!(l1_crps)
+	l1_lex = lexicon(l1_crps)
 end
 
-# ╔═╡ 122bdf07-ab49-406b-a4ec-5a2856661b23
-md"""
-### Відношення між категоріями
-"""
+# ╔═╡ eecd09c7-c3a5-4352-8865-2e71b1892b89
+sort(DataFrame(word = collect(keys(l1_lex)), count = collect(values(l1_lex))), [:count], rev=true )
 
-# ╔═╡ 71408c62-6615-4e78-9903-23d866efc326
-md"""
-## Факти
-"""
+# ╔═╡ 6bcf1726-61fe-42cd-a83a-13b7eea257db
+update_inverse_index!(l1_crps)
 
-# ╔═╡ 1a369e2d-38b0-4158-b5e9-6e64eef76152
-md"""
-### Об'єкти
-"""
+# ╔═╡ ac146e13-9488-46c1-b549-a3f3ed63a82c
+inverse_index(l1_crps)
 
-# ╔═╡ f282c3ac-0949-422d-b163-65123bb27b0e
-O = let
-	SQLite.execute(db, "INSERT OR IGNORE INTO O (name) VALUES(?)", 
-			["Голуб Б.Л."])
-	SQLite.execute(db, "INSERT OR IGNORE INTO O (name) VALUES(?)", 
-			["Лекція 1"])
-	
-	DataFrame(DBInterface.execute(db, "SELECT * FROM O"))
+# ╔═╡ f5f2fa38-8d37-4a64-a7c1-c7f55e4a20be
 
-end
-
-# ╔═╡ 72c39d74-cf08-4161-a970-17e6fecc0c99
-md"""
-### Об'єкти за категоріями
-"""
-
-# ╔═╡ f46cd4e9-c64e-479a-8b5d-313ea2ab361e
-function id(df, s)
-	df[only(findall(==(s), df.name)), :][:id]
-end
-
-# ╔═╡ a0e37810-2694-4e77-a95a-85906f393702
-RС = let
-	df = DataFrame(
-		cf = [id(C, "Автор"), id(C, "Документ"), id(C, "Речення")],
-		r = [id(R, "є автором"), id(R, "складається з"), id(R, "складається з")],
-		ct = [id(C, "Документ"), id(C, "Речення"), id(C, "Слово")],
-	)
-	
-	for r in eachrow(df)
-		SQLite.execute(db, "INSERT OR IGNORE INTO RC (cf, r, ct) VALUES(?, ?, ?)", 
-			[r.cf, r.r, r.ct])
-	end
-
-	DataFrame(DBInterface.execute(db, "SELECT * FROM RC"))
-
-end
-
-# ╔═╡ 908caf32-cba9-4014-8273-a318518b84b7
-CO = let
-	SQLite.execute(db, "INSERT OR IGNORE INTO CO (c, o) VALUES(?, ?)", 
-			[id(C, "Автор"), id(O, "Голуб Б.Л.")])
-	SQLite.execute(db, "INSERT OR IGNORE INTO CO (c, o) VALUES(?, ?)", 
-			[id(C, "Документ"), id(O, "Лекція 1")])
-	
-	DataFrame(DBInterface.execute(db, "SELECT * FROM CO"))
-
-end
-
-# ╔═╡ ec366737-8c77-4cb6-8b8f-8c5fe0f89c0f
-md"""
-## Висновки
-
-Створено базу даних семантичної мережі та введено первінні мета-дані. Наступним кроком передбачається завантаження речень та слів зі зв'язками.
-
-"""
-
-# ╔═╡ 78eb53e8-5432-48db-92e1-df72e1f87c80
-md"""
-## Використані джерела
-
-1. The Julia Programming Language - [https://julialang.org/](https://julialang.org/)
-
-"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -312,8 +173,8 @@ CommonMark = "~0.8.7"
 DBInterface = "~2.5.0"
 DataFrames = "~1.4.3"
 Languages = "~0.4.3"
-PlutoUI = "~0.7.48"
-SQLite = "~1.5.1"
+PlutoUI = "~0.7.49"
+SQLite = "~1.6.0"
 TextAnalysis = "~0.7.3"
 """
 
@@ -323,7 +184,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "0bf1ceac6073c313418638df663a457149299cbf"
+project_hash = "ea338d8680b56b58a834be51bebac17c0350be69"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -378,9 +239,9 @@ version = "0.8.7"
 
 [[deps.Compat]]
 deps = ["Dates", "LinearAlgebra", "UUIDs"]
-git-tree-sha1 = "aaabba4ce1b7f8a9b34c015053d3b1edf60fa49c"
+git-tree-sha1 = "00a2cccc7f098ff3b66806862d275ca3db9e6e5a"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.4.0"
+version = "4.5.0"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -669,9 +530,9 @@ version = "1.8.0"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "efc140104e6d0ae3e7e30d56c98c4a927154d684"
+git-tree-sha1 = "eadad7b14cf046de6eb41f13c9275e5aa2711ab6"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.48"
+version = "0.7.49"
 
 [[deps.PooledArrays]]
 deps = ["DataAPI", "Future"]
@@ -720,9 +581,9 @@ version = "0.7.0"
 
 [[deps.SQLite]]
 deps = ["DBInterface", "Random", "SQLite_jll", "Serialization", "Tables", "WeakRefStrings"]
-git-tree-sha1 = "deb6120aa0f510f45cfb3a0b733b0909ae8fb977"
+git-tree-sha1 = "eb9a473c9b191ced349d04efa612ec9f39c087ea"
 uuid = "0aa819cd-b072-5ff4-a722-6bc24af294d9"
-version = "1.5.1"
+version = "1.6.0"
 
 [[deps.SQLite_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Zlib_jll"]
@@ -884,47 +745,29 @@ version = "17.4.0+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─924e25e6-ccf0-4e5a-a57e-e119051930bc
-# ╠═5b74133a-2fc2-4dd1-b5cc-393197b3197f
-# ╠═6fbce466-6fae-11ed-32d7-efbe736d56ef
-# ╟─a1c4f560-a988-4f2a-a3e4-f09c99416142
-# ╟─31e577cb-d486-4e47-aa9d-10ab9e735e35
-# ╠═25df4f66-238f-42ed-95e9-f3ea2fa7ffd8
-# ╠═e65446e5-d882-4798-8a10-d59eed969279
-# ╠═2fe743ec-5d9d-499b-b8c8-f7ade9e38d5a
-# ╠═f5705168-a7de-418b-8021-cecd77330a65
-# ╠═3c34a4cd-808e-47cb-96b9-56f053b3d8e0
-# ╠═a6aab6d0-1655-418c-9c68-3e927000faac
-# ╠═a9e801b7-d661-4bec-aa70-84f07e557ef4
-# ╠═40cd12ed-71c0-43ac-8055-5dc1a9b1b122
-# ╠═65ee3348-b29d-4065-9862-038e777a4467
-# ╠═eca7b430-caf7-4d90-a8f5-7debd0c4b9f8
-# ╠═c59217bf-95e3-4600-8087-ab7dccd10427
-# ╠═da0a01d1-f6f2-48c5-ab98-53010e7169a5
-# ╠═de014449-aa57-4bb4-91a1-daa6a735f0af
-# ╠═fb9b8f34-ea32-4d5a-852c-3c859acad6c0
-# ╠═435de7a3-23b0-4ac3-8f3c-659001091cf0
-# ╠═89c6ae98-c466-4c26-8936-ba738182d1bd
-# ╠═a655c3a0-f151-4907-a3b5-6d8b7224effd
-# ╠═2bc98c9e-0134-4641-891c-303da4e25d12
-# ╟─1fc50c5e-5e52-468a-af21-9475c56049c1
-# ╠═c4b58c32-535d-4800-bbeb-5562f925c5da
-# ╟─c07eddcd-15d2-456b-a451-f8e3d6242f15
-# ╟─1dc3a01f-08f6-47f1-a9dd-e6cb60b0023c
-# ╠═2faf7174-f2b6-41fb-9625-668d5631f02d
-# ╟─aa1ea5a4-7144-4b52-840c-fc55bca34090
-# ╠═fd1ba072-58ff-454a-acd8-5b83f1ca10d4
-# ╟─3ed0749f-42b8-4966-b324-ac8225b169c3
-# ╠═e7d522c3-0b12-4cd1-bbc2-7f2be8e61dbf
-# ╟─122bdf07-ab49-406b-a4ec-5a2856661b23
-# ╠═a0e37810-2694-4e77-a95a-85906f393702
-# ╟─71408c62-6615-4e78-9903-23d866efc326
-# ╟─1a369e2d-38b0-4158-b5e9-6e64eef76152
-# ╠═f282c3ac-0949-422d-b163-65123bb27b0e
-# ╟─72c39d74-cf08-4161-a970-17e6fecc0c99
-# ╠═908caf32-cba9-4014-8273-a318518b84b7
-# ╠═f46cd4e9-c64e-479a-8b5d-313ea2ab361e
-# ╟─ec366737-8c77-4cb6-8b8f-8c5fe0f89c0f
-# ╟─78eb53e8-5432-48db-92e1-df72e1f87c80
+# ╟─d0fd59e4-d83d-4b18-8fd4-9781e171c3da
+# ╟─829d12ee-d4cb-4555-b847-d0fa84b4f103
+# ╠═ebdf79fe-70bb-11ed-1238-eb60f38082ec
+# ╠═54b57fcf-6f4d-4e9f-ac1d-a075a9f74507
+# ╠═7910d7c5-0741-4fc2-ab71-a37a4f63e366
+# ╠═c1409952-da5f-4b80-a28e-a717d3e99fdd
+# ╠═d052f8bf-fd34-48dc-a19c-d634e74aa2bf
+# ╠═ac8b2fcc-723a-4e81-99f0-2ac2f2d273a5
+# ╠═48a1aed6-13bc-4e89-b4d7-b4f29da8c141
+# ╠═fd276cd8-1ce7-431d-8e88-7e3d0b9e2294
+# ╠═ab86f8cf-dde7-452c-b3d5-9ef1fdba6aa7
+# ╠═f0ac46c9-3487-41ff-b84b-4bef00a0dd4a
+# ╠═191d1d5f-dc33-4613-a2f6-2d4b59532cc4
+# ╠═a6321bad-cdcb-4848-b81a-c84ea1a013af
+# ╠═166cc9a6-7a6a-4087-82f8-a4d6deb6fdf4
+# ╠═b5978aa3-b3b1-4dd3-8d8b-76ce9ec96ed4
+# ╠═38dcffdf-10e8-4ee9-867a-137e9a5b2075
+# ╠═78ba976e-9a0e-4cbd-8bed-89a7d97d8fa3
+# ╠═3d0d283c-36e2-4e9e-8c7a-c4094def901b
+# ╠═7b6a1ba7-49df-4b39-b851-1c97260ed3d8
+# ╠═eecd09c7-c3a5-4352-8865-2e71b1892b89
+# ╠═6bcf1726-61fe-42cd-a83a-13b7eea257db
+# ╟─ac146e13-9488-46c1-b549-a3f3ed63a82c
+# ╠═f5f2fa38-8d37-4a64-a7c1-c7f55e4a20be
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
