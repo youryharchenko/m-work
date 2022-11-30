@@ -163,7 +163,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "70766b4fd54d420a6a0480e9e975f42d84503543"
+project_hash = "25a880238abbcd6efedc1ca67007db53e56aa2e8"
 
 [[deps.Julog]]
 git-tree-sha1 = "191e4f6de2ddf2dc60d5d90c412d066814f1655b"

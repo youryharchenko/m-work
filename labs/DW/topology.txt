@@ -1,0 +1,44 @@
+@startuml
+
+package "Input" {
+  [Text Processing]
+  [Semantic Processing]
+}
+
+package "Configurator" {
+  [Input Config]
+  [KB Config]
+  [Dialog Config]
+}
+
+package "Dialog" {
+  [Query Processing]
+}
+
+database "Knowledge base" {
+	[Meta Data]
+  frame "Semantic Network" {
+    [Frames]
+	[Rules]
+  }
+}
+
+
+[Text Processing] <--> [Semantic Processing]
+[Semantic Processing] <--> [Frames]
+[Semantic Processing] <--> [Rules]
+[Meta Data] --> [Text Processing]
+[Meta Data] --> [Semantic Processing]
+[Meta Data] --> [Frames]
+[Meta Data] --> [Rules]
+[Meta Data] --> [Query Processing]
+[Frames] <--> [Rules]
+[Input Config] --> [Text Processing]
+[Input Config] --> [Semantic Processing]
+[Dialog Config] --> [Query Processing]
+[KB Config] --> [Meta Data]
+[Query Processing] <--> [Rules]
+[Query Processing] <--> [Frames]
+
+
+@enduml

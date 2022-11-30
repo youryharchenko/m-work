@@ -1,0 +1,46 @@
+@startuml
+
+actor "Викладач" <<User>> as Teacher
+
+rectangle E-Learn {
+  usecase (Лекційні та методичні матеріали) as Lecture
+  usecase (Виконані роботи) as Works
+}
+
+cloud Бібліотека {
+  usecase (Оцифровані книги та статті) as Books
+}
+
+
+cloud Інтернет {
+  usecase (Додаткові джерела) as Additions
+}
+
+rectangle "Інтелектуальний Агент" {
+  component "Текстовий аналізатор" <<Application>> as TextProcessing
+  component "Семантичний аналізатор" <<Application>> as SemanticProcessing
+  database "База Знань" as KB
+  component "Прцесор запитів" <<Application>> as QueryProcessing
+  component "Конфігуратор" <<Application>> as Config
+}
+
+actor "Студент" <<User>> as Student
+
+usecase (Діалог з агентом) as Dialog
+usecase (Конфігурація предметної області) as Design
+
+Teacher -down-> Lecture
+Lecture -down-> TextProcessing
+Books -down-> TextProcessing
+Additions -down-> TextProcessing
+TextProcessing -down-> SemanticProcessing
+SemanticProcessing -down-> KB
+QueryProcessing -up-> KB
+Dialog -right-> QueryProcessing
+Student -right-> Dialog
+Student -left-> Design
+Design -right-> Config
+Student -up-> Works
+Works -up-> Teacher
+
+@enduml

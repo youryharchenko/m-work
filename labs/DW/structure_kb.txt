@@ -1,0 +1,51 @@
+@startuml
+
+Class Categories
+Class Relations
+Class Attributes
+
+Class Values
+
+Class Instances
+Class CatInstances
+Class AttrCatInstances
+
+Class RelCategories
+Class RelCatInstances
+
+Class AttrCategories
+Class AttrRelations
+Class AttrRelCategories
+Class AttrRelCatInstances
+
+
+Categories"1" -- "M"RelCategories : ref >
+Relations"1" -- "M"RelCategories : ref >
+
+Categories"1" -- "M"CatInstances : ref >
+Instances"1" -- "M"CatInstances : ref >
+
+CatInstances"1" -- "M"RelCatInstances : ref >
+RelCategories"1" -- "M"RelCatInstances : ref >
+
+Attributes"1" -- "M"AttrCategories : ref >
+Categories"1" -- "M"AttrCategories : ref >
+Values"1" -- "M"AttrCategories : ref >
+
+Attributes"1" -- "M"AttrRelations : ref >
+Relations"1" -- "M"AttrRelations : ref >
+Values"1" -- "M"AttrRelations : ref >
+
+AttrRelations"1" -- "M"AttrRelCategories : ref >
+RelCategories"1" -- "M"AttrRelCategories : ref >
+Values"1" -- "M"AttrRelCategories : ref >
+
+AttrCategories"1" -- "M"AttrCatInstances : ref >
+CatInstances"1" -- "M"AttrCatInstances : ref >
+Values"1" -- "M"AttrCatInstances : ref >
+
+RelCatInstances"1" -- "M"AttrRelCatInstances : ref >
+AttrRelCategories"1" -- "M"AttrRelCatInstances : ref >
+Values"1" -- "M"AttrRelCatInstances : ref >
+
+@enduml

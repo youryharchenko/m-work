@@ -4,52 +4,316 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 69a11080-6975-11ed-1d3d-1908623a3c4a
-using TextAnalysis, Languages, DataFrames
+# ╔═╡ 6fbce466-6fae-11ed-32d7-efbe736d56ef
+using SQLite, DBInterface, PlutoUI, CommonMark, TextAnalysis, Languages, DataFrames
 
-# ╔═╡ 8f712762-10b7-481f-b299-49b70384a51d
-pathname = "text.txt"
+# ╔═╡ 924e25e6-ccf0-4e5a-a57e-e119051930bc
+cm"""
+---
 
-# ╔═╡ 2061ab8e-503f-4998-9ffd-de6b2b78f87a
-d = StringDocument(text(FileDocument(pathname)))
+<div align="center">
 
-# ╔═╡ 4adb669c-462e-4474-926f-9be1a3f10b99
-TextAnalysis.remove_whitespace!(d)
+Національний університет біоресурсів і природокористування України
 
-# ╔═╡ 2e16a6ce-f15c-451d-8937-b454d7e82c12
-sents = TextAnalysis.sentence_tokenize(Languages.English(), text(d))
+Факультет інформаційних технологій
 
-# ╔═╡ 752338b1-4cea-4190-9339-4cae9895e80a
-crps = Corpus([StringDocument(s) for s in sents])
+Кафедра комп'ютерних наук
 
-# ╔═╡ c2951b55-f616-407f-83b0-27b8c47f736e
-remove_case!(crps)
+<br/><br/>
 
-# ╔═╡ 6e144592-801a-4e1d-9b29-d7f7a463bea3
-update_lexicon!(crps)
+Лабораторна робота 2
 
-# ╔═╡ c7f602b4-6ea2-4d77-a85c-984eb2dd7e47
-lexicon(crps)
+Побудова сховища даних
 
-# ╔═╡ c9189ed7-8cb7-447e-be1e-0abd5a33bc10
-update_inverse_index!(crps)
+</div>
 
-# ╔═╡ a3ef4c51-6e80-4e63-968e-ceda9741a6c6
-inverse_index(crps)
+<br/><br/>
 
-# ╔═╡ dcdb7bc9-4411-4e8e-afe8-f1518ad68639
-crps["name"]
+<div align="right">
+
+Виконав
+
+Студент групи ІУСТ-22001м
+
+Харченко Юрій
+
+</div>
+
+<br/><br/>
+<br/><br/>
+
+<div align="center">
+
+Київ – 2022
+
+</div>
+
+"""
+
+# ╔═╡ 5b74133a-2fc2-4dd1-b5cc-393197b3197f
+cm"""
+#### В роботі використано мову Julia  [[1](https://julialang.org/)] та її пакети
+"""
+
+# ╔═╡ a1c4f560-a988-4f2a-a3e4-f09c99416142
+TableOfContents()
+
+# ╔═╡ 31e577cb-d486-4e47-aa9d-10ab9e735e35
+md"""
+## Створення бази даних семантичної мережі
+"""
+
+# ╔═╡ 25df4f66-238f-42ed-95e9-f3ea2fa7ffd8
+file = "semantic.sqlite"
+
+# ╔═╡ e65446e5-d882-4798-8a10-d59eed969279
+db = SQLite.DB(file)
+
+# ╔═╡ 2fe743ec-5d9d-499b-b8c8-f7ade9e38d5a
+
+
+# ╔═╡ f5705168-a7de-418b-8021-cecd77330a65
+tables = Dict(
+	:C => (drop = true, create = true, file = "sql/create_C.sql", name = "C"),
+	:R => (drop = true, create = true, file = "sql/create_R.sql", name = "R"),
+	:A => (drop = true, create = true, file = "sql/create_A.sql", name = "A"),
+	:V => (drop = true, create = true, file = "sql/create_V.sql", name = "V"),
+	:RC => (drop = true, create = true, file = "sql/create_RC.sql", name = "RC"),
+	:AC => (drop = true, create = true, file = "sql/create_AC.sql", name = "AC"),
+	:AR => (drop = true, create = true, file = "sql/create_AR.sql", name = "AR"),
+	:ARC => (drop = true, create = true, file = "sql/create_ARC.sql", name = "ARC"),
+	:O => (drop = true, create = true, file = "sql/create_O.sql", name = "O"),
+	:CO => (drop = true, create = true, file = "sql/create_CO.sql", name = "CO"),
+	:ACO => (drop = true, create = true, file = "sql/create_ACO.sql", name = "ACO"),
+	:RCO => (drop = true, create = true, file = "sql/create_RCO.sql", name = "RCO"),
+	:ARCO => (drop = true, create = true, file = "sql/create_ARCO.sql", name = "ARCO"),
+)
+
+# ╔═╡ 3c34a4cd-808e-47cb-96b9-56f053b3d8e0
+function create_table(ts::Symbol)
+	out = ""
+	t = tables[ts]
+	if t.drop
+		sql = "DROP TABLE IF EXISTS $(t.name)"
+		r = SQLite.execute(db, sql)
+		out = out * "executed:\n$sql\nresult: $r\n"
+	end
+	if t.create
+		sql = read(t.file, String)
+		r = SQLite.execute(db, sql)
+		out = out * "executed:\n$sql\nresult: $r\n"
+	end
+	out == "" ? Text("nothing executed") : Text(out)
+end
+
+# ╔═╡ a6aab6d0-1655-418c-9c68-3e927000faac
+create_table(:C)
+
+# ╔═╡ a9e801b7-d661-4bec-aa70-84f07e557ef4
+create_table(:R)
+
+# ╔═╡ 40cd12ed-71c0-43ac-8055-5dc1a9b1b122
+create_table(:A)
+
+# ╔═╡ 65ee3348-b29d-4065-9862-038e777a4467
+create_table(:V)
+
+# ╔═╡ eca7b430-caf7-4d90-a8f5-7debd0c4b9f8
+create_table(:RC)
+
+# ╔═╡ c59217bf-95e3-4600-8087-ab7dccd10427
+create_table(:AC)
+
+# ╔═╡ da0a01d1-f6f2-48c5-ab98-53010e7169a5
+create_table(:AR)
+
+# ╔═╡ de014449-aa57-4bb4-91a1-daa6a735f0af
+create_table(:ARC)
+
+# ╔═╡ fb9b8f34-ea32-4d5a-852c-3c859acad6c0
+create_table(:O)
+
+# ╔═╡ 435de7a3-23b0-4ac3-8f3c-659001091cf0
+create_table(:CO)
+
+# ╔═╡ 89c6ae98-c466-4c26-8936-ba738182d1bd
+create_table(:ACO)
+
+# ╔═╡ a655c3a0-f151-4907-a3b5-6d8b7224effd
+create_table(:RCO)
+
+# ╔═╡ 2bc98c9e-0134-4641-891c-303da4e25d12
+create_table(:ARCO)
+
+# ╔═╡ 1fc50c5e-5e52-468a-af21-9475c56049c1
+md"""
+## Схема бази даних
+"""
+
+# ╔═╡ c4b58c32-535d-4800-bbeb-5562f925c5da
+LocalResource("db.png")
+
+# ╔═╡ c07eddcd-15d2-456b-a451-f8e3d6242f15
+md"""
+## Створення мета-даних
+"""
+
+# ╔═╡ 1dc3a01f-08f6-47f1-a9dd-e6cb60b0023c
+md"""
+### Атрибути
+"""
+
+# ╔═╡ 2faf7174-f2b6-41fb-9625-668d5631f02d
+A = let
+	df = DataFrame(
+		name = ["Назва", "Ім'я", "Номер"]
+	)
+	
+	for r in eachrow(df)
+		SQLite.execute(db, "INSERT OR IGNORE INTO A (name) VALUES(?)", [r.name])
+	end
+
+	DataFrame(DBInterface.execute(db, "SELECT * FROM A"))
+
+end
+	
+
+# ╔═╡ aa1ea5a4-7144-4b52-840c-fc55bca34090
+md"""
+### Категорії
+"""
+
+# ╔═╡ fd1ba072-58ff-454a-acd8-5b83f1ca10d4
+C = let
+	df = DataFrame(
+		name = ["Документ", "Автор", "Речення", "Слово"]
+	)
+	
+	for r in eachrow(df)
+		SQLite.execute(db, "INSERT OR IGNORE INTO C (name) VALUES(?)", [r.name])
+	end
+
+	DataFrame(DBInterface.execute(db, "SELECT * FROM C"))
+
+end
+
+# ╔═╡ 3ed0749f-42b8-4966-b324-ac8225b169c3
+md"""
+### Відношення
+"""
+
+# ╔═╡ e7d522c3-0b12-4cd1-bbc2-7f2be8e61dbf
+R = let
+	df = DataFrame(
+		name = ["є автором", "складається з"]
+	)
+	
+	for r in eachrow(df)
+		SQLite.execute(db, "INSERT OR IGNORE INTO R (name) VALUES(?)", [r.name])
+	end
+
+	DataFrame(DBInterface.execute(db, "SELECT * FROM R"))
+
+end
+
+# ╔═╡ 122bdf07-ab49-406b-a4ec-5a2856661b23
+md"""
+### Відношення між категоріями
+"""
+
+# ╔═╡ 71408c62-6615-4e78-9903-23d866efc326
+md"""
+## Факти
+"""
+
+# ╔═╡ 1a369e2d-38b0-4158-b5e9-6e64eef76152
+md"""
+### Об'єкти
+"""
+
+# ╔═╡ f282c3ac-0949-422d-b163-65123bb27b0e
+O = let
+	SQLite.execute(db, "INSERT OR IGNORE INTO O (name) VALUES(?)", 
+			["Голуб Б.Л."])
+	SQLite.execute(db, "INSERT OR IGNORE INTO O (name) VALUES(?)", 
+			["Лекція 1"])
+	
+	DataFrame(DBInterface.execute(db, "SELECT * FROM O"))
+
+end
+
+# ╔═╡ 72c39d74-cf08-4161-a970-17e6fecc0c99
+md"""
+### Об'єкти за категоріями
+"""
+
+# ╔═╡ f46cd4e9-c64e-479a-8b5d-313ea2ab361e
+function id(df, s)
+	df[only(findall(==(s), df.name)), :][:id]
+end
+
+# ╔═╡ a0e37810-2694-4e77-a95a-85906f393702
+RС = let
+	df = DataFrame(
+		cf = [id(C, "Автор"), id(C, "Документ"), id(C, "Речення")],
+		r = [id(R, "є автором"), id(R, "складається з"), id(R, "складається з")],
+		ct = [id(C, "Документ"), id(C, "Речення"), id(C, "Слово")],
+	)
+	
+	for r in eachrow(df)
+		SQLite.execute(db, "INSERT OR IGNORE INTO RC (cf, r, ct) VALUES(?, ?, ?)", 
+			[r.cf, r.r, r.ct])
+	end
+
+	DataFrame(DBInterface.execute(db, "SELECT * FROM RC"))
+
+end
+
+# ╔═╡ 908caf32-cba9-4014-8273-a318518b84b7
+CO = let
+	SQLite.execute(db, "INSERT OR IGNORE INTO CO (c, o) VALUES(?, ?)", 
+			[id(C, "Автор"), id(O, "Голуб Б.Л.")])
+	SQLite.execute(db, "INSERT OR IGNORE INTO CO (c, o) VALUES(?, ?)", 
+			[id(C, "Документ"), id(O, "Лекція 1")])
+	
+	DataFrame(DBInterface.execute(db, "SELECT * FROM CO"))
+
+end
+
+# ╔═╡ ec366737-8c77-4cb6-8b8f-8c5fe0f89c0f
+md"""
+## Висновки
+
+Створено базу даних семантичної мережі та введено первінні мета-дані. Наступним кроком передбачається завантаження речень та слів зі зв'язками.
+
+"""
+
+# ╔═╡ 78eb53e8-5432-48db-92e1-df72e1f87c80
+md"""
+## Використані джерела
+
+1. The Julia Programming Language - [https://julialang.org/](https://julialang.org/)
+
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
+DBInterface = "a10d1c49-ce27-4219-8d33-6db1a4562965"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Languages = "8ef0a80b-9436-5d2c-a485-80b904378c43"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+SQLite = "0aa819cd-b072-5ff4-a722-6bc24af294d9"
 TextAnalysis = "a2db99b7-8b79-58f8-94bf-bbc811eef33d"
 
 [compat]
+CommonMark = "~0.8.7"
+DBInterface = "~2.5.0"
 DataFrames = "~1.4.3"
 Languages = "~0.4.3"
+PlutoUI = "~0.7.48"
+SQLite = "~1.5.1"
 TextAnalysis = "~0.7.3"
 """
 
@@ -59,7 +323,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "1724c69503598a8d4a5fc6f32872f53f9edc13d9"
+project_hash = "ea338d8680b56b58a834be51bebac17c0350be69"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "8eaf9f1b4921132a4cff3f36a1d9ba923b14a481"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.1.4"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -94,6 +364,18 @@ git-tree-sha1 = "ded953804d019afa9a3f98981d99b33e3db7b6da"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
 version = "0.7.0"
 
+[[deps.ColorTypes]]
+deps = ["FixedPointNumbers", "Random"]
+git-tree-sha1 = "eb7f0f8307f71fac7c606984ea5fb2817275d6e4"
+uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
+version = "0.11.4"
+
+[[deps.CommonMark]]
+deps = ["Crayons", "JSON", "URIs"]
+git-tree-sha1 = "86cce6fd164c26bad346cc51ca736e692c9f553c"
+uuid = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
+version = "0.8.7"
+
 [[deps.Compat]]
 deps = ["Dates", "LinearAlgebra", "UUIDs"]
 git-tree-sha1 = "aaabba4ce1b7f8a9b34c015053d3b1edf60fa49c"
@@ -109,6 +391,11 @@ version = "0.5.2+0"
 git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
 uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
 version = "4.1.1"
+
+[[deps.DBInterface]]
+git-tree-sha1 = "9b0dc525a052b9269ccc5f7f04d5b3639c65bca5"
+uuid = "a10d1c49-ce27-4219-8d33-6db1a4562965"
+version = "2.5.0"
 
 [[deps.DataAPI]]
 git-tree-sha1 = "e08915633fcb3ea83bf9d6126292e5bc5c739922"
@@ -164,6 +451,12 @@ version = "1.6.0"
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
+[[deps.FixedPointNumbers]]
+deps = ["Statistics"]
+git-tree-sha1 = "335bfdceacc84c5cdf16aadc768aa5ddfc5383cc"
+uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
+version = "0.8.4"
+
 [[deps.Formatting]]
 deps = ["Printf"]
 git-tree-sha1 = "8339d61043228fdd3eb658d86c926cb282ae72a8"
@@ -186,10 +479,34 @@ git-tree-sha1 = "e1acc37ed078d99a714ed8376446f92a5535ca65"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 version = "1.5.5"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "8d511d5b81240fc8e6802386302675bdf47737b9"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.4"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "c47c5fa4c5308f27ccaac35504858d8914e102f9"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.4"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "f7be53659ab06ddc986428d3a9dcc95f6fa6705a"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.2"
+
 [[deps.IniFile]]
 git-tree-sha1 = "f550e6e32074c939295eb5ea6de31849ac2c9625"
 uuid = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
 version = "0.5.1"
+
+[[deps.InlineStrings]]
+deps = ["Parsers"]
+git-tree-sha1 = "0cf92ec945125946352f3d46c96976ab972bde6f"
+uuid = "842dd82b-1e85-43dc-bf29-5d0ee9dffc48"
+version = "1.3.2"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -202,9 +519,9 @@ uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
 version = "0.1.8"
 
 [[deps.InvertedIndices]]
-git-tree-sha1 = "bee5f1ef5bf65df56bdd2e40447590b272a5471f"
+git-tree-sha1 = "82aec7a3dd64f4d9584659dc0b62ef7db2ef3e19"
 uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "7fd44fd4ff43fc60815f8e764c0f352b83c49151"
@@ -267,9 +584,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
 deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
-git-tree-sha1 = "94d9c52ca447e23eac0c0f074effbcd38830deb5"
+git-tree-sha1 = "946607f84feb96220f480e0422d3484c49c00239"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.3.18"
+version = "0.3.19"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -279,6 +596,11 @@ deps = ["Dates", "Logging"]
 git-tree-sha1 = "cedb76b37bc5a6c702ade66be44f831fa23c681e"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.0.0"
+
+[[deps.MIMEs]]
+git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "0.1.4"
 
 [[deps.Markdown]]
 deps = ["Base64"]
@@ -345,6 +667,12 @@ deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markd
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 version = "1.8.0"
 
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "efc140104e6d0ae3e7e30d56c98c4a927154d684"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.48"
+
 [[deps.PooledArrays]]
 deps = ["DataAPI", "Future"]
 git-tree-sha1 = "a6062fe4063cdafe78f4a0a81cfffb89721b30e7"
@@ -389,6 +717,18 @@ version = "1.2.2"
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
+
+[[deps.SQLite]]
+deps = ["DBInterface", "Random", "SQLite_jll", "Serialization", "Tables", "WeakRefStrings"]
+git-tree-sha1 = "deb6120aa0f510f45cfb3a0b733b0909ae8fb977"
+uuid = "0aa819cd-b072-5ff4-a722-6bc24af294d9"
+version = "1.5.1"
+
+[[deps.SQLite_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Zlib_jll"]
+git-tree-sha1 = "b89fe49b6a19cde7aefa7e7cf013c1160367f37d"
+uuid = "76ed43ae-9a5d-5a62-8c75-30186b810ce8"
+version = "3.40.0+0"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -493,10 +833,15 @@ git-tree-sha1 = "8a75929dcd3c38611db2f8d08546decb514fcadf"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.9.9"
 
+[[deps.Tricks]]
+git-tree-sha1 = "6bac775f2d42a611cdfcd1fb217ee719630c4175"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.6"
+
 [[deps.URIs]]
-git-tree-sha1 = "e59ecc5a41b000fa94423a578d29290c7266fc10"
+git-tree-sha1 = "ac00576f90d8a259f2c9d823e91d1de3fd44d348"
 uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
-version = "1.4.0"
+version = "1.4.1"
 
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
@@ -504,6 +849,12 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+
+[[deps.WeakRefStrings]]
+deps = ["DataAPI", "InlineStrings", "Parsers"]
+git-tree-sha1 = "b1be2855ed9ed8eac54e5caff2afcdb442d52c23"
+uuid = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
+version = "1.4.2"
 
 [[deps.WordTokenizers]]
 deps = ["DataDeps", "HTML_Entities", "StrTables", "Unicode"]
@@ -533,17 +884,47 @@ version = "17.4.0+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═69a11080-6975-11ed-1d3d-1908623a3c4a
-# ╠═8f712762-10b7-481f-b299-49b70384a51d
-# ╠═2061ab8e-503f-4998-9ffd-de6b2b78f87a
-# ╠═4adb669c-462e-4474-926f-9be1a3f10b99
-# ╠═2e16a6ce-f15c-451d-8937-b454d7e82c12
-# ╠═752338b1-4cea-4190-9339-4cae9895e80a
-# ╠═c2951b55-f616-407f-83b0-27b8c47f736e
-# ╠═6e144592-801a-4e1d-9b29-d7f7a463bea3
-# ╠═c7f602b4-6ea2-4d77-a85c-984eb2dd7e47
-# ╠═c9189ed7-8cb7-447e-be1e-0abd5a33bc10
-# ╠═a3ef4c51-6e80-4e63-968e-ceda9741a6c6
-# ╠═dcdb7bc9-4411-4e8e-afe8-f1518ad68639
+# ╟─924e25e6-ccf0-4e5a-a57e-e119051930bc
+# ╟─5b74133a-2fc2-4dd1-b5cc-393197b3197f
+# ╠═6fbce466-6fae-11ed-32d7-efbe736d56ef
+# ╟─a1c4f560-a988-4f2a-a3e4-f09c99416142
+# ╟─31e577cb-d486-4e47-aa9d-10ab9e735e35
+# ╠═25df4f66-238f-42ed-95e9-f3ea2fa7ffd8
+# ╠═e65446e5-d882-4798-8a10-d59eed969279
+# ╠═2fe743ec-5d9d-499b-b8c8-f7ade9e38d5a
+# ╠═f5705168-a7de-418b-8021-cecd77330a65
+# ╠═3c34a4cd-808e-47cb-96b9-56f053b3d8e0
+# ╠═a6aab6d0-1655-418c-9c68-3e927000faac
+# ╠═a9e801b7-d661-4bec-aa70-84f07e557ef4
+# ╠═40cd12ed-71c0-43ac-8055-5dc1a9b1b122
+# ╠═65ee3348-b29d-4065-9862-038e777a4467
+# ╠═eca7b430-caf7-4d90-a8f5-7debd0c4b9f8
+# ╠═c59217bf-95e3-4600-8087-ab7dccd10427
+# ╠═da0a01d1-f6f2-48c5-ab98-53010e7169a5
+# ╠═de014449-aa57-4bb4-91a1-daa6a735f0af
+# ╠═fb9b8f34-ea32-4d5a-852c-3c859acad6c0
+# ╠═435de7a3-23b0-4ac3-8f3c-659001091cf0
+# ╠═89c6ae98-c466-4c26-8936-ba738182d1bd
+# ╠═a655c3a0-f151-4907-a3b5-6d8b7224effd
+# ╠═2bc98c9e-0134-4641-891c-303da4e25d12
+# ╟─1fc50c5e-5e52-468a-af21-9475c56049c1
+# ╠═c4b58c32-535d-4800-bbeb-5562f925c5da
+# ╟─c07eddcd-15d2-456b-a451-f8e3d6242f15
+# ╟─1dc3a01f-08f6-47f1-a9dd-e6cb60b0023c
+# ╠═2faf7174-f2b6-41fb-9625-668d5631f02d
+# ╟─aa1ea5a4-7144-4b52-840c-fc55bca34090
+# ╠═fd1ba072-58ff-454a-acd8-5b83f1ca10d4
+# ╟─3ed0749f-42b8-4966-b324-ac8225b169c3
+# ╠═e7d522c3-0b12-4cd1-bbc2-7f2be8e61dbf
+# ╟─122bdf07-ab49-406b-a4ec-5a2856661b23
+# ╠═a0e37810-2694-4e77-a95a-85906f393702
+# ╟─71408c62-6615-4e78-9903-23d866efc326
+# ╟─1a369e2d-38b0-4158-b5e9-6e64eef76152
+# ╠═f282c3ac-0949-422d-b163-65123bb27b0e
+# ╟─72c39d74-cf08-4161-a970-17e6fecc0c99
+# ╠═908caf32-cba9-4014-8273-a318518b84b7
+# ╠═f46cd4e9-c64e-479a-8b5d-313ea2ab361e
+# ╟─ec366737-8c77-4cb6-8b8f-8c5fe0f89c0f
+# ╟─78eb53e8-5432-48db-92e1-df72e1f87c80
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

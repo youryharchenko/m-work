@@ -27,6 +27,9 @@ Manifest.toml
 *.gz
 *.log
 *.log*
+*.db
+*.sqlite
+*.png
 logs
 *backup*
 logs.csv
