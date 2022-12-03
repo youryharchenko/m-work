@@ -1,0 +1,33 @@
+@startuml
+
+package "Terminal" {
+  [TerminalSoftware]
+}
+
+package "Server" {
+  [ServerSoftware]
+}
+
+package "Analysis" {
+  [AnalysisSoftware]
+}
+
+database "OLTP" {
+	[OLTPData]
+}
+
+database "OLAP" {
+	[OLAPData]
+}
+
+package "ELT" {
+  [ELTSoftware]
+}
+
+TerminalSoftware <--> ServerSoftware
+ServerSoftware <--> OLTPData
+OLTPData <-right-> ELTSoftware
+ELTSoftware <-right-> OLAPData
+OLAPData <--> AnalysisSoftware
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+
+actor "Клієнт" <<User>> as Client
+actor "Працівник банку" <<User>> as Clerk
+
+rectangle Партнер {
+	rectangle ПТКС {
+  		component "ПО ПТКС" <<Application>> as TerminalSoftware
+	}
+}
+
+rectangle Server {
+  component "ПО Сервера ПТКС " <<Application>> as ServerSoftware
+}
+
+rectangle Application {
+  component "АРМ Аналізу та рішень" <<Application>> as AnalysisSoftware
+}
+
+usecase (Оплата товарів та послуг) as Payment
+usecase (Аналіз даних та рішення) as Analysis
+
+Client --> Payment
+Payment --> TerminalSoftware
+TerminalSoftware <--> ServerSoftware
+Clerk --> Analysis
+Analysis --> AnalysisSoftware
+ServerSoftware <-right-> AnalysisSoftware
+
+
+
+@enduml
