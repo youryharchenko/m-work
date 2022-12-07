@@ -30,6 +30,8 @@ Manifest.toml
 *.db
 *.sqlite
 *.png
+*.duckdb.*
+*.duckdb
 logs
 *backup*
 logs.csv
