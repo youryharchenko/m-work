@@ -23,7 +23,7 @@ cm"""
 
 Лабораторна робота 3
 
-Заповнення сховища даних семантичної мережі
+Розгортання сховища даних
 
 </div>
 
@@ -479,7 +479,7 @@ conn = LibPQ.Connection("host=localhost dbname=work user=work password=$password
 
 # ╔═╡ d8d7a277-e006-4ea7-a8f7-3908a7607d5e
 md"""
-#### Завантажемо раніше створені в PostrgreSQL дані "вітрини" в DataFrame
+#### Завантажимо раніше створені в PostrgreSQL дані "вітрини" в DataFrame
 """
 
 # ╔═╡ eb6a6518-744d-4939-9d09-d584c27fd783
@@ -504,7 +504,7 @@ DuckDB.register_data_frame(aserv, data, "data")
 
 # ╔═╡ 20165d95-1bc9-4692-a8e4-8aaf17330bdd
 md"""
-#### OLAP запит типу CUBE створює агрегацію по всім комбінаціям вимірів
+#### OLAP запит типу CUBE створює агрегацію по всіх комбінаціях вимірів
 """
 
 # ╔═╡ d85e1d9e-b1d1-4958-9132-bf3e215dc8dd
