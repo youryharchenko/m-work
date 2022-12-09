@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS ARC
     FOREIGN KEY(rc) REFERENCES RC(id), 
     FOREIGN KEY(a) REFERENCES A(id), 
     FOREIGN KEY(v) REFERENCES V(id),
-    UNIQUE(rc, a, v) 
+    UNIQUE(rc, a) 
 )
     

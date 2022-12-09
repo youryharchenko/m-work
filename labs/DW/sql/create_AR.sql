@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS AR
     FOREIGN KEY(r) REFERENCES R(id), 
     FOREIGN KEY(a) REFERENCES A(id), 
     FOREIGN KEY(v) REFERENCES V(id),
-    UNIQUE(r, a, v) 
+    UNIQUE(r, a) 
 )
     

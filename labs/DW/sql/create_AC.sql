@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS AC
     FOREIGN KEY(c) REFERENCES C(id), 
     FOREIGN KEY(a) REFERENCES A(id), 
     FOREIGN KEY(v) REFERENCES V(id),
-    UNIQUE(c, a, v) 
+    UNIQUE(c, a) 
 )
     

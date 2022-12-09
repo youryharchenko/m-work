@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS ARCO
     FOREIGN KEY(rco) REFERENCES RCO(id), 
     FOREIGN KEY(a) REFERENCES A(id), 
     FOREIGN KEY(v) REFERENCES V(id),
-    UNIQUE(rco, a, v) 
+    UNIQUE(rco, a) 
 )
     

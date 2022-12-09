@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS ACO
     FOREIGN KEY(co) REFERENCES CO(id), 
     FOREIGN KEY(a) REFERENCES A(id), 
     FOREIGN KEY(v) REFERENCES V(id),
-    UNIQUE(co, a, v) 
+    UNIQUE(co, a) 
 )
     
