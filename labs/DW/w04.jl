@@ -7,6 +7,9 @@ using InteractiveUtils
 # ╔═╡ ebdf79fe-70bb-11ed-1238-eb60f38082ec
 using DuckDB, PlutoUI, CommonMark, TextAnalysis, Languages, DataFrames, LibPQ
 
+# ╔═╡ f622df43-b3f5-45f2-99e8-e6c35066fb00
+using Dates, Random
+
 # ╔═╡ d0fd59e4-d83d-4b18-8fd4-9781e171c3da
 cm"""
 ---
@@ -322,7 +325,7 @@ end
 
 # ╔═╡ 9c0a2496-4af7-4ecc-9e4f-7de4c4aa239d
 md"""
-#### Завантаження даних в семантичну мережу
+#### Завантаження даних в семантичну мережу із встановленням атрибутів та їх значень
 """
 
 # ╔═╡ de78718a-eeed-4901-a780-04b634095c97
@@ -430,7 +433,7 @@ end
 
 # ╔═╡ 70801f02-1399-4b2b-8767-3702cd72a618
 md"""
-#### Встановлюємо відношення "складається з" між документом "Лекція 1" та його реченнями
+#### Відобразимо встановлені атрибути та їхні значення
 """
 
 # ╔═╡ 4f85a776-5d82-4475-9beb-4464b0cee4a6
@@ -460,15 +463,11 @@ md"""
 
 * В якості сховища даних використано DuckDB (in-process SQL OLAP database)
 
-* В цій роботі узагальнено результати попередньої роботи, створено функції та словники запитів до бази даних
+* В цій роботі продовжено узагальнення результатів попередніх робіт, додано інструменти для маніпулювання атрибутами
 
-* Досліджено методи обробки текстових документів пакету TextAnalysis та на прикладі тексту лекції здійснено аналіз її тексту
+* Об'єктам та визначеним відношенням встановлено атрибути та їх значення
 
-* Завантажено в базу даних об'єкти категорій "Речення" та "Слово"
-
-* Між об'єктом "Лекція 1" та її реченнями встановлено відношення "складається з"
-
-В наступній роботі передбачається дослідити методи роботи з атрибутами
+В наступній роботі передбачається дослідити методи витягу даних зі сховища семантичної мережі
 
 """
 
@@ -477,15 +476,93 @@ md"""
 # Обов'язкова програма для атестації
 """
 
+# ╔═╡ 0f75114d-9d67-43d6-be58-156a99f2983d
+Dates.format(now(), "yyyy-mm-ddTHH:MM:SS")
+
 # ╔═╡ bd07605a-bd90-4e8b-b6f3-015926b2cbab
 password = "work";
 
 # ╔═╡ b9b59833-e208-4b65-ada1-7fafaff30a69
 conn = LibPQ.Connection("host=localhost dbname=work user=work password=$password")
 
+# ╔═╡ 65df63f8-2f6e-40fb-a5b4-6004daa910f3
+md"""
+#### Згенеруємо транзакції в OLTP базі даних PostrgreSQL 
+"""
+
+# ╔═╡ 2ffaf3c6-ecfa-4362-85ee-d4bf324522aa
+let
+
+	execute(conn, "DELETE FROM Transactions")
+	
+	dt = now()
+	for i in 1:1000
+		sql = 
+		"""
+		INSERT INTO Transactions(id, dt, amount, id_term, id_type)
+			VALUES($i, '$(Dates.format(dt, "yyyy-mm-ddTHH:MM:SS"))', $(rand(10:10000)*100), $(rand(1:3)), $(rand(1:2)));
+		"""
+		execute(conn, sql)
+		dt = dt + Minute(rand(5:60))
+	end
+end
+
+# ╔═╡ 662f7261-1fd8-46d6-b597-1dac9cdd52fd
+md"""
+#### Оновимо часовий вимір відповідно до нових даних
+"""
+
+# ╔═╡ 54fd388e-0d4a-4800-9be5-32b31ba21daf
+df_date = let
+
+execute(conn, 
+"""
+INSERT INTO DimDate(id, year, month, day)
+SELECT DISTINCT date_part('year', t.dt)::int*10000 + date_part('month', t.dt)::int*100 + date_part('day', t.dt)::int, date_part('year', t.dt)::int, date_part('month', t.dt)::int, date_part('day', t.dt)::int
+FROM Transactions t
+ON CONFLICT (id) DO NOTHING;
+"""
+)
+
+DataFrame(execute(conn, 
+"""
+SELECT * FROM DimDate;
+"""
+))
+	
+end
+
+# ╔═╡ 6aac9eb2-f02c-43e2-bd41-b55c3e2b5e7c
+md"""
+#### Оновимо таблицю фактів
+"""
+
+# ╔═╡ 36617529-e22a-46ad-a4f2-daca44a80685
+df_trx = let
+
+execute(conn, "DELETE FROM FactTransactions")
+	
+execute(conn, 
+"""
+INSERT INTO FactTransactions(id_term, id_type, id_date, amount)
+SELECT t.id_term, t.id_type, date_part('year', t.dt)::int*10000 + date_part('month', t.dt)::int*100 + date_part('day', t.dt)::int, sum(t.amount)
+FROM Transactions t
+GROUP BY t.id_term, t.id_type, date_part('year', t.dt)::int*10000 + date_part('month', t.dt)::int*100 + date_part('day', t.dt)::int
+ON CONFLICT (id_term, id_type, id_date) DO NOTHING;
+"""
+)
+
+DataFrame(execute(conn, 
+"""
+SELECT * FROM FactTransactions;
+"""
+))
+	
+end
+
 # ╔═╡ d8d7a277-e006-4ea7-a8f7-3908a7607d5e
 md"""
-#### Завантажимо раніше створені в PostrgreSQL дані "вітрини" в DataFrame
+#### Завантажимо нові дані "вітрини" в DataFrame
 """
 
 # ╔═╡ eb6a6518-744d-4939-9d09-d584c27fd783
@@ -510,7 +587,7 @@ DuckDB.register_data_frame(aserv, data, "data")
 
 # ╔═╡ 20165d95-1bc9-4692-a8e4-8aaf17330bdd
 md"""
-#### OLAP запит типу CUBE створює агрегацію по всіх комбінаціях вимірів
+#### Тестові OLAP запити
 """
 
 # ╔═╡ d85e1d9e-b1d1-4958-9132-bf3e215dc8dd
@@ -524,7 +601,7 @@ GROUP BY CUBE (year, month, day, partner, terminal, type);
 
 # ╔═╡ 79327798-fc80-48c2-b701-8da779ffe054
 md"""
-#### Сума оплат на ПТКС всього за визначений період
+#### Сума оплат на ПТКС всього за січень 2023р.
 """
 
 # ╔═╡ 0c622919-bac1-4a8b-9721-b0dc53af5964
@@ -533,13 +610,13 @@ DataFrame(DuckDB.execute(aserv,
 SELECT month, terminal, SUM(amount)
 FROM data
 GROUP BY CUBE (year, month, day, partner, terminal, type)
-HAVING year=2022 AND month=202212 AND day IS NULL AND partner IS NULL AND terminal IS NOT NULL AND type IS NULL;
+HAVING year=2023 AND month=202301 AND day IS NULL AND partner IS NULL AND terminal IS NOT NULL AND type IS NULL;
 """
 ))
 
 # ╔═╡ 4fecd641-adc8-418f-9cc8-0ff42c44c34e
 md"""
-#### Сума оплат на ПТКС за типами (готівка, карта) за визначений період
+#### Сума оплат на ПТКС за типами (готівка, карта) за січень 2023р.
 """
 
 # ╔═╡ cf6a76b0-d3cd-45a6-91a0-77e5b58b94cd
@@ -548,13 +625,13 @@ DataFrame(DuckDB.execute(aserv,
 SELECT month, terminal, type, SUM(amount)
 FROM data
 GROUP BY CUBE (year, month, day, partner, terminal, type)
-HAVING year=2022 AND month=202212 AND day IS NULL AND partner IS NULL AND terminal IS NOT NULL AND type IS NOT NULL;
+HAVING year=2023 AND month=202301 AND day IS NULL AND partner IS NULL AND terminal IS NOT NULL AND type IS NOT NULL;
 """
 ))
 
 # ╔═╡ 0a7ea3bc-69a8-48a9-9a6a-da82dec7c583
 md"""
-#### Сума оплат по партнеру за визначений період
+#### Сума оплат по партнеру за січень 2023р.
 """
 
 # ╔═╡ a8c2738c-5700-4484-822a-5eb27c4d9014
@@ -563,7 +640,7 @@ DataFrame(DuckDB.execute(aserv,
 SELECT month, partner, SUM(amount)
 FROM data
 GROUP BY CUBE (year, month, day, partner, terminal, type)
-HAVING year=2022 AND month=202212 AND day IS NULL AND partner IS NOT NULL AND terminal IS NULL AND type IS NULL;
+HAVING year=2023 AND month=202301 AND day IS NULL AND partner IS NOT NULL AND terminal IS NULL AND type IS NULL;
 """
 ))
 
@@ -584,10 +661,12 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DuckDB = "d2f5444f-75bc-4fdf-ac35-56f514c445e1"
 Languages = "8ef0a80b-9436-5d2c-a485-80b904378c43"
 LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 TextAnalysis = "a2db99b7-8b79-58f8-94bf-bbc811eef33d"
 
 [compat]
@@ -606,7 +685,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "c780bf7d6a33d27650767c85ba479f6bbb5dae78"
+project_hash = "4baf3a668d19931f818db9012f60c24138f828b5"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1323,8 +1402,16 @@ version = "17.4.0+0"
 # ╠═0a561c5b-0d72-4314-93f2-fcf688c8e784
 # ╟─22622a1e-2624-4804-a5b8-104fdde84c37
 # ╟─3265a9cc-7369-460f-a346-894ad78e9ffc
+# ╠═f622df43-b3f5-45f2-99e8-e6c35066fb00
+# ╠═0f75114d-9d67-43d6-be58-156a99f2983d
 # ╟─bd07605a-bd90-4e8b-b6f3-015926b2cbab
 # ╠═b9b59833-e208-4b65-ada1-7fafaff30a69
+# ╟─65df63f8-2f6e-40fb-a5b4-6004daa910f3
+# ╠═2ffaf3c6-ecfa-4362-85ee-d4bf324522aa
+# ╟─662f7261-1fd8-46d6-b597-1dac9cdd52fd
+# ╠═54fd388e-0d4a-4800-9be5-32b31ba21daf
+# ╟─6aac9eb2-f02c-43e2-bd41-b55c3e2b5e7c
+# ╠═36617529-e22a-46ad-a4f2-daca44a80685
 # ╟─d8d7a277-e006-4ea7-a8f7-3908a7607d5e
 # ╠═eb6a6518-744d-4939-9d09-d584c27fd783
 # ╟─ee639081-787b-4abc-9ce0-a47b0e261377
