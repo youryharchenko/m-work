@@ -24,9 +24,9 @@ cm"""
 
 <br/><br/>
 
-Лабораторна робота 4
+Лабораторна робота 5
 
-Заповнення даними сховища даних
+Обчислення KPI
 
 </div>
 
@@ -78,10 +78,10 @@ md"""
 
 # ╔═╡ 54b57fcf-6f4d-4e9f-ac1d-a075a9f74507
 tables = [
+	(drop = true, create = true, file = "sql/create_V.sql", name = "V"),
 	(drop = true, create = true, file = "sql/create_C.sql", name = "C"),
 	(drop = true, create = true, file = "sql/create_R.sql", name = "R"),
 	(drop = true, create = true, file = "sql/create_A.sql", name = "A"),
-	(drop = true, create = true, file = "sql/create_V.sql", name = "V"),
 	(drop = true, create = true, file = "sql/create_RC.sql", name = "RC"),
 	(drop = true, create = true, file = "sql/create_AC.sql", name = "AC"),
 	(drop = true, create = true, file = "sql/create_AR.sql", name = "AR"),
@@ -143,9 +143,6 @@ function create_kb(ts, file)
 	(db, Text(out))
 end
 
-# ╔═╡ ac8b2fcc-723a-4e81-99f0-2ac2f2d273a5
-kb, out = create_kb(tables, file);
-
 # ╔═╡ 11664dc4-89d1-42bd-8640-0ca7e80ca7e5
 md"""
 #### Завантажуємо документ та робимо попередню обробку тексту
@@ -179,15 +176,15 @@ md"""
 
 # ╔═╡ 92f08f94-ab7d-46b6-ab80-e432ee159625
 sql_inserts = Dict(
-	:A => "INSERT INTO A (id, name) VALUES(nextval('SEQ_A'), ?) RETURNING id",
-	:C => "INSERT INTO C (id, name) VALUES(nextval('SEQ_C'), ?) RETURNING id",
+	:A => "INSERT INTO A (id, v) VALUES(nextval('SEQ_A'), ?) RETURNING id",
+	:C => "INSERT INTO C (id, v) VALUES(nextval('SEQ_C'), ?) RETURNING id",
 	:V => "INSERT INTO V (id, value) VALUES(nextval('SEQ_V'), ?) RETURNING id",
 	:AC => "INSERT INTO AC (id, c, a, v) VALUES(nextval('SEQ_AC'), ?, ?, ?) RETURNING id",
-	:R => "INSERT INTO R (id, name) VALUES(nextval('SEQ_R'), ?) RETURNING id",
+	:R => "INSERT INTO R (id, v) VALUES(nextval('SEQ_R'), ?) RETURNING id",
 	:AR => "INSERT INTO AR (id, r, a, v) VALUES(nextval('SEQ_AR'), ?, ?, ?) RETURNING id",
 	:RC => "INSERT INTO RC (id, cf, r, ct) VALUES(nextval('SEQ_RC'), ?, ?, ?) RETURNING id",
 	:ARC => "INSERT INTO ARC (id, rc, a, v) VALUES(nextval('SEQ_ARC'), ?, ?, ?) RETURNING id",
-	:O => "INSERT INTO O (id, name) VALUES(nextval('SEQ_O'), ?) RETURNING id",
+	:O => "INSERT INTO O (id, v) VALUES(nextval('SEQ_O'), ?) RETURNING id",
 	:CO => "INSERT INTO CO (id, c, o) VALUES(nextval('SEQ_CO'), ?, ?) RETURNING id",
 	:ACO => "INSERT INTO ACO (id, co, a, v) VALUES(nextval('SEQ_ACO'), ?, ?, ?) RETURNING id",
 	:RCO => "INSERT INTO RCO (id, rc, of, ot) VALUES(nextval('SEQ_RCO'), ?, ?, ?) RETURNING id",
@@ -196,61 +193,61 @@ sql_inserts = Dict(
 
 # ╔═╡ 6fc3d8d1-5ecb-4522-bbee-e83b5a1a0f4c
 sql_selects = Dict(
-	:A => "SELECT * FROM A",
-	:C => "SELECT * FROM C",
+	:A => "SELECT id, v, (SELECT V.value FROM V WHERE V.id = A.v) as name FROM A",
+	:C => "SELECT id, v, (SELECT V.value FROM V WHERE V.id = C.v) as name FROM C",
 	:V => "SELECT * FROM V",
 	:AC => """SELECT AC.id, AC.c, AC.a, AC.v,
-	(SELECT name FROM C WHERE C.id = AC.c) as c_name,
-	(SELECT name FROM A WHERE A.id = AC.a) as a_name,
+	(SELECT V.value FROM C, V WHERE C.id = AC.c AND V.id = C.v) as c_name,
+	(SELECT V.value FROM A, V WHERE A.id = AC.a AND V.id = A.v) as a_name,
 	(SELECT value FROM V WHERE V.id = AC.v) as value
 	FROM AC
 	""",
-	:R => "SELECT * FROM R",
+	:R => "SELECT id, v, (SELECT V.value FROM V WHERE V.id = R.v) as name FROM R",
 	:AR => """SELECT AR.id, AR.r, AR.a, AR.v,
-	(SELECT name FROM R WHERE R.id = AR.r) as r_name,
-	(SELECT name FROM A WHERE A.id = AR.a) as a_name,
+	(SELECT V.value FROM R, V WHERE R.id = AR.r AND V.id = R.v) as r_name,
+	(SELECT V.value FROM A, V WHERE A.id = AR.a AND V.id = A.v) as a_name,
 	(SELECT value FROM V WHERE V.id = AR.v) as value
 	FROM AR
 	""",
 	:RC => """SELECT RC.id, RC.r as r, RC.cf as cf, RC.ct as ct,
-	(SELECT name FROM C WHERE C.id = RC.cf) as cf_name,
-	(SELECT name FROM R WHERE R.id = RC.r) as r_name,
-	(SELECT name FROM C WHERE C.id = RC.ct) as ct_name
+	(SELECT V.value FROM C, V WHERE C.id = RC.cf AND V.id = C.v) as cf_name,
+	(SELECT V.value FROM R, V WHERE R.id = RC.r AND V.id = R.v) as r_name,
+	(SELECT V.value FROM C, V WHERE C.id = RC.ct AND V.id = C.v) as ct_name
 	FROM RC
 	""",
 	:ARC => """SELECT ARC.id, ARC.rc as rc, ARC.a as a, ARC.v as v,
-	(SELECT R.name FROM R, RC WHERE RC.id = ARC.rc AND R.id = RC.r) as r_name,
-	(SELECT C.name FROM C, RC WHERE RC.id = ARC.rc AND C.id = RC.cf) as cf_name,
-	(SELECT C.name FROM C, RC WHERE RC.id = ARC.rc AND C.id = RC.ct) as ct_name,
-	(SELECT name FROM A WHERE A.id = ARC.a) as a_name,
+	(SELECT V.value FROM R, RC, V WHERE RC.id = ARC.rc AND R.id = RC.r AND V.id = R.v) as r_name,
+	(SELECT V.value FROM C, RC, V WHERE RC.id = ARC.rc AND C.id = RC.cf AND V.id = C.v) as cf_name,
+	(SELECT V.value FROM C, RC, V WHERE RC.id = ARC.rc AND C.id = RC.ct AND V.id = C.v) as ct_name,
+	(SELECT V.value FROM A, V WHERE A.id = ARC.a AND V.id = A.v) as a_name,
 	(SELECT value FROM V WHERE V.id = ARC.v) as value
 	FROM ARC
 	""",
-	:O => "SELECT * FROM O",
+	:O => "SELECT id, flag, v, (SELECT V.value FROM V WHERE V.id = O.v) as name FROM O",
 	:CO => """SELECT CO.id, CO.c as c, CO.o as o,
-	(SELECT name FROM C WHERE C.id = CO.c) as c_name,
-	(SELECT name FROM O WHERE O.id = CO.o) as o_name
+	(SELECT V.value FROM C, V WHERE C.id = CO.c AND V.id = C.v) as c_name,
+	(SELECT V.value FROM O, V WHERE O.id = CO.o AND V.id = O.v) as o_name
 	FROM CO
 	""",
 	:ACO => """SELECT ACO.id, ACO.co, ACO.a, ACO.v,
-	(SELECT C.name FROM C, CO WHERE C.id = CO.c AND CO.id = ACO.co) as c_name,
-	(SELECT O.name FROM O, CO WHERE O.id = CO.o AND CO.id = ACO.co) as o_name,
-	(SELECT name FROM A WHERE A.id = ACO.a) as a_name,
+	(SELECT V.value FROM C, CO, V WHERE C.id = CO.c AND CO.id = ACO.co AND V.id = C.v) as c_name,
+	(SELECT V.value FROM O, CO, V WHERE O.id = CO.o AND CO.id = ACO.co AND V.id = O.v) as o_name,
+	(SELECT V.value FROM A, V WHERE A.id = ACO.a AND V.id = A.v) as a_name,
 	(SELECT value FROM V WHERE V.id = ACO.v) as value
 	FROM ACO
 	""",
 	:RCO => """SELECT RCO.id, RCO.rc as rc, RCO.of as of, RCO.ot as ot,
-	(SELECT name FROM R WHERE R.id = RC.r) as r_name,
-	(SELECT name FROM O WHERE O.id = RCO.of) as of_name,
-	(SELECT name FROM O WHERE O.id = RCO.ot) as ot_name
+	(SELECT V.value FROM R, V WHERE R.id = RC.r AND V.id = R.v) as r_name,
+	(SELECT V.value FROM O, V WHERE O.id = RCO.of AND V.id = O.v) as of_name,
+	(SELECT V.value FROM O, V WHERE O.id = RCO.ot AND V.id = O.v) as ot_name
 	FROM RCO, RC
 	WHERE RC.id = RCO.rc 
 	""",
 	:ARCO => """SELECT ARCO.id, ARCO.rco, ARCO.a, ARCO.v,
-	(SELECT name FROM R WHERE R.id = RC.r) as r_name,
-	(SELECT name FROM O WHERE O.id = RCO.of) as of_name,
-	(SELECT name FROM O WHERE O.id = RCO.ot) as ot_name,
-	(SELECT name FROM A WHERE A.id = ARCO.a) as a_name,
+	(SELECT V.value FROM R, V WHERE R.id = RC.r AND V.id = R.v) as r_name,
+	(SELECT V.value FROM O, V WHERE O.id = RCO.of AND V.id = O.v) as of_name,
+	(SELECT V.value FROM O, V WHERE O.id = RCO.ot AND V.id = O.v) as ot_name,
+	(SELECT V.value FROM A, V WHERE A.id = ARCO.a AND V.id = A.v) as a_name,
 	(SELECT value FROM V WHERE V.id = ARCO.v) as value
 	FROM ARCO, RCO, RC
 	WHERE RC.id = RCO.rc AND RCO.id = ARCO.rco
@@ -259,15 +256,15 @@ sql_selects = Dict(
 
 # ╔═╡ 95c3a544-28fe-49b7-9970-639ebd543948
 sql_select_ids = Dict(
-	:A => "SELECT id FROM A WHERE name = ?",
-	:C => "SELECT id FROM C WHERE name = ?",
+	:A => "SELECT id FROM A WHERE v = ?",
+	:C => "SELECT id FROM C WHERE v = ?",
 	:V => "SELECT id FROM V WHERE value = ?",
 	:AC => "SELECT id FROM AC WHERE c = ? AND a = ?",
-	:R => "SELECT id FROM R WHERE name = ?",
+	:R => "SELECT id FROM R WHERE v = ?",
 	:AR => "SELECT id FROM AR WHERE r = ? AND a = ?",
 	:RC => "SELECT id FROM RC WHERE cf = ? AND r = ? AND ct = ?",
 	:ARC => "SELECT id FROM ARC WHERE rc = ? AND a = ?",
-	:O => "SELECT id FROM O WHERE name = ?",
+	:O => "SELECT id FROM O WHERE v = ?",
 	:CO => "SELECT id FROM CO WHERE c = ? AND o = ?",
 	:ACO => "SELECT id FROM ACO WHERE co = ? AND a = ?",
 	:RCO => "SELECT id FROM RCO	WHERE of = ? AND rc = ? AND ot = ?",
@@ -304,6 +301,13 @@ function value(kb, id)
 	v = nrow(df) == 0 ? "not found" : df[1, :value]
 end
 
+# ╔═╡ 36963005-f7de-434d-8351-397dca896b4a
+function value_count!(db, param)
+	sql_upd = "UPDATE V SET count = count + 1 WHERE id = ?"
+	df = DataFrame(DuckDB.execute(db, sql_upd, [param]))
+	param
+end
+
 # ╔═╡ 519534f3-7d93-401c-85a9-e24fd1bd9556
 function id(df, s)
 	df[only(findall(==(s), df.name)), :][:id]
@@ -317,6 +321,9 @@ function insert(db, table, params)
 	if ret == -1
 		sql_ins = sql_inserts[table]
 		df = DataFrame(DuckDB.execute(db, sql_ins, params))
+		if table in [:A, :C, :R, :O, :AC, :AR, :ARC, :ACO, :ARCO]
+			value_count!(db, params[end])
+		end
 		ret = nrow(df) == 0 ? -1 : df[1, :id]
 	end
 		
@@ -329,68 +336,82 @@ md"""
 """
 
 # ╔═╡ de78718a-eeed-4901-a780-04b634095c97
-begin 
+kb = let 
+	kb, out = create_kb(tables, file)
+	v_nothing = insert(kb, :V, ["nothing"])
+	v_author1 = insert(kb, :V, ["Голуб Б.Л."])
+	v_doc1 = insert(kb, :V, ["Лекція 1"])
+
+	v_c_doc = insert(kb, :V, ["Документ"])
+	v_c_author = insert(kb, :V, ["Автор"])
+	v_c_sentence = insert(kb, :V, ["Речення"])
+	v_c_word = insert(kb, :V, ["Слово"])
+
+	v_a_title = insert(kb, :V, ["Назва"])
+	v_a_name = insert(kb, :V, ["Ім'я"])
+	v_a_number = insert(kb, :V, ["Номер"])
+
+	v_r_is_author = insert(kb, :V, ["є автором"])
+	v_r_has_parts = insert(kb, :V, ["складається з"])
+
+	# select_all(kb, :V)
 	
-	insert(kb, :C, ["Документ"])
-	insert(kb, :C, ["Автор"])
-	insert(kb, :C, ["Речення"])
-	insert(kb, :C, ["Слово"])
+	insert(kb, :C, [v_c_doc])
+	insert(kb, :C, [v_c_author])
+	insert(kb, :C, [v_c_sentence])
+	insert(kb, :C, [v_c_word])
 	
 	# select_all(kb, :C)
 
-	insert(kb, :A, ["Назва"])
-	insert(kb, :A, ["Ім'я"])
-	insert(kb, :A, ["Номер"])
+	insert(kb, :A, [v_a_title])
+	insert(kb, :A, [v_a_name])
+	insert(kb, :A, [v_a_number])
 	
 	# select_all(kb, :A)
 
-	insert(kb, :V, ["nothing"])
-	insert(kb, :V, ["Голуб Б.Л."])
-	insert(kb, :V, ["Лекція 1"])
+	
 
-	# select_all(kb, :V)
-
-	insert(kb, :AC, [id(kb, :C, ["Автор"]), id(kb, :A, ["Ім'я"]), id(kb, :V, ["nothing"])])
-	insert(kb, :AC, [id(kb, :C, ["Документ"]), id(kb, :A, ["Назва"]), id(kb, :V, ["nothing"])])
+	insert(kb, :AC, [id(kb, :C, [v_c_author]), id(kb, :A, [v_a_name]), v_nothing])
+	insert(kb, :AC, [id(kb, :C, [v_c_doc]), id(kb, :A, [v_a_title]), v_nothing])
 	
 
 	# select_all(kb, :AC)
 
-	insert(kb, :R, ["є автором"])
-	insert(kb, :R, ["складається з"])
+	insert(kb, :R, [v_r_is_author])
+	insert(kb, :R, [v_r_has_parts])
 		
 	# select_all(kb, :R)
 
-	insert(kb, :AR, [id(kb, :R, ["складається з"]), id(kb, :A, ["Номер"]), id(kb, :V, ["nothing"])])
+	insert(kb, :AR, [id(kb, :R, [v_r_has_parts]), id(kb, :A, [v_a_number]), v_nothing])
 	
 	# select_all(kb, :AR)
 
-	insert(kb, :RC, [id(kb, :C, ["Автор"]), id(kb, :R, ["є автором"]), id(kb, :C, ["Документ"])])
-	rc1 = insert(kb, :RC, [id(kb, :C, ["Документ"]), id(kb, :R, ["складається з"]), id(kb, :C, ["Речення"])])
-	rc2 = insert(kb, :RC, [id(kb, :C, ["Речення"]), id(kb, :R, ["складається з"]), id(kb, :C, ["Слово"])])
+	insert(kb, :RC, [id(kb, :C, [v_c_author]), id(kb, :R, [v_r_is_author]), id(kb, :C, [v_c_doc])])
+	rc1 = insert(kb, :RC, [id(kb, :C, [v_c_doc]), id(kb, :R, [v_r_has_parts]), id(kb, :C, [v_c_sentence])])
+	rc2 = insert(kb, :RC, [id(kb, :C, [v_c_sentence]), id(kb, :R, [v_r_has_parts]), id(kb, :C, [v_c_word])])
 
 	# select_all(kb, :RC)
 
-	insert(kb, :ARC, [rc1, id(kb, :A, ["Номер"]), id(kb, :V, ["nothing"])])
-	insert(kb, :ARC, [rc2, id(kb, :A, ["Номер"]), id(kb, :V, ["nothing"])])
+	insert(kb, :ARC, [rc1, id(kb, :A, [v_a_number]), v_nothing])
+	insert(kb, :ARC, [rc2, id(kb, :A, [v_a_number]), v_nothing])
 	
 	# select_all(kb, :ARC)
 
-	insert(kb, :O, ["Голуб Б.Л."])
-	insert(kb, :O, ["Лекція 1"])
+	insert(kb, :O, [v_author1])
+	insert(kb, :O, [v_doc1])
 		
-	co1 = insert(kb, :CO, [id(kb, :C, ["Автор"]), id(kb, :O, ["Голуб Б.Л."])])
-	co2 = insert(kb, :CO, [id(kb, :C, ["Документ"]), id(kb, :O, ["Лекція 1"])])
+	co1 = insert(kb, :CO, [id(kb, :C, [v_c_author]), id(kb, :O, [v_author1])])
+	co2 = insert(kb, :CO, [id(kb, :C, [v_c_doc]), id(kb, :O, [v_doc1])])
 		
 	# filter(r -> r.c in [id(kb, :C, ["Автор"]), id(kb, :C, ["Документ"])], select_all(kb, :CO))
 
-	insert(kb, :ACO, [co1, id(kb, :A, ["Ім'я"]), id(kb, :V, ["Голуб Б.Л."])])
-	insert(kb, :ACO, [co2, id(kb, :A, ["Назва"]), id(kb, :V, ["Лекція 1"])])
+	insert(kb, :ACO, [co1, id(kb, :A, [v_a_name]), v_author1])
+	insert(kb, :ACO, [co2, id(kb, :A, [v_a_title]), v_doc1])
 
-	c = id(kb, :C, ["Речення"])
+	c = id(kb, :C, [v_c_sentence])
 	
 	for s in l1_sent_lcase
-		o = insert(kb, :O, [s])
+		o = insert(kb, :O, [insert(kb, :V, [s])])
 		if o > 0
 			insert(kb, :CO, [c, o])	
 		end
@@ -398,10 +419,10 @@ begin
 		
 	# filter(r -> r.c == c, select_all(kb, :CO))
 
-	c = id(kb, :C, ["Слово"])
+	c = id(kb, :C, [v_c_word])
 	
 	for s in keys(lexicon(l1_crps))
-		o = insert(kb, :O, [s])
+		o = insert(kb, :O, [insert(kb, :V, [s])])
 		if o > 0
 			insert(kb, :CO, [c, o])	
 		end
@@ -409,27 +430,30 @@ begin
 		
 	# filter(r -> r.c == c, select_all(kb, :CO))
 
-	r = id(kb, :R, ["складається з"])
+	r = id(kb, :R, [v_r_has_parts])
 
-	cf = id(kb, :C, ["Документ"])
-	ct = id(kb, :C, ["Речення"])
+	cf = id(kb, :C, [v_c_doc])
+	ct = id(kb, :C, [v_c_sentence])
 
 	rc = id(kb, :RC, [cf, r, ct])
 	
-	of = id(kb, :O, ["Лекція 1"])
+	of = id(kb, :O, [v_doc1])
 
-	a = id(kb, :A, ["Номер"])
+	a = id(kb, :A, [v_a_number])
 		
 	for i in eachindex(l1_sent_lcase)
-		ot = id(kb, :O, [l1_sent_lcase[i]])
+		ot = id(kb, :O, [insert(kb, :V, [l1_sent_lcase[i]])])
 		rco = insert(kb, :RCO, [rc, of, ot])
 		insert(kb, :ARCO, [rco, a, insert(kb, :V, ["$i"])])
 	end
 		
 	# filter(r -> r.rc == rc, select_all(kb, :RCO))
 	# select_all(kb, :ARCO)
-	
+	kb
 end
+
+# ╔═╡ 6ec1ee46-23cb-4424-b502-b31bce494df5
+DataFrame(DuckDB.execute(kb, "SELECT * FROM information_schema.tables"))
 
 # ╔═╡ 70801f02-1399-4b2b-8767-3702cd72a618
 md"""
@@ -440,7 +464,13 @@ md"""
 select_all(kb, :V)
 
 # ╔═╡ 7459bb7d-eaf2-4837-8136-bb7360e6d40c
-value(kb, 6)
+select_all(kb, :C)
+
+# ╔═╡ e17952d1-5c42-4322-9bff-6ba4d421c76e
+select_all(kb, :A)
+
+# ╔═╡ 09a3046b-787a-499f-85e1-6f6dab844564
+select_all(kb, :R)
 
 # ╔═╡ 883c57a7-a3d1-4a6d-bfc9-16fd725552ba
 select_all(kb, :AC)
@@ -448,13 +478,25 @@ select_all(kb, :AC)
 # ╔═╡ cc60c9e2-1cb3-4f90-ab7b-61e4c8c62546
 select_all(kb, :AR)
 
+# ╔═╡ b1d8e9c2-7468-448f-8870-0b1f26ed6c9f
+select_all(kb, :RC)
+
+# ╔═╡ ae36bfe0-53a2-4568-93c2-6026c4975cff
+select_all(kb, :O)
+
+# ╔═╡ a1709dd9-f830-4851-a1fd-d9d4c45f6bbe
+select_all(kb, :CO)
+
+# ╔═╡ f26f2ffb-c5ca-4fc7-8692-8dc065917938
+select_all(kb, :ACO)
+
+# ╔═╡ e2c89a2d-62d7-463e-8abe-dfa9e230fa60
+select_all(kb, :RCO)
+
 # ╔═╡ ed6b367a-8e2f-4643-a1cb-cc5bd05c4a52
 select_all(kb, :ARC)
 
 # ╔═╡ 89304cb2-e925-44c4-96c7-8e8ae65c1304
-select_all(kb, :ACO)
-
-# ╔═╡ 0a561c5b-0d72-4314-93f2-fcf688c8e784
 select_all(kb, :ARCO)
 
 # ╔═╡ 22622a1e-2624-4804-a5b8-104fdde84c37
@@ -1370,13 +1412,13 @@ version = "17.4.0+0"
 # ╟─d29ea611-2224-40b1-9619-21d5a25bac8a
 # ╟─53f00c22-7243-448f-bea5-d6e4cf165b90
 # ╟─ce44520a-ad21-4aa6-86f1-e46ffeed4b31
-# ╟─54b57fcf-6f4d-4e9f-ac1d-a075a9f74507
+# ╠═54b57fcf-6f4d-4e9f-ac1d-a075a9f74507
 # ╟─7910d7c5-0741-4fc2-ab71-a37a4f63e366
 # ╟─c1409952-da5f-4b80-a28e-a717d3e99fdd
 # ╟─d052f8bf-fd34-48dc-a19c-d634e74aa2bf
 # ╟─ae939911-0f8b-429b-9ccb-90828431f5bd
 # ╟─02e59024-01bd-470a-ae1e-caeeef8c001e
-# ╠═ac8b2fcc-723a-4e81-99f0-2ac2f2d273a5
+# ╠═6ec1ee46-23cb-4424-b502-b31bce494df5
 # ╟─11664dc4-89d1-42bd-8640-0ca7e80ca7e5
 # ╠═66a41d0b-0734-4699-8a08-287019928cc7
 # ╠═25d21a3a-6e90-4561-8eb3-65d606c8ae60
@@ -1389,17 +1431,24 @@ version = "17.4.0+0"
 # ╟─c1b74429-f394-476c-b179-726d1028d023
 # ╠═3f0efebd-8f18-454a-b210-fec9d5d0c528
 # ╠═9c7605b5-021b-4f68-94e6-199c7fe7f52f
+# ╠═36963005-f7de-434d-8351-397dca896b4a
 # ╟─519534f3-7d93-401c-85a9-e24fd1bd9556
 # ╟─9c0a2496-4af7-4ecc-9e4f-7de4c4aa239d
 # ╠═de78718a-eeed-4901-a780-04b634095c97
 # ╟─70801f02-1399-4b2b-8767-3702cd72a618
 # ╠═4f85a776-5d82-4475-9beb-4464b0cee4a6
 # ╠═7459bb7d-eaf2-4837-8136-bb7360e6d40c
+# ╠═e17952d1-5c42-4322-9bff-6ba4d421c76e
+# ╠═09a3046b-787a-499f-85e1-6f6dab844564
 # ╠═883c57a7-a3d1-4a6d-bfc9-16fd725552ba
 # ╠═cc60c9e2-1cb3-4f90-ab7b-61e4c8c62546
+# ╠═b1d8e9c2-7468-448f-8870-0b1f26ed6c9f
+# ╠═ae36bfe0-53a2-4568-93c2-6026c4975cff
+# ╠═a1709dd9-f830-4851-a1fd-d9d4c45f6bbe
+# ╠═f26f2ffb-c5ca-4fc7-8692-8dc065917938
+# ╠═e2c89a2d-62d7-463e-8abe-dfa9e230fa60
 # ╠═ed6b367a-8e2f-4643-a1cb-cc5bd05c4a52
 # ╠═89304cb2-e925-44c4-96c7-8e8ae65c1304
-# ╠═0a561c5b-0d72-4314-93f2-fcf688c8e784
 # ╟─22622a1e-2624-4804-a5b8-104fdde84c37
 # ╟─3265a9cc-7369-460f-a346-894ad78e9ffc
 # ╠═f622df43-b3f5-45f2-99e8-e6c35066fb00
