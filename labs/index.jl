@@ -20,6 +20,10 @@ md"""
 - [Лабораторна робота 1](https://youryharchenko.github.io/m-work/dw/w01.jl.html)
 
 - [Лабораторна робота 2](https://youryharchenko.github.io/m-work/dw/w02.jl.html)
+
+- [Лабораторна робота 3](https://youryharchenko.github.io/m-work/dw/w03.jl.html)
+
+- [Лабораторна робота 4](https://youryharchenko.github.io/m-work/dw/w04.jl.html)
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
