@@ -97,7 +97,8 @@ tables = [
 ]
 
 # ╔═╡ 7910d7c5-0741-4fc2-ab71-a37a4f63e366
-file = ":memory:"
+#file = ":memory:"
+file = "semantic.duckdb"
 
 # ╔═╡ d052f8bf-fd34-48dc-a19c-d634e74aa2bf
 function create_table(db, t)
@@ -453,6 +454,8 @@ kb = let
 		
 	# filter(r -> r.rc == rc, select_all(kb, :RCO))
 	# select_all(kb, :ARCO)
+	# DuckDB.execute(kb, "EXPORT DATABASE 'semantic.duckdb'")
+	
 	kb
 end
 
@@ -502,6 +505,9 @@ select_all(kb, :ARC)
 
 # ╔═╡ 89304cb2-e925-44c4-96c7-8e8ae65c1304
 select_all(kb, :ARCO)
+
+# ╔═╡ 5eedd5fb-191b-4753-90d7-4da21faf88ac
+DuckDB.close(kb)
 
 # ╔═╡ 22622a1e-2624-4804-a5b8-104fdde84c37
 md"""
@@ -766,7 +772,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "06eb5fccc1d74d074da26c0b50c582f69b5f23ca"
+project_hash = "3f794f2f198fd4a0648abffa4ac45a1801ebd4bf"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -2201,7 +2207,7 @@ version = "1.4.1+0"
 # ╟─53f00c22-7243-448f-bea5-d6e4cf165b90
 # ╟─ce44520a-ad21-4aa6-86f1-e46ffeed4b31
 # ╠═54b57fcf-6f4d-4e9f-ac1d-a075a9f74507
-# ╟─7910d7c5-0741-4fc2-ab71-a37a4f63e366
+# ╠═7910d7c5-0741-4fc2-ab71-a37a4f63e366
 # ╟─c1409952-da5f-4b80-a28e-a717d3e99fdd
 # ╟─d052f8bf-fd34-48dc-a19c-d634e74aa2bf
 # ╟─ae939911-0f8b-429b-9ccb-90828431f5bd
@@ -2237,6 +2243,7 @@ version = "1.4.1+0"
 # ╠═e2c89a2d-62d7-463e-8abe-dfa9e230fa60
 # ╠═ed6b367a-8e2f-4643-a1cb-cc5bd05c4a52
 # ╠═89304cb2-e925-44c4-96c7-8e8ae65c1304
+# ╠═5eedd5fb-191b-4753-90d7-4da21faf88ac
 # ╟─22622a1e-2624-4804-a5b8-104fdde84c37
 # ╟─3265a9cc-7369-460f-a346-894ad78e9ffc
 # ╠═f622df43-b3f5-45f2-99e8-e6c35066fb00

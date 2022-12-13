@@ -32,6 +32,7 @@ Manifest.toml
 *.png
 *.duckdb.*
 *.duckdb
+*.parquet
 logs
 *backup*
 logs.csv
