@@ -12,6 +12,13 @@ TableOfContents()
 
 # ╔═╡ b4f77e60-793e-11ed-27a9-53b84262698a
 md"""
+## Курсовий проєкт
+
+### БАЗА ЗНАНЬ ЯК СХОВИЩЕ ДАНИХ ІНТЕЛЕКТУАЛЬНОГО АГЕНТА
+
+- [Презентація](https://youryharchenko.github.io/m-work/dw/%D0%A5%D0%B0%D1%80%D1%87%D0%B5%D0%BD%D0%BA%D0%BE%D0%AE%D0%91.%D0%86%D0%A3%D0%A1%D0%A222.cproj-pres.pdf)
+
+- [Записка](https://youryharchenko.github.io/m-work/dw/%D0%A5%D0%B0%D1%80%D1%87%D0%B5%D0%BD%D0%BA%D0%BE%D0%AE%D0%91.%D0%86%D0%A3%D0%A1%D0%A222.cproj.pdf)
 
 ## Лабораторні роботи
 
