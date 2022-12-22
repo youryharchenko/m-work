@@ -1,0 +1,34 @@
+@startuml
+
+rectangle C {
+	agent "Автор" as Author
+	agent "Документ" as Doc
+	agent "Речення" as Sentence
+	agent "Слово" as Word
+}
+
+rectangle  R {
+	agent "є автором" as isAuthor
+	agent "складається з" as has
+}
+
+rectangle  RC {
+	agent id1
+	agent id2
+	agent id3
+	agent id4
+}
+
+id1 --> isAuthor
+id1 --> Author
+id1 --> Doc
+
+id2 --> has
+id2 --> Doc
+id2 --> Sentence
+
+id2 --> has
+id2 --> Sentence
+id2 --> Word
+
+@enduml
