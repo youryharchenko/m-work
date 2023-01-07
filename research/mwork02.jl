@@ -7,9 +7,6 @@ using InteractiveUtils
 # ╔═╡ 4bb72f98-0708-496c-a0d2-d7a41b2dd8c8
 using DuckDB, DataFrames, TextAnalysis, Languages
 
-# ╔═╡ f2ce65f5-b194-44b4-a310-a80788d341fe
-
-
 # ╔═╡ 1e8af3a0-6e26-4aa7-bf69-8bcda475b76d
 
 
@@ -39,11 +36,18 @@ db = let
 	dir = "save"
 	db = kb.create_kb(":memory:")
 
-	doc.proc_doc!(db, 
-		"""Russell, Stuart; Norvig, Peter. "Preface To Artificial Intelligence: A Modern Approach".txt""",
-		"Russell, Stuart; Norvig, Peter",
-		"Preface To Artificial Intelligence: A Modern Approach")
+	#doc.proc_doc!(db, 
+	#	"""test01.txt""",
+	#	"Russell, Stuart; Norvig, Peter",
+	#	"Preface To Artificial Intelligence: A Modern Approach")
+	#kb.save(db, dir)
 
+	#doc.proc_doc!(db, 
+		#"""Russell, Stuart; Norvig, Peter. "Preface To Artificial Intelligence: A Modern Approach".txt""",
+		#"Russell, Stuart; Norvig, Peter",
+		#"Preface To Artificial Intelligence: A Modern Approach")
+	#kb.save(db, dir)
+	
 	doc.proc_doc!(db, 
 		"""Helbig Knowledge Representation and the Semantics of Natural Language.txt""",
 		"Helbig, Hermann",
@@ -52,6 +56,9 @@ db = let
 	kb.save(db, dir)
 	#kb.load(dir)
 end
+
+# ╔═╡ f2ce65f5-b194-44b4-a310-a80788d341fe
+DuckDB.execute(db, "SELECT id FROM CO WHERE c = ? AND o = ?", [6, 32487])
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """

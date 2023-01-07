@@ -7,8 +7,11 @@ using InteractiveUtils
 # ╔═╡ 12708b56-8b53-11ed-006c-a5bd99c1589c
 using DuckDB, DataFrames
 
+# ╔═╡ e8beb939-a42b-4629-84e9-6cf040585eaf
+using UUIDs
+
 # ╔═╡ 42d36bd2-a135-47ad-a924-da1fec4ab8b5
-dir = "save"
+dir = "mwork02/save"
 
 # ╔═╡ 1763c9a5-720e-4d5c-8cf7-3d87b9d36dc2
 function ingredients(path::String)
@@ -26,10 +29,16 @@ function ingredients(path::String)
 end
 
 # ╔═╡ a66468e0-f5a0-4032-8433-71b24d7ac47b
-kb = ingredients("kb.jl")
+kb = ingredients("mwork02/kb.jl")
 
 # ╔═╡ bf204ae6-e205-4ea4-b6f5-ca79d728ed06
 db = kb.load(dir)
+
+# ╔═╡ d950e918-9da3-4497-b228-3d0a7e87672c
+DataFrame(DuckDB.execute(db, "SELECT * FROM duckdb_settings()"))
+
+# ╔═╡ 0428f240-1cde-4aca-a0ee-e15ef11db057
+DuckDB.toDataFrame(DuckDB.execute(db, "SELECT id FROM CO WHERE c = ? AND o = ?", [6, 32487]))
 
 # ╔═╡ ce344e61-f93d-4145-869f-18c9291ab185
 q = ingredients("query.jl")
@@ -52,11 +61,15 @@ q.select_co(db, "Word")
 # ╔═╡ 6d18023f-65ce-40ad-9eee-abc988added3
 q.select_co(db, "WordInst")
 
+# ╔═╡ 22a4ca83-0fc4-4d2e-a398-a2d9c315fd2a
+typeof(uuid4().value)
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DuckDB = "d2f5444f-75bc-4fdf-ac35-56f514c445e1"
+UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
 DataFrames = "~1.4.4"
@@ -69,7 +82,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "35380f053304d5bcdcf19e4d6b4261d52f5604a1"
+project_hash = "b6e4b98ee2f334b9f764650188fecc52b3b6b7f6"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -401,6 +414,7 @@ version = "17.4.0+0"
 # ╠═a66468e0-f5a0-4032-8433-71b24d7ac47b
 # ╠═42d36bd2-a135-47ad-a924-da1fec4ab8b5
 # ╠═bf204ae6-e205-4ea4-b6f5-ca79d728ed06
+# ╠═d950e918-9da3-4497-b228-3d0a7e87672c
 # ╠═ce344e61-f93d-4145-869f-18c9291ab185
 # ╠═d538762c-3926-4d7a-8a28-96c421767601
 # ╠═075f047c-408d-44e0-94c8-56babd1d9a41
@@ -408,6 +422,9 @@ version = "17.4.0+0"
 # ╠═7cd46cba-dd6b-4767-9697-5373b86e7a34
 # ╠═d957f5db-c3c6-4e33-b5ee-158f1942920a
 # ╠═6d18023f-65ce-40ad-9eee-abc988added3
+# ╠═0428f240-1cde-4aca-a0ee-e15ef11db057
 # ╠═1763c9a5-720e-4d5c-8cf7-3d87b9d36dc2
+# ╠═e8beb939-a42b-4629-84e9-6cf040585eaf
+# ╠═22a4ca83-0fc4-4d2e-a398-a2d9c315fd2a
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

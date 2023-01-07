@@ -1,0 +1,28 @@
+Overview of the book
+The main unifying theme is the idea of an intelligent agent. We define AI as the study of
+agents that receive percepts from the environment and perform actions. Each such agent
+implements a function that maps percept sequences to actions, and we cover different ways
+to represent these functions, such as reactive agents, real-time planners, decision-theoretic
+systems, and deep learning systems. We emphasize learning both as a construction method
+for competent systems and as a way of extending the reach of the designer into unknown
+environments. We treat robotics and vision not as independently defined problems, but as
+occurring in the service of achieving goals. We stress the importance of the task environment
+in determining the appropriate agent design.
+Our primary aim is to convey the ideas that have emerged over the past seventy years
+of AI research and the past two millennia of related work. We have tried to avoid excessive formality in the presentation of these ideas, while retaining precision. We have included
+mathematical formulas and pseudocode algorithms to make the key ideas concrete; mathematical concepts and notation are described in Appendix A and our pseudocode is described
+in Appendix B.
+This book is primarily intended for use in an undergraduate course or course sequence.
+The book has 28 chapters, each requiring about a week’s worth of lectures, so working
+through the whole book requires a two-semester sequence. A one-semester course can use
+selected chapters to suit the interests of the instructor and students. The book can also be
+used in a graduate-level course (perhaps with the addition of some of the primary sources
+suggested in the bibliographical notes), or for self-study or as a reference.
+Throughout the book, important points are marked with a triangle icon in the margin.
+Wherever a new term is defined, it is also noted in the margin. Subsequent significant uses
+of the term are in bold, but not in the margin. We have included a comprehensive index and
+an extensive bibliography.
+The only prerequisite is familiarity with basic concepts of computer science (algorithms,
+data structures, complexity) at a sophomore level. Freshman calculus and linear algebra are
+useful for some of the topics.
+
