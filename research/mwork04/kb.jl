@@ -94,6 +94,73 @@ struct RCO <: AbstractNode
     cot :: COID
 end
 
+# AC
+
+struct ACID <: AbstractID 
+    i :: UUID
+end
+
+struct AC <: AbstractNode
+    c :: CID
+    a :: AID
+    v :: VID
+end
+
+struct ACKey
+    c :: CID
+    a :: AID
+end
+
+# AR
+
+struct ARID <: AbstractID 
+    i :: UUID
+end
+
+struct AR <: AbstractNode
+    r :: RID
+    a :: AID
+    v :: VID
+end
+
+struct ARKey
+    r :: RID
+    a :: AID
+end
+
+# ACO
+
+struct ACOID <: AbstractID 
+    i :: UUID
+end
+
+struct ACO <: AbstractNode
+    co :: COID
+    ac :: ACID
+    v :: VID
+end
+
+struct ACOKey
+    co :: COID
+    ac :: ACID
+end
+
+# ARC
+
+struct ARCID <: AbstractID 
+    i :: UUID
+end
+
+struct ARC <: AbstractNode
+    rc :: RCID
+    ar :: ARID
+    v :: VID
+end
+
+struct ARCKey
+    rc :: RCID
+    ar :: ARID
+end
 
 # KB
 
@@ -122,6 +189,18 @@ end
 
     rco :: Dict{RCOID, RCO} = Dict{RCOID, RCO}()
     rcoi :: Dict{RCO, RCOID} = Dict{RCO, RCOID}()
+
+    ac :: Dict{ACID, AC} = Dict{ACID, AC}()
+    aci :: Dict{ACKey, ACID} = Dict{ACKey, ACID}()
+
+    ar :: Dict{ARID, AR} = Dict{ARID, AR}()
+    ari :: Dict{ARKey, ARID} = Dict{ARKey, ARID}()
+
+    aco :: Dict{ACOID, ACO} = Dict{ACOID, ACO}()
+    acoi :: Dict{ACOKey, ACOID} = Dict{ACOKey, ACOID}()
+
+    arc :: Dict{ARCID, ARC} = Dict{ARCID, ARC}()
+    arci :: Dict{ARCKey, ARCID} = Dict{ARCKey, ARCID}()
 
 end
 
@@ -202,7 +281,7 @@ end
 
 function id(kb::KBase, n::A)::AID
     if haskey(kb.ai, n)
-        kb.ri[n]
+        kb.ai[n]
     else
         i = AID(UUIDs.uuid4())
         kb.a[i] = n
@@ -303,6 +382,101 @@ function value(kb::KBase, i::RCOID)::Union{RCO, Nothing}
     end
 end
 
+# AC
+
+function id(kb::KBase, n::AC)::ACID
+    ack = ACKey(n.c, n.a)
+    if haskey(kb.aci, ack)
+        i = kb.aci[ack]
+        kb.ac[i] = n
+        i
+    else
+        i = ACID(UUIDs.uuid4())
+        kb.ac[i] = n
+        kb.aci[ack] = i
+        i
+    end
+end
+
+function value(kb::KBase, i::ACID)::Union{AC, Nothing}
+    if haskey(kb.ac, i)
+        kb.ac[i]
+    else
+        nothing
+    end
+end
+
+# AR
+
+function id(kb::KBase, n::AR)::ARID
+    ark = ARKey(n.r, n.a)
+    if haskey(kb.ari, ark)
+        i = kb.ari[ark]
+        kb.ar[i] = n
+        i
+    else
+        i = ARID(UUIDs.uuid4())
+        kb.ar[i] = n
+        kb.ari[ark] = i
+        i
+    end
+end
+
+function value(kb::KBase, i::ARID)::Union{AR, Nothing}
+    if haskey(kb.ar, i)
+        kb.ar[i]
+    else
+        nothing
+    end
+end
+
+# ACO
+
+function id(kb::KBase, n::ACO)::ACOID
+    acok = ACOKey(n.co, n.ac)
+    if haskey(kb.acoi, acok)
+        i = kb.acoi[acok]
+        kb.aco[i] = n
+        i
+    else
+        i = ACOID(UUIDs.uuid4())
+        kb.aco[i] = n
+        kb.acoi[acok] = i
+        i
+    end
+end
+
+function value(kb::KBase, i::ACOID)::Union{ACO, Nothing}
+    if haskey(kb.aco, i)
+        kb.aco[i]
+    else
+        nothing
+    end
+end
+
+# ARC
+
+function id(kb::KBase, n::ARC)::ARCID
+    arck = ARCKey(n.rc, n.ar)
+    if haskey(kb.arci, arck)
+        i = kb.arci[arck]
+        kb.arc[i] = n
+        i
+    else
+        i = ARCID(UUIDs.uuid4())
+        kb.arc[i] = n
+        kb.arci[arck] = i
+        i
+    end
+end
+
+function value(kb::KBase, i::ARCID)::Union{ARC, Nothing}
+    if haskey(kb.arc, i)
+        kb.arc[i]
+    else
+        nothing
+    end
+end
 
 # df
 
@@ -389,6 +563,61 @@ function select_rco(kb::KBase)
     )
 end
 
+function select_ac(kb::KBase)
+    ks = keys(kb.ac)
+    DataFrame(
+        acid = [k.i for k in ks],
+        cv = [value(kb, value(kb, kb.ac[k].c).v.i) for k in ks],
+        av = [value(kb, value(kb, kb.ac[k].a).v.i) for k in ks],
+        v = [value(kb, kb.ac[k].v.i) for k in ks],
+        cid = [kb.ac[k].c.i for k in ks],
+        aid = [kb.ac[k].a.i for k in ks],
+        vid = [kb.ac[k].v.i for k in ks],
+    )
+end
+
+function select_ar(kb::KBase)
+    ks = keys(kb.ar)
+    DataFrame(
+        arid = [k.i for k in ks],
+        rv = [value(kb, value(kb, kb.ar[k].r).v.i) for k in ks],
+        av = [value(kb, value(kb, kb.ar[k].a).v.i) for k in ks],
+        v = [value(kb, kb.ar[k].v.i) for k in ks],
+        rid = [kb.ar[k].r.i for k in ks],
+        aid = [kb.ar[k].a.i for k in ks],
+        vid = [kb.ar[k].v.i for k in ks],
+    )
+end
+
+function select_aco(kb::KBase)
+    ks = keys(kb.aco)
+    DataFrame(
+        acoid = [k.i for k in ks],
+        cv = [value(kb, value(kb, value(kb, kb.aco[k].co).c).v.i) for k in ks],
+        ov = [value(kb, value(kb, value(kb, kb.aco[k].co).o).v.i) for k in ks],
+        av = [value(kb, value(kb, value(kb, kb.aco[k].ac).a).v.i) for k in ks],
+        v = [value(kb, kb.aco[k].v.i) for k in ks],
+        coid = [kb.aco[k].co.i for k in ks],
+        acid = [kb.aco[k].ac.i for k in ks],
+        vid = [kb.aco[k].v.i for k in ks],
+    )
+end
+
+function select_arc(kb::KBase)
+    ks = keys(kb.arc)
+    DataFrame(
+        arcid = [k.i for k in ks],
+        rv = [value(kb, value(kb, value(kb, kb.arc[k].rc).r).v.i) for k in ks],
+        cfv = [value(kb, value(kb, value(kb, kb.arc[k].rc).cf).v.i) for k in ks],
+        ctv = [value(kb, value(kb, value(kb, kb.arc[k].rc).ct).v.i) for k in ks],
+        av = [value(kb, value(kb, value(kb, kb.arc[k].ar).a).v.i) for k in ks],
+        v = [value(kb, kb.arc[k].v.i) for k in ks],
+        rcid = [kb.arc[k].rc.i for k in ks],
+        arid = [kb.arc[k].ar.i for k in ks],
+        vid = [kb.arc[k].v.i for k in ks],
+    )
+end
+
 # proc
 
 function proc_doc!(kb, file, author, title; lang=Languages.English())
@@ -397,7 +626,7 @@ function proc_doc!(kb, file, author, title; lang=Languages.English())
 
 	sent_lcase, crps = document(file, lang)
 		
-	v_nothing = id(kb, "nothing")
+	v_nothing = id(kb, nothing)
 	v_author1 = id(kb, author)
 	v_doc1 = id(kb, title)
 
@@ -427,19 +656,19 @@ function proc_doc!(kb, file, author, title; lang=Languages.English())
 	
 	
 
-	# insert(kb, :A, [v_a_title])
-	# insert(kb, :A, [v_a_name])
-	# insert(kb, :A, [v_a_number])
+	a_title = id(kb, A(v_a_title))
+	a_name = id(kb, A(v_a_name))
+	a_number = id(kb, A(v_a_number))
 	
 	
-	# insert(kb, :AC, [id(kb, :C, [v_c_author]), id(kb, :A, [v_a_name]), v_nothing])
-	# insert(kb, :AC, [id(kb, :C, [v_c_doc]), id(kb, :A, [v_a_title]), v_nothing])
+	ac_author_name = id(kb, AC(c_author, a_name, v_nothing))
+	ac_doc_title = id(kb, AC(c_doc, a_title, v_nothing))
 		
 	r_is_author = id(kb, R(v_r_is_author))
 	r_has_parts = id(kb, R(v_r_has_parts))
 	r_inst_of = id(kb, R(v_r_inst_of))
 		
-	# insert(kb, :AR, [id(kb, :R, [v_r_has_parts]), id(kb, :A, [v_a_number]), v_nothing])
+	ar_has_parts_number = id(kb, AR(r_has_parts, a_number, v_nothing))
 	
 	rc_is_author = id(kb, RC(r_is_author, c_author, c_doc))
 	    
@@ -448,8 +677,8 @@ function proc_doc!(kb, file, author, title; lang=Languages.English())
 	rc3 = id(kb, RC(r_inst_of, c_sentence_inst, c_sentence))
 	rc4 = id(kb, RC(r_inst_of, c_word_inst, c_word))
 
-	# insert(kb, :ARC, [rc1, id(kb, :A, [v_a_number]), v_nothing])
-	# insert(kb, :ARC, [rc2, id(kb, :A, [v_a_number]), v_nothing])
+	id(kb, ARC(rc1, ar_has_parts_number, v_nothing))
+	id(kb, ARC(rc2, ar_has_parts_number, v_nothing))
 	
 	o_author1 = id(kb, O(v_author1))
 	o_doc1 = id(kb, O(v_doc1))
@@ -457,8 +686,8 @@ function proc_doc!(kb, file, author, title; lang=Languages.English())
 	co1 = id(kb, CO(c_author, o_author1))
 	co2 = id(kb, CO(c_doc, o_doc1))
 		
-	# insert(kb, :ACO, [co1, id(kb, :A, [v_a_name]), v_author1])
-	# insert(kb, :ACO, [co2, id(kb, :A, [v_a_title]), v_doc1])
+	id(kb, ACO(co1, ac_author_name, v_author1))
+	id(kb, ACO(co2, ac_doc_title, v_doc1))
 
 	#c = id(kb, :C, [v_c_sentence])
 	

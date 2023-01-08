@@ -51,9 +51,9 @@ end
 
 # ╔═╡ 6b9f2732-54d1-4405-9fe9-c1f30d02f079
 begin
-	KB.id(kb, KB.A(KB.id(kb, "Name")))
-	KB.id(kb, KB.A(KB.id(kb, "Title")))
-	KB.id(kb, KB.A(KB.id(kb, "Number")))
+	a_name = KB.id(kb, KB.A(KB.id(kb, "Name")))
+	a_title = KB.id(kb, KB.A(KB.id(kb, "Title")))
+	a_number = KB.id(kb, KB.A(KB.id(kb, "Number")))
 end
 
 # ╔═╡ 8de15b46-9177-4971-bbaf-e7c7be215561
@@ -83,6 +83,12 @@ end
 begin
 	KB.id(kb, KB.RCO(rc_author_of_book, co_author_1, co_book_1))
 	KB.id(kb, KB.RCO(rc_author_of_book, co_author_2, co_book_1))
+end
+
+# ╔═╡ 42c6630c-5347-420b-af19-001d9369c50d
+begin
+	KB.id(kb, KB.AC(c_author, a_name, KB.id(kb, nothing)))
+	KB.id(kb, KB.AC(c_book, a_title, KB.id(kb, nothing)))
 end
 
 # ╔═╡ a4501342-8cd2-47ba-94d7-72ee600fdcb8
@@ -137,6 +143,18 @@ KB.select_rc(db)
 # ╔═╡ 2ff9ecc9-40df-402e-a406-555194726a66
 KB.select_rco(db)
 
+# ╔═╡ f04d6d10-39cd-4ffd-ae97-f5ae4a033836
+KB.select_ac(db)
+
+# ╔═╡ ace1a6bf-08f1-4545-9e5a-4fa3f2621787
+KB.select_ar(db)
+
+# ╔═╡ a808e8d3-cf0a-4f38-8db9-3cfe12f8d98b
+KB.select_aco(db)
+
+# ╔═╡ 781975bc-5cc6-4d12-a62f-ca7852337498
+KB.select_arc(db)
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -159,7 +177,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "99946a086318a856134423b2e5e7c4ce478c185e"
+project_hash = "2e6095f1d6f25e3ba0810827250facd49e63ec8f"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -655,6 +673,7 @@ version = "17.4.0+0"
 # ╠═a0b85212-33be-4e4e-95b3-495b7f44a2c6
 # ╠═74a1693b-9b04-4c4b-b337-f062a970baa9
 # ╠═4c794934-53b1-4b29-9e5f-b71c86c21318
+# ╠═42c6630c-5347-420b-af19-001d9369c50d
 # ╠═a4501342-8cd2-47ba-94d7-72ee600fdcb8
 # ╠═bc50c69b-8ac5-4f64-bd08-8d672a7209a3
 # ╠═0f929e96-1b1e-4bc8-beef-4879ff9e1c8d
@@ -664,6 +683,10 @@ version = "17.4.0+0"
 # ╠═194e85bd-92ba-439e-bc31-af0e51a4d6c6
 # ╠═88827d6a-848f-45b0-85a1-2d506062858a
 # ╠═2ff9ecc9-40df-402e-a406-555194726a66
+# ╠═f04d6d10-39cd-4ffd-ae97-f5ae4a033836
+# ╠═ace1a6bf-08f1-4545-9e5a-4fa3f2621787
+# ╠═a808e8d3-cf0a-4f38-8db9-3cfe12f8d98b
+# ╠═781975bc-5cc6-4d12-a62f-ca7852337498
 # ╠═06eb23dc-0675-4f94-abdd-6a15bed46849
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
