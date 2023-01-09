@@ -162,6 +162,23 @@ struct ARCKey
     ar :: ARID
 end
 
+# ARCO
+
+struct ARCOID <: AbstractID 
+    i :: UUID
+end
+
+struct ARCO <: AbstractNode
+    rco :: RCOID
+    arc :: ARCID
+    v :: VID
+end
+
+struct ARCOKey
+    rco :: RCOID
+    arc :: ARCID
+end
+
 # KB
 
 @with_kw struct KBase
@@ -201,6 +218,9 @@ end
 
     arc :: Dict{ARCID, ARC} = Dict{ARCID, ARC}()
     arci :: Dict{ARCKey, ARCID} = Dict{ARCKey, ARCID}()
+
+    arco :: Dict{ARCOID, ARCO} = Dict{ARCOID, ARCO}()
+    arcoi :: Dict{ARCOKey, ARCOID} = Dict{ARCOKey, ARCOID}()
 
 end
 
@@ -478,6 +498,30 @@ function value(kb::KBase, i::ARCID)::Union{ARC, Nothing}
     end
 end
 
+# ARCO
+
+function id(kb::KBase, n::ARCO)::ARCOID
+    arcok = ARCOKey(n.rco, n.arc)
+    if haskey(kb.arcoi, arcok)
+        i = kb.arcoi[arcok]
+        kb.arco[i] = n
+        i
+    else
+        i = ARCOID(UUIDs.uuid4())
+        kb.arco[i] = n
+        kb.arcoi[arcok] = i
+        i
+    end
+end
+
+function value(kb::KBase, i::ARCOID)::Union{ARCO, Nothing}
+    if haskey(kb.arco, i)
+        kb.arco[i]
+    else
+        nothing
+    end
+end
+
 # df
 
 function select_v(kb::KBase)
@@ -618,6 +662,23 @@ function select_arc(kb::KBase)
     )
 end
 
+function select_arco(kb::KBase)
+    ks = keys(kb.arco)
+    DataFrame(
+        arcoid = [k.i for k in ks],
+        rv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).rc).r).v.i) for k in ks],
+        cfv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).cof).c).v.i) for k in ks],
+        ofv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).cof).o).v.i) for k in ks],
+        ctv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).cot).c).v.i) for k in ks],
+        otv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).cot).o).v.i) for k in ks],
+        av = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].arc).ar).a).v.i) for k in ks],
+        v = [value(kb, kb.arco[k].v.i) for k in ks],
+        rcoid = [kb.arco[k].rco.i for k in ks],
+        arcid = [kb.arco[k].arc.i for k in ks],
+        vid = [kb.arco[k].v.i for k in ks],
+    )
+end
+
 # proc
 
 function proc_doc!(kb, file, author, title; lang=Languages.English())
@@ -731,9 +792,12 @@ function ins_has_parts_inst_of!(
 	
 	of = id(kb, O(v_doc))
     cof = id(kb, CO(cf, of))
-    
-	# a = id(kb, :A, [v_a_number])
 
+    v_nothing = id(kb, nothing)
+    a_number = id(kb, A(v_a_number))
+    ar_has_parts_number = id(kb, AR(r, a_number, v_nothing))
+    arc = id(kb, ARC(rc, ar_has_parts_number, v_nothing))
+   
 	for i in eachindex(sent_lcase)
 		v_sent = id(kb, sent_lcase[i])
 		ot_p = id(kb, O(v_sent))
@@ -744,9 +808,9 @@ function ins_has_parts_inst_of!(
         cot = id(kb, CO(ct, ot))
 		
 		id(kb, RCO(rcp, cot, cot_p))
-		id(kb, RCO(rc, cof, cot))
-		#v_i = insert(kb, :V, ["$i"])
-		#insert(kb, :ARCO, [rco, a, v_i])
+		rco = id(kb, RCO(rc, cof, cot))
+		v_i = id(kb, i)
+		id(kb, ARCO(rco, arc, v_i))
 
 	end
 end

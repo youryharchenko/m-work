@@ -155,6 +155,9 @@ KB.select_aco(db)
 # ╔═╡ 781975bc-5cc6-4d12-a62f-ca7852337498
 KB.select_arc(db)
 
+# ╔═╡ fcdd53c7-0b13-490e-9dfd-111953adafbf
+KB.select_arco(db)
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -687,6 +690,7 @@ version = "17.4.0+0"
 # ╠═ace1a6bf-08f1-4545-9e5a-4fa3f2621787
 # ╠═a808e8d3-cf0a-4f38-8db9-3cfe12f8d98b
 # ╠═781975bc-5cc6-4d12-a62f-ca7852337498
+# ╠═fcdd53c7-0b13-490e-9dfd-111953adafbf
 # ╠═06eb23dc-0675-4f94-abdd-6a15bed46849
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
