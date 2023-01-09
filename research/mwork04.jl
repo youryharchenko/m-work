@@ -29,66 +29,66 @@ KB = ingredients("mwork04/kb.jl")
 kb = KB.KBase()
 
 # ╔═╡ 8c4361a2-c9e7-467a-a222-23a1b667ccc2
-KB.id(kb, nothing)
+KB.id!(kb, nothing)
 
 # ╔═╡ c3c87912-276c-4d94-bc86-8807114be646
 begin
-	c_book = KB.id(kb, KB.C(KB.id(kb, "Book")))
-	c_author = KB.id(kb, KB.C(KB.id(kb, "Author")))
-	c_sentence = KB.id(kb, KB.C(KB.id(kb, "Sentence")))
-	c_sentence_inst = KB.id(kb, KB.C(KB.id(kb, "SentenceInst")))
-	c_word = KB.id(kb, KB.C(KB.id(kb, "Word")))
-	c_word_inst = KB.id(kb, KB.C(KB.id(kb, "WordInst")))
+	c_book = KB.id!(kb, KB.C(KB.id!(kb, "Book")))
+	c_author = KB.id!(kb, KB.C(KB.id!(kb, "Author")))
+	c_sentence = KB.id!(kb, KB.C(KB.id!(kb, "Sentence")))
+	c_sentence_inst = KB.id!(kb, KB.C(KB.id!(kb, "SentenceInst")))
+	c_word = KB.id!(kb, KB.C(KB.id!(kb, "Word")))
+	c_word_inst = KB.id!(kb, KB.C(KB.id!(kb, "WordInst")))
 end
 
 # ╔═╡ 729ffe5b-ee14-439b-9859-19a498136632
 begin
-	r_part_of = KB.id(kb, KB.R(KB.id(kb, "part-of")))
-	r_instance_of = KB.id(kb, KB.R(KB.id(kb, "instance-of")))
-	r_author_of =  KB.id(kb, KB.R(KB.id(kb, "author-of")))
-	KB.id(kb, KB.R(KB.id(kb, "has")))
+	r_part_of = KB.id!(kb, KB.R(KB.id!(kb, "part-of")))
+	r_instance_of = KB.id!(kb, KB.R(KB.id!(kb, "instance-of")))
+	r_author_of =  KB.id!(kb, KB.R(KB.id!(kb, "author-of")))
+	KB.id!(kb, KB.R(KB.id!(kb, "has")))
 end
 
 # ╔═╡ 6b9f2732-54d1-4405-9fe9-c1f30d02f079
 begin
-	a_name = KB.id(kb, KB.A(KB.id(kb, "Name")))
-	a_title = KB.id(kb, KB.A(KB.id(kb, "Title")))
-	a_number = KB.id(kb, KB.A(KB.id(kb, "Number")))
+	a_name = KB.id!(kb, KB.A(KB.id!(kb, "Name")))
+	a_title = KB.id!(kb, KB.A(KB.id!(kb, "Title")))
+	a_number = KB.id!(kb, KB.A(KB.id!(kb, "Number")))
 end
 
 # ╔═╡ 8de15b46-9177-4971-bbaf-e7c7be215561
 begin
-	o_author_1 = KB.id(kb, KB.O(KB.id(kb, "Russell")))
-	o_author_2 = KB.id(kb, KB.O(KB.id(kb, "Norvig")))
-	o_book_1 = KB.id(kb, KB.O(KB.id(kb, "Preface To Artificial Intelligence: A Modern Approach")))
+	o_author_1 = KB.id!(kb, KB.O(KB.id!(kb, "Russell")))
+	o_author_2 = KB.id!(kb, KB.O(KB.id!(kb, "Norvig")))
+	o_book_1 = KB.id!(kb, KB.O(KB.id!(kb, "Preface To Artificial Intelligence: A Modern Approach")))
 end
 
 # ╔═╡ a0b85212-33be-4e4e-95b3-495b7f44a2c6
 begin
-	co_author_1 = KB.id(kb, KB.CO(c_author, o_author_1))
-	co_author_2 = KB.id(kb, KB.CO(c_author, o_author_2))
-	co_book_1 = KB.id(kb, KB.CO(c_book, o_book_1))
+	co_author_1 = KB.id!(kb, KB.CO(c_author, o_author_1))
+	co_author_2 = KB.id!(kb, KB.CO(c_author, o_author_2))
+	co_book_1 = KB.id!(kb, KB.CO(c_book, o_book_1))
 end
 
 # ╔═╡ 74a1693b-9b04-4c4b-b337-f062a970baa9
 begin
-	rc_author_of_book = KB.id(kb, KB.RC(r_author_of, c_author, c_book))
-	KB.id(kb, KB.RC(r_part_of, c_sentence_inst, c_book))
-	KB.id(kb, KB.RC(r_part_of, c_word_inst, c_sentence))
-	KB.id(kb, KB.RC(r_instance_of, c_word_inst, c_word))
-	KB.id(kb, KB.RC(r_instance_of, c_sentence_inst, c_sentence))
+	rc_author_of_book = KB.id!(kb, KB.RC(r_author_of, c_author, c_book))
+	KB.id!(kb, KB.RC(r_part_of, c_sentence_inst, c_book))
+	KB.id!(kb, KB.RC(r_part_of, c_word_inst, c_sentence))
+	KB.id!(kb, KB.RC(r_instance_of, c_word_inst, c_word))
+	KB.id!(kb, KB.RC(r_instance_of, c_sentence_inst, c_sentence))
 end
 
 # ╔═╡ 4c794934-53b1-4b29-9e5f-b71c86c21318
 begin
-	KB.id(kb, KB.RCO(rc_author_of_book, co_author_1, co_book_1))
-	KB.id(kb, KB.RCO(rc_author_of_book, co_author_2, co_book_1))
+	KB.id!(kb, KB.RCO(rc_author_of_book, co_author_1, co_book_1))
+	KB.id!(kb, KB.RCO(rc_author_of_book, co_author_2, co_book_1))
 end
 
 # ╔═╡ 42c6630c-5347-420b-af19-001d9369c50d
 begin
-	KB.id(kb, KB.AC(c_author, a_name, KB.id(kb, nothing)))
-	KB.id(kb, KB.AC(c_book, a_title, KB.id(kb, nothing)))
+	KB.id!(kb, KB.AC(c_author, a_name, KB.id!(kb, nothing)))
+	KB.id!(kb, KB.AC(c_book, a_title, KB.id!(kb, nothing)))
 end
 
 # ╔═╡ a4501342-8cd2-47ba-94d7-72ee600fdcb8
@@ -157,6 +157,9 @@ KB.select_arc(db)
 
 # ╔═╡ fcdd53c7-0b13-490e-9dfd-111953adafbf
 KB.select_arco(db)
+
+# ╔═╡ 54393b32-51ed-45f7-a857-d67819764f36
+get(Dict("a"=>1, "b"=>2), "c", -1)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -692,5 +695,6 @@ version = "17.4.0+0"
 # ╠═781975bc-5cc6-4d12-a62f-ca7852337498
 # ╠═fcdd53c7-0b13-490e-9dfd-111953adafbf
 # ╠═06eb23dc-0675-4f94-abdd-6a15bed46849
+# ╠═54393b32-51ed-45f7-a857-d67819764f36
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

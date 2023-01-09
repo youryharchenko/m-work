@@ -226,12 +226,12 @@ end
 
 # V
 
-function id(kb::KBase, value::ValueTypes)::VID
+function id!(kb::KBase, value::ValueTypes)::VID
     v = V(value)
-    id(kb, v)
+    id!(kb, v)
 end
 
-function id(kb::KBase, v::V)::VID
+function id!(kb::KBase, v::V)::VID
     if haskey(kb.vi, v)
         kb.vi[v]
     else
@@ -240,6 +240,15 @@ function id(kb::KBase, v::V)::VID
         kb.vi[v] = i
         i
     end
+end
+
+function id(kb::KBase, value::ValueTypes)::VID
+    v = V(value)
+    id(kb, v)
+end
+
+function id(kb::KBase, v::V)::Union{VID, Nothing}
+    get(kb.vi, v, nothing)
 end
 
 function value(kb::KBase, u::UUID)::V
@@ -251,13 +260,13 @@ function value(kb::KBase, i::VID)::V
     if haskey(kb.v, i)
         kb.v[i]
     else
-        kb.v[id(kb, nothing)]
+        kb.v[id!(kb, nothing)]
     end
 end
 
 # C
 
-function id(kb::KBase, n::C)::CID
+function id!(kb::KBase, n::C)::CID
     if haskey(kb.ci, n)
         kb.ci[n]
     else
@@ -268,17 +277,17 @@ function id(kb::KBase, n::C)::CID
     end
 end
 
+function id(kb::KBase, n::C)::Union{CID, Nothing}
+    get(kb.ci, n, nothing)
+end
+
 function value(kb::KBase, i::CID)::Union{C, Nothing}
-    if haskey(kb.c, i)
-        kb.c[i]
-    else
-        nothing
-    end
+    get(kb.c, i, nothing)
 end
 
 # R
 
-function id(kb::KBase, n::R)::RID
+function id!(kb::KBase, n::R)::RID
     if haskey(kb.ri, n)
         kb.ri[n]
     else
@@ -289,17 +298,17 @@ function id(kb::KBase, n::R)::RID
     end
 end
 
+function id(kb::KBase, n::R)::Union{RID, Nothing}
+    get(kb.ri, n, nothing)
+end
+
 function value(kb::KBase, i::RID)::Union{R, Nothing}
-    if haskey(kb.r, i)
-        kb.r[i]
-    else
-        nothing
-    end
+    get(kb.r, i, nothing)
 end
 
 # A
 
-function id(kb::KBase, n::A)::AID
+function id!(kb::KBase, n::A)::AID
     if haskey(kb.ai, n)
         kb.ai[n]
     else
@@ -310,17 +319,17 @@ function id(kb::KBase, n::A)::AID
     end
 end
 
+function id(kb::KBase, n::A)::Union{AID, Nothing}
+    get(kb.ai, n, nothing)
+end
+
 function value(kb::KBase, i::AID)::Union{A, Nothing}
-    if haskey(kb.a, i)
-        kb.a[i]
-    else
-        nothing
-    end
+    get(kb.a, i, nothing)
 end
 
 # O
 
-function id(kb::KBase, n::O)::OID
+function id!(kb::KBase, n::O)::OID
     if haskey(kb.oi, n)
         kb.oi[n]
     else
@@ -331,17 +340,17 @@ function id(kb::KBase, n::O)::OID
     end
 end
 
+function id(kb::KBase, n::O)::Union{OID, Nothing}
+    get(kb.oi, n, nothing)
+end
+
 function value(kb::KBase, i::OID)::Union{O, Nothing}
-    if haskey(kb.o, i)
-        kb.o[i]
-    else
-        nothing
-    end
+    get(kb.o, i, nothing)
 end
 
 # CO
 
-function id(kb::KBase, n::CO)::COID
+function id!(kb::KBase, n::CO)::COID
     if haskey(kb.coi, n)
         kb.coi[n]
     else
@@ -352,17 +361,17 @@ function id(kb::KBase, n::CO)::COID
     end
 end
 
+function id(kb::KBase, n::CO)::Union{COID, Nothing}
+    get(kb.coi, n, nothing)
+end
+
 function value(kb::KBase, i::COID)::Union{CO, Nothing}
-    if haskey(kb.co, i)
-        kb.co[i]
-    else
-        nothing
-    end
+    get(kb.co, i, nothing)
 end
 
 # RC
 
-function id(kb::KBase, n::RC)::RCID
+function id!(kb::KBase, n::RC)::RCID
     if haskey(kb.rci, n)
         kb.rci[n]
     else
@@ -373,17 +382,17 @@ function id(kb::KBase, n::RC)::RCID
     end
 end
 
+function id(kb::KBase, n::RC)::Union{RCID, Nothing}
+    get(kb.rci, n, nothing)
+end
+
 function value(kb::KBase, i::RCID)::Union{RC, Nothing}
-    if haskey(kb.rc, i)
-        kb.rc[i]
-    else
-        nothing
-    end
+    get(kb.rc, i, nothing)
 end
 
 # RCO
 
-function id(kb::KBase, n::RCO)::RCOID
+function id!(kb::KBase, n::RCO)::RCOID
     if haskey(kb.rcoi, n)
         kb.rcoi[n]
     else
@@ -394,17 +403,17 @@ function id(kb::KBase, n::RCO)::RCOID
     end
 end
 
+function id(kb::KBase, n::RCO)::Union{RCOID, Nothing}
+    get(kb.rcoi, n, nothing)
+end
+
 function value(kb::KBase, i::RCOID)::Union{RCO, Nothing}
-    if haskey(kb.rco, i)
-        kb.rco[i]
-    else
-        nothing
-    end
+    get(kb.rco, i, nothing)
 end
 
 # AC
 
-function id(kb::KBase, n::AC)::ACID
+function id!(kb::KBase, n::AC)::ACID
     ack = ACKey(n.c, n.a)
     if haskey(kb.aci, ack)
         i = kb.aci[ack]
@@ -418,17 +427,17 @@ function id(kb::KBase, n::AC)::ACID
     end
 end
 
+function id(kb::KBase, n::AC)::Union{ACID, Nothing}
+    get(kb.aci, n, nothing)
+end
+
 function value(kb::KBase, i::ACID)::Union{AC, Nothing}
-    if haskey(kb.ac, i)
-        kb.ac[i]
-    else
-        nothing
-    end
+    get(kb.ac, i, nothing)
 end
 
 # AR
 
-function id(kb::KBase, n::AR)::ARID
+function id!(kb::KBase, n::AR)::ARID
     ark = ARKey(n.r, n.a)
     if haskey(kb.ari, ark)
         i = kb.ari[ark]
@@ -442,17 +451,17 @@ function id(kb::KBase, n::AR)::ARID
     end
 end
 
+function id(kb::KBase, n::AR)::Union{ARID, Nothing}
+    get(kb.ari, n, nothing)
+end
+
 function value(kb::KBase, i::ARID)::Union{AR, Nothing}
-    if haskey(kb.ar, i)
-        kb.ar[i]
-    else
-        nothing
-    end
+    get(kb.ar, i, nothing)
 end
 
 # ACO
 
-function id(kb::KBase, n::ACO)::ACOID
+function id!(kb::KBase, n::ACO)::ACOID
     acok = ACOKey(n.co, n.ac)
     if haskey(kb.acoi, acok)
         i = kb.acoi[acok]
@@ -466,17 +475,17 @@ function id(kb::KBase, n::ACO)::ACOID
     end
 end
 
+function id(kb::KBase, n::ACO)::Union{ACOID, Nothing}
+    get(kb.acoi, n, nothing)
+end
+
 function value(kb::KBase, i::ACOID)::Union{ACO, Nothing}
-    if haskey(kb.aco, i)
-        kb.aco[i]
-    else
-        nothing
-    end
+    get(kb.aco, i, nothing)
 end
 
 # ARC
 
-function id(kb::KBase, n::ARC)::ARCID
+function id!(kb::KBase, n::ARC)::ARCID
     arck = ARCKey(n.rc, n.ar)
     if haskey(kb.arci, arck)
         i = kb.arci[arck]
@@ -490,17 +499,17 @@ function id(kb::KBase, n::ARC)::ARCID
     end
 end
 
+function id(kb::KBase, n::ARC)::Union{ARCID, Nothing}
+    get(kb.arci, n, nothing)
+end
+
 function value(kb::KBase, i::ARCID)::Union{ARC, Nothing}
-    if haskey(kb.arc, i)
-        kb.arc[i]
-    else
-        nothing
-    end
+    get(kb.arc, i, nothing)
 end
 
 # ARCO
 
-function id(kb::KBase, n::ARCO)::ARCOID
+function id!(kb::KBase, n::ARCO)::ARCOID
     arcok = ARCOKey(n.rco, n.arc)
     if haskey(kb.arcoi, arcok)
         i = kb.arcoi[arcok]
@@ -514,12 +523,12 @@ function id(kb::KBase, n::ARCO)::ARCOID
     end
 end
 
+function id(kb::KBase, n::ARCO)::Union{ARCOID, Nothing}
+    get(kb.arcoi, n, nothing)
+end
+
 function value(kb::KBase, i::ARCOID)::Union{ARCO, Nothing}
-    if haskey(kb.arco, i)
-        kb.arco[i]
-    else
-        nothing
-    end
+    get(kb.arco, i, nothing)
 end
 
 # df
@@ -687,88 +696,88 @@ function proc_doc!(kb, file, author, title; lang=Languages.English())
 
 	sent_lcase, crps = document(file, lang)
 		
-	v_nothing = id(kb, nothing)
-	v_author1 = id(kb, author)
-	v_doc1 = id(kb, title)
+	v_nothing = id!(kb, nothing)
+	v_author1 = id!(kb, author)
+	v_doc1 = id!(kb, title)
 
-	v_c_doc = id(kb, "Document")
-	v_c_author = id(kb, "Author")
-	v_c_sentence = id(kb, "Sentence")
-	v_c_sentence_inst = id(kb, "SentenceInst")
-	v_c_word = id(kb, "Word")
-	v_c_word_inst = id(kb, "WordInst")
+	v_c_doc = id!(kb, "Document")
+	v_c_author = id!(kb, "Author")
+	v_c_sentence = id!(kb, "Sentence")
+	v_c_sentence_inst = id!(kb, "SentenceInst")
+	v_c_word = id!(kb, "Word")
+	v_c_word_inst = id!(kb, "WordInst")
 
 
-	v_a_title = id(kb, "Title")
-	v_a_name = id(kb, "Name")
-	v_a_number = id(kb, "Number")
+	v_a_title = id!(kb, "Title")
+	v_a_name = id!(kb, "Name")
+	v_a_number = id!(kb, "Number")
 
-	v_r_is_author = id(kb, "is a author")
-	v_r_has_parts = id(kb, "has parts")
-	v_r_inst_of = id(kb, "inst of")
+	v_r_is_author = id!(kb, "is a author")
+	v_r_has_parts = id!(kb, "has parts")
+	v_r_inst_of = id!(kb, "inst of")
 
 		
-	c_doc = id(kb, C(v_c_doc))
-	c_author = id(kb, C(v_c_author))
-	c_sentence = id(kb, C(v_c_sentence))
-	c_sentence_inst = id(kb, C(v_c_sentence_inst))
-	c_word = id(kb, C(v_c_word))
-	c_word_inst = id(kb, C(v_c_word_inst))
+	c_doc = id!(kb, C(v_c_doc))
+	c_author = id!(kb, C(v_c_author))
+	c_sentence = id!(kb, C(v_c_sentence))
+	c_sentence_inst = id!(kb, C(v_c_sentence_inst))
+	c_word = id!(kb, C(v_c_word))
+	c_word_inst = id!(kb, C(v_c_word_inst))
 	
 	
 
-	a_title = id(kb, A(v_a_title))
-	a_name = id(kb, A(v_a_name))
-	a_number = id(kb, A(v_a_number))
+	a_title = id!(kb, A(v_a_title))
+	a_name = id!(kb, A(v_a_name))
+	a_number = id!(kb, A(v_a_number))
 	
 	
-	ac_author_name = id(kb, AC(c_author, a_name, v_nothing))
-	ac_doc_title = id(kb, AC(c_doc, a_title, v_nothing))
+	ac_author_name = id!(kb, AC(c_author, a_name, v_nothing))
+	ac_doc_title = id!(kb, AC(c_doc, a_title, v_nothing))
 		
-	r_is_author = id(kb, R(v_r_is_author))
-	r_has_parts = id(kb, R(v_r_has_parts))
-	r_inst_of = id(kb, R(v_r_inst_of))
+	r_is_author = id!(kb, R(v_r_is_author))
+	r_has_parts = id!(kb, R(v_r_has_parts))
+	r_inst_of = id!(kb, R(v_r_inst_of))
 		
-	ar_has_parts_number = id(kb, AR(r_has_parts, a_number, v_nothing))
+	ar_has_parts_number = id!(kb, AR(r_has_parts, a_number, v_nothing))
 	
-	rc_is_author = id(kb, RC(r_is_author, c_author, c_doc))
+	rc_is_author = id!(kb, RC(r_is_author, c_author, c_doc))
 	    
-	rc1 = id(kb, RC(r_has_parts, c_doc, c_sentence_inst))
-	rc2 = id(kb, RC(r_has_parts, c_sentence, c_word_inst))
-	rc3 = id(kb, RC(r_inst_of, c_sentence_inst, c_sentence))
-	rc4 = id(kb, RC(r_inst_of, c_word_inst, c_word))
+	rc1 = id!(kb, RC(r_has_parts, c_doc, c_sentence_inst))
+	rc2 = id!(kb, RC(r_has_parts, c_sentence, c_word_inst))
+	rc3 = id!(kb, RC(r_inst_of, c_sentence_inst, c_sentence))
+	rc4 = id!(kb, RC(r_inst_of, c_word_inst, c_word))
 
-	id(kb, ARC(rc1, ar_has_parts_number, v_nothing))
-	id(kb, ARC(rc2, ar_has_parts_number, v_nothing))
+	id!(kb, ARC(rc1, ar_has_parts_number, v_nothing))
+	id!(kb, ARC(rc2, ar_has_parts_number, v_nothing))
 	
-	o_author1 = id(kb, O(v_author1))
-	o_doc1 = id(kb, O(v_doc1))
+	o_author1 = id!(kb, O(v_author1))
+	o_doc1 = id!(kb, O(v_doc1))
 		
-	co1 = id(kb, CO(c_author, o_author1))
-	co2 = id(kb, CO(c_doc, o_doc1))
+	co1 = id!(kb, CO(c_author, o_author1))
+	co2 = id!(kb, CO(c_doc, o_doc1))
 		
-	id(kb, ACO(co1, ac_author_name, v_author1))
-	id(kb, ACO(co2, ac_doc_title, v_doc1))
+	id!(kb, ACO(co1, ac_author_name, v_author1))
+	id!(kb, ACO(co2, ac_doc_title, v_doc1))
 
-	#c = id(kb, :C, [v_c_sentence])
+	#c = id!(kb, :C, [v_c_sentence])
 	
 	for s in sent_lcase
-	 	o = id(kb, O(id(kb, s)))
-	 	id(kb, CO(c_sentence, o))	
+	 	o = id!(kb, O(id!(kb, s)))
+	 	id!(kb, CO(c_sentence, o))	
 	end
 		
-	# c = id(kb, :C, [v_c_word])
+	# c = id!(kb, :C, [v_c_word])
 	
 	for s in keys(lexicon(crps))
-	 	o = id(kb, O(id(kb, s)))
-		id(kb, CO(c_word, o))	
+	 	o = id!(kb, O(id!(kb, s)))
+		id!(kb, CO(c_word, o))	
 	end
 		
 	ins_has_parts_inst_of!(
 	 	kb, v_r_has_parts, v_r_inst_of, v_c_doc, v_c_sentence, v_c_sentence_inst, v_a_number, v_doc1, sent_lcase)
 
 	for s in sent_lcase
-	 	v_sent = id(kb, s)
+	 	v_sent = id!(kb, s)
 	 	words = TextAnalysis.tokenize(s)
 	 	ins_has_parts_inst_of!(
 	 		kb, v_r_has_parts, v_r_inst_of, v_c_sentence, v_c_word, v_c_word_inst, v_a_number, v_sent, words)
@@ -780,37 +789,37 @@ end
 function ins_has_parts_inst_of!(
 	kb, v_r_has_parts, v_r_inst_of, v_c_doc, v_c_sentence, v_c_sentence_inst, v_a_number, v_doc, sent_lcase)
 
-	r = id(kb, R(v_r_has_parts))
-	rp = id(kb, R(v_r_inst_of))
+	r = id!(kb, R(v_r_has_parts))
+	rp = id!(kb, R(v_r_inst_of))
 
-	cf = id(kb, C(v_c_doc))
-	ct = id(kb, C(v_c_sentence_inst))
-	cp = id(kb, C(v_c_sentence))
+	cf = id!(kb, C(v_c_doc))
+	ct = id!(kb, C(v_c_sentence_inst))
+	cp = id!(kb, C(v_c_sentence))
 
-	rc = id(kb, RC(r, cf, ct))
-	rcp = id(kb, RC(rp, ct, cp))
+	rc = id!(kb, RC(r, cf, ct))
+	rcp = id!(kb, RC(rp, ct, cp))
 	
-	of = id(kb, O(v_doc))
-    cof = id(kb, CO(cf, of))
+	of = id!(kb, O(v_doc))
+    cof = id!(kb, CO(cf, of))
 
-    v_nothing = id(kb, nothing)
-    a_number = id(kb, A(v_a_number))
-    ar_has_parts_number = id(kb, AR(r, a_number, v_nothing))
-    arc = id(kb, ARC(rc, ar_has_parts_number, v_nothing))
+    v_nothing = id!(kb, nothing)
+    a_number = id!(kb, A(v_a_number))
+    ar_has_parts_number = id!(kb, AR(r, a_number, v_nothing))
+    arc = id!(kb, ARC(rc, ar_has_parts_number, v_nothing))
    
 	for i in eachindex(sent_lcase)
-		v_sent = id(kb, sent_lcase[i])
-		ot_p = id(kb, O(v_sent))
-        cot_p = id(kb, CO(cp, ot_p))
+		v_sent = id!(kb, sent_lcase[i])
+		ot_p = id!(kb, O(v_sent))
+        cot_p = id!(kb, CO(cp, ot_p))
 		#k = count_rco_from(kb, rcp, ot_p)
-		v_sent_inst = id(kb, UUIDs.uuid4())
-		ot = id(kb, O(v_sent_inst))
-        cot = id(kb, CO(ct, ot))
+		v_sent_inst = id!(kb, UUIDs.uuid4())
+		ot = id!(kb, O(v_sent_inst))
+        cot = id!(kb, CO(ct, ot))
 		
-		id(kb, RCO(rcp, cot, cot_p))
-		rco = id(kb, RCO(rc, cof, cot))
-		v_i = id(kb, i)
-		id(kb, ARCO(rco, arc, v_i))
+		id!(kb, RCO(rcp, cot, cot_p))
+		rco = id!(kb, RCO(rc, cof, cot))
+		v_i = id!(kb, i)
+		id!(kb, ARCO(rco, arc, v_i))
 
 	end
 end
