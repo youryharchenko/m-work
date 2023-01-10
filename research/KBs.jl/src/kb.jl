@@ -1,4 +1,4 @@
-using UUIDs, Dates, Parameters, DataFrames, BSON
+using UUIDs, Dates, Parameters, DataFrames, BSON, BSONify
 
 include("document.jl")
 
@@ -224,12 +224,12 @@ end
 
 end
 
-function save(kb::KBase, file::String)
-    BSON.bson(file, Dict("kb" => kb))
+function save(kb::KBase, dir::String)
+    
 end
 
 function load(file::String)::KBase 
-    BSON.load(file, @__MODULE__)
+    #BSON.load(file, @__MODULE__)["kb"]
 end
 
 # V

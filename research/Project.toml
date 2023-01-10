@@ -1,0 +1,10 @@
+[deps]
+BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+KBs = "37b3aa0b-ee78-4f38-8fec-92bae9ad0627"
+Languages = "8ef0a80b-9436-5d2c-a485-80b904378c43"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+TextAnalysis = "a2db99b7-8b79-58f8-94bf-bbc811eef33d"
+UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
