@@ -549,6 +549,14 @@ function select_v(kb::KBase)
     )
 end
 
+function serialize_v(kb::KBase)
+    ks = keys(kb.v)
+    
+    (vid = [k.i for k in ks],
+    value = [kb.v[k].value for k in ks])
+    
+end
+
 function select_c(kb::KBase)
     ks = keys(kb.c)
     DataFrame(

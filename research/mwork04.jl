@@ -17,6 +17,9 @@ end
 # ╔═╡ 40d83ca0-2c11-46b4-932c-a7920473eea6
 using KBs 
 
+# ╔═╡ e9ae32d1-3279-4414-b8ce-5cf8663902f8
+using Serialization
+
 # ╔═╡ 66065870-8c27-11ed-13d6-2f98c7c0acc3
 #using UUIDs, Parameters, DataFrames, TextAnalysis, Languages, BSON
 
@@ -90,6 +93,18 @@ end
 begin
 	KB.id!(kb, KB.AC(c_author, a_name, KB.id!(kb, nothing)))
 	KB.id!(kb, KB.AC(c_book, a_title, KB.id!(kb, nothing)))
+end
+
+# ╔═╡ 42a94168-1d73-499d-aa64-862ef0632a2b
+begin
+	serialize("kb.v-i.serialized", collect(keys(kb.v)))
+	deserialize("kb.v-i.serialized")
+end
+
+# ╔═╡ b8103f41-46c8-41d1-81cd-8ed2992e4a8b
+begin
+	serialize("kb.v-i.serialized", [kb.v[k].value for k in keys(kb.v)])
+	deserialize("kb.v-i.serialized")
 end
 
 # ╔═╡ a4501342-8cd2-47ba-94d7-72ee600fdcb8
@@ -175,7 +190,16 @@ function ingredients(path::String)
 end
 
 # ╔═╡ 54393b32-51ed-45f7-a857-d67819764f36
-KB.save(db, "kb.bson")
+begin
+	serialize("db.v-i.serialized", collect(keys(db.v)))
+	deserialize("db.v-i.serialized")
+end
+
+# ╔═╡ 1cce58f4-ebe9-4441-aeaa-9d8535793405
+begin
+	serialize("db.v-value.serialized", [db.v[k].value for k in keys(db.v)])
+	deserialize("db.v-value.serialized")
+end
 
 # ╔═╡ Cell order:
 # ╠═66065870-8c27-11ed-13d6-2f98c7c0acc3
@@ -193,6 +217,9 @@ KB.save(db, "kb.bson")
 # ╠═74a1693b-9b04-4c4b-b337-f062a970baa9
 # ╠═4c794934-53b1-4b29-9e5f-b71c86c21318
 # ╠═42c6630c-5347-420b-af19-001d9369c50d
+# ╠═e9ae32d1-3279-4414-b8ce-5cf8663902f8
+# ╠═42a94168-1d73-499d-aa64-862ef0632a2b
+# ╠═b8103f41-46c8-41d1-81cd-8ed2992e4a8b
 # ╠═a4501342-8cd2-47ba-94d7-72ee600fdcb8
 # ╠═bc50c69b-8ac5-4f64-bd08-8d672a7209a3
 # ╠═0f929e96-1b1e-4bc8-beef-4879ff9e1c8d
@@ -209,3 +236,4 @@ KB.save(db, "kb.bson")
 # ╠═fcdd53c7-0b13-490e-9dfd-111953adafbf
 # ╠═06eb23dc-0675-4f94-abdd-6a15bed46849
 # ╠═54393b32-51ed-45f7-a857-d67819764f36
+# ╠═1cce58f4-ebe9-4441-aeaa-9d8535793405

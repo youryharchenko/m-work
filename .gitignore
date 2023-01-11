@@ -37,3 +37,4 @@ logs
 logs.csv
 text.txt
 research/Helbig Knowledge Representation and the Semantics of Natural Language.txt
+*.serialized
