@@ -1,4 +1,4 @@
-using UUIDs, Dates, Parameters, DataFrames, BSON, BSONify
+using UUIDs, Dates, Parameters, DataFrames, Serialization
 
 include("document.jl")
 
@@ -225,11 +225,351 @@ end
 end
 
 function save(kb::KBase, dir::String)
+    mkpath(dir)
+
+    # V
+    ks = collect(keys(kb.v))
+    serialize(joinpath(dir, "v-i.serialized"), ks)
+    serialize(joinpath(dir, "v-value.serialized"), [kb.v[k].value for k in ks])
     
+    # C
+    ks = collect(keys(kb.c))
+    serialize(joinpath(dir, "c-i.serialized"), ks)
+    serialize(joinpath(dir, "c-v.serialized"), [kb.c[k].v for k in ks])
+    
+    # O
+    ks = collect(keys(kb.o))
+    serialize(joinpath(dir, "o-i.serialized"), ks)
+    serialize(joinpath(dir, "o-v.serialized"), [kb.o[k].v for k in ks])
+    
+    # CO
+    ks = collect(keys(kb.co))
+    serialize(joinpath(dir, "co-i.serialized"), ks)
+    serialize(joinpath(dir, "co-c.serialized"), [kb.co[k].c for k in ks])
+    serialize(joinpath(dir, "co-o.serialized"), [kb.co[k].o for k in ks])
+    
+    # R
+    ks = collect(keys(kb.r))
+    serialize(joinpath(dir, "r-i.serialized"), ks)
+    serialize(joinpath(dir, "r-v.serialized"), [kb.r[k].v for k in ks])
+
+    # RC
+    ks = collect(keys(kb.rc))
+    serialize(joinpath(dir, "rc-i.serialized"), ks)
+    serialize(joinpath(dir, "rc-r.serialized"), [kb.rc[k].r for k in ks])
+    serialize(joinpath(dir, "rc-cf.serialized"), [kb.rc[k].cf for k in ks])
+    serialize(joinpath(dir, "rc-ct.serialized"), [kb.rc[k].ct for k in ks])
+
+    # RCO
+    ks = collect(keys(kb.rco))
+    serialize(joinpath(dir, "rco-i.serialized"), ks)
+    serialize(joinpath(dir, "rco-rc.serialized"), [kb.rco[k].rc for k in ks])
+    serialize(joinpath(dir, "rco-cof.serialized"), [kb.rco[k].cof for k in ks])
+    serialize(joinpath(dir, "rco-cot.serialized"), [kb.rco[k].cot for k in ks])
+
+    # A
+    ks = collect(keys(kb.a))
+    serialize(joinpath(dir, "a-i.serialized"), ks)
+    serialize(joinpath(dir, "a-v.serialized"), [kb.a[k].v for k in ks])
+
+    # AC
+    ks = collect(keys(kb.ac))
+    serialize(joinpath(dir, "ac-i.serialized"), ks)
+    serialize(joinpath(dir, "ac-c.serialized"), [kb.ac[k].c for k in ks])
+    serialize(joinpath(dir, "ac-a.serialized"), [kb.ac[k].a for k in ks])
+    serialize(joinpath(dir, "ac-v.serialized"), [kb.ac[k].v for k in ks])
+
+    # ACO
+    ks = collect(keys(kb.aco))
+    serialize(joinpath(dir, "aco-i.serialized"), ks)
+    serialize(joinpath(dir, "aco-co.serialized"), [kb.aco[k].co for k in ks])
+    serialize(joinpath(dir, "aco-ac.serialized"), [kb.aco[k].ac for k in ks])
+    serialize(joinpath(dir, "aco-v.serialized"), [kb.aco[k].v for k in ks])
+
+
+    # AR
+    ks = collect(keys(kb.ar))
+    serialize(joinpath(dir, "ar-i.serialized"), ks)
+    serialize(joinpath(dir, "ar-r.serialized"), [kb.ar[k].r for k in ks])
+    serialize(joinpath(dir, "ar-a.serialized"), [kb.ar[k].a for k in ks])
+    serialize(joinpath(dir, "ar-v.serialized"), [kb.ar[k].v for k in ks])
+
+    # ARC
+    ks = collect(keys(kb.arc))
+    serialize(joinpath(dir, "arc-i.serialized"), ks)
+    serialize(joinpath(dir, "arc-rc.serialized"), [kb.arc[k].rc for k in ks])
+    serialize(joinpath(dir, "arc-ar.serialized"), [kb.arc[k].ar for k in ks])
+    serialize(joinpath(dir, "arc-v.serialized"), [kb.arc[k].v for k in ks])
+
+    # ARCO
+    ks = collect(keys(kb.arco))
+    serialize(joinpath(dir, "arco-i.serialized"), ks)
+    serialize(joinpath(dir, "arco-rco.serialized"), [kb.arco[k].rco for k in ks])
+    serialize(joinpath(dir, "arco-arc.serialized"), [kb.arco[k].arc for k in ks])
+    serialize(joinpath(dir, "arco-v.serialized"), [kb.arco[k].v for k in ks])
+
+
 end
 
-function load(file::String)::KBase 
-    #BSON.load(file, @__MODULE__)["kb"]
+function load(dir::String)::KBase 
+    
+
+    # V
+    v = Dict(
+        zip(
+            deserialize(joinpath(dir, "v-i.serialized")),
+            V.(deserialize(joinpath(dir, "v-value.serialized")))
+        )
+    )
+
+    vi = Dict(
+        zip(
+			V.(deserialize(joinpath(dir, "v-value.serialized"))),
+            deserialize(joinpath(dir, "v-i.serialized"))
+        )
+    )
+
+    # C
+    c = Dict(
+        zip(
+            deserialize(joinpath(dir, "c-i.serialized")),
+            C.(deserialize(joinpath(dir, "c-v.serialized"))),
+        )
+    )
+
+    ci = Dict(
+        zip(
+            C.(deserialize(joinpath(dir, "c-v.serialized"))),
+            deserialize(joinpath(dir, "c-i.serialized")),
+        )
+    )
+    
+    
+    # O
+    o = Dict(
+        zip(
+            deserialize(joinpath(dir, "o-i.serialized")),
+            O.(deserialize(joinpath(dir, "o-v.serialized"))),
+        )
+    )
+    
+    oi = Dict(
+        zip(
+            O.(deserialize(joinpath(dir, "o-v.serialized"))),
+            deserialize(joinpath(dir, "o-i.serialized")),
+        )
+    )
+    
+    # CO
+    co = Dict(
+        zip(
+            deserialize(joinpath(dir, "co-i.serialized")),
+            [CO(args...) for args in zip(
+				deserialize(joinpath(dir, "co-c.serialized")),
+				deserialize(joinpath(dir, "co-o.serialized")),
+			)],
+		)
+    )
+    
+    coi = Dict(
+        zip(
+            [CO(args...) for args in zip(
+				deserialize(joinpath(dir, "co-c.serialized")),
+				deserialize(joinpath(dir, "co-o.serialized")),
+			)],
+            deserialize(joinpath(dir, "co-i.serialized")),
+		)
+    )
+
+    # R
+    r = Dict(
+        zip(
+            deserialize(joinpath(dir, "r-i.serialized")),
+            R.(deserialize(joinpath(dir, "r-v.serialized"))),
+        )
+    )
+    
+    ri = Dict(
+        zip(
+            R.(deserialize(joinpath(dir, "r-v.serialized"))),
+            deserialize(joinpath(dir, "r-i.serialized")),
+        )
+    )
+
+    # RC
+    rc = Dict(
+        zip(
+            deserialize(joinpath(dir, "rc-i.serialized")),
+            [RC(args...) for args in zip(
+				deserialize(joinpath(dir, "rc-r.serialized")),
+				deserialize(joinpath(dir, "rc-cf.serialized")),
+                deserialize(joinpath(dir, "rc-ct.serialized")),
+			)],
+        )
+    )
+    
+    rci = Dict(
+        zip(
+            [RC(args...) for args in zip(
+				deserialize(joinpath(dir, "rc-r.serialized")),
+				deserialize(joinpath(dir, "rc-cf.serialized")),
+                deserialize(joinpath(dir, "rc-ct.serialized")),
+			)],
+            deserialize(joinpath(dir, "rc-i.serialized")),
+        )
+    )
+
+    # RCO
+    rco = Dict(
+        zip(
+            deserialize(joinpath(dir, "rco-i.serialized")),
+            [RCO(args...) for args in zip(
+				deserialize(joinpath(dir, "rco-rc.serialized")),
+				deserialize(joinpath(dir, "rco-cof.serialized")),
+                deserialize(joinpath(dir, "rco-cot.serialized")),
+			)],
+        )
+    )
+    
+    rcoi = Dict(
+        zip(
+            [RCO(args...) for args in zip(
+				deserialize(joinpath(dir, "rco-rc.serialized")),
+				deserialize(joinpath(dir, "rco-cof.serialized")),
+                deserialize(joinpath(dir, "rco-cot.serialized")),
+			)],
+            deserialize(joinpath(dir, "rco-i.serialized")),
+        )
+    )
+
+    # A
+    a = Dict(
+        zip(
+            deserialize(joinpath(dir, "a-i.serialized")),
+            A.(deserialize(joinpath(dir, "a-v.serialized"))),
+        )
+    )
+    
+    ai = Dict(
+        zip(
+            A.(deserialize(joinpath(dir, "a-v.serialized"))),
+            deserialize(joinpath(dir, "a-i.serialized")),
+        )
+    )
+
+    # AC
+    ac = Dict(
+        zip(
+            deserialize(joinpath(dir, "ac-i.serialized")),
+            [AC(args...) for args in zip(
+				deserialize(joinpath(dir, "ac-c.serialized")),
+				deserialize(joinpath(dir, "ac-a.serialized")),
+                deserialize(joinpath(dir, "ac-v.serialized")),
+			)],
+        )
+    )
+    
+    aci = Dict(
+        zip(
+            [ACKey(args...) for args in zip(
+				deserialize(joinpath(dir, "ac-c.serialized")),
+				deserialize(joinpath(dir, "ac-a.serialized")),
+			)],
+            deserialize(joinpath(dir, "ac-i.serialized")),
+        )
+    )
+
+    # ACO
+    aco = Dict(
+        zip(
+            deserialize(joinpath(dir, "aco-i.serialized")),
+            [ACO(args...) for args in zip(
+				deserialize(joinpath(dir, "aco-co.serialized")),
+				deserialize(joinpath(dir, "aco-ac.serialized")),
+                deserialize(joinpath(dir, "aco-v.serialized")),
+			)],
+        )
+    )
+        
+    acoi = Dict(
+        zip(
+            [ACOKey(args...) for args in zip(
+				deserialize(joinpath(dir, "aco-co.serialized")),
+				deserialize(joinpath(dir, "aco-ac.serialized")),
+			)],
+            deserialize(joinpath(dir, "aco-i.serialized")),
+        )
+    )
+
+    # AR
+    ar = Dict(
+        zip(
+            deserialize(joinpath(dir, "ar-i.serialized")),
+            [AR(args...) for args in zip(
+				deserialize(joinpath(dir, "ar-r.serialized")),
+				deserialize(joinpath(dir, "ar-a.serialized")),
+                deserialize(joinpath(dir, "ar-v.serialized")),
+			)],
+        )
+    )
+    
+    ari = Dict(
+        zip(
+            [ARKey(args...) for args in zip(
+				deserialize(joinpath(dir, "ar-r.serialized")),
+				deserialize(joinpath(dir, "ar-a.serialized")),
+			)],
+            deserialize(joinpath(dir, "ar-i.serialized")),
+        )
+    )
+
+    # ARC
+    arc = Dict(
+        zip(
+            deserialize(joinpath(dir, "arc-i.serialized")),
+            [ARC(args...) for args in zip(
+				deserialize(joinpath(dir, "arc-rc.serialized")),
+				deserialize(joinpath(dir, "arc-ar.serialized")),
+                deserialize(joinpath(dir, "arc-v.serialized")),
+			)],
+        )
+    )
+        
+    arci = Dict(
+        zip(
+            [ARCKey(args...) for args in zip(
+				deserialize(joinpath(dir, "arc-rc.serialized")),
+				deserialize(joinpath(dir, "arc-ar.serialized")),
+			)],
+            deserialize(joinpath(dir, "arc-i.serialized")),
+        )
+    )
+
+    # ARCO
+    arco = Dict(
+        zip(
+            deserialize(joinpath(dir, "arco-i.serialized")),
+            [ARCO(args...) for args in zip(
+				deserialize(joinpath(dir, "arco-rco.serialized")),
+				deserialize(joinpath(dir, "arco-arc.serialized")),
+                deserialize(joinpath(dir, "arco-v.serialized")),
+			)],
+        )
+    )
+    
+    arcoi = Dict(
+        zip(
+            [ARCOKey(args...) for args in zip(
+				deserialize(joinpath(dir, "arco-rco.serialized")),
+				deserialize(joinpath(dir, "arco-arc.serialized")),
+			)],
+            deserialize(joinpath(dir, "arco-i.serialized")),
+        )
+    )
+
+    KBase(v=v, vi=vi, c=c, ci=ci, o=o, oi=oi, co=co, coi=coi, r=r, ri=ri, rc=rc, rci=rci, rco=rco, rcoi=rcoi,
+    a=a, ai=ai, ac=ac, aci=aci, aco=aco, acoi=acoi, ar=ar, ari=ari, arc=arc, arci=arci, arco=arco, arcoi=arcoi)
+    
 end
 
 # V
@@ -549,13 +889,6 @@ function select_v(kb::KBase)
     )
 end
 
-function serialize_v(kb::KBase)
-    ks = keys(kb.v)
-    
-    (vid = [k.i for k in ks],
-    value = [kb.v[k].value for k in ks])
-    
-end
 
 function select_c(kb::KBase)
     ks = keys(kb.c)

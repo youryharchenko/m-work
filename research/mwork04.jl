@@ -107,6 +107,9 @@ begin
 	deserialize("kb.v-i.serialized")
 end
 
+# ╔═╡ eeae29ee-14bd-4002-88db-ec8ef79e2c16
+KB.save(kb, "kb-save")
+
 # ╔═╡ a4501342-8cd2-47ba-94d7-72ee600fdcb8
 db = let
 	#dir = "save"
@@ -201,6 +204,9 @@ begin
 	deserialize("db.v-value.serialized")
 end
 
+# ╔═╡ 3f9189a5-edc2-4bbf-bb9e-891cf0c39391
+KB.save(db, "db-save")
+
 # ╔═╡ Cell order:
 # ╠═66065870-8c27-11ed-13d6-2f98c7c0acc3
 # ╠═7a3b4ec9-5175-4174-b436-66317e92650f
@@ -220,6 +226,7 @@ end
 # ╠═e9ae32d1-3279-4414-b8ce-5cf8663902f8
 # ╠═42a94168-1d73-499d-aa64-862ef0632a2b
 # ╠═b8103f41-46c8-41d1-81cd-8ed2992e4a8b
+# ╠═eeae29ee-14bd-4002-88db-ec8ef79e2c16
 # ╠═a4501342-8cd2-47ba-94d7-72ee600fdcb8
 # ╠═bc50c69b-8ac5-4f64-bd08-8d672a7209a3
 # ╠═0f929e96-1b1e-4bc8-beef-4879ff9e1c8d
@@ -237,3 +244,4 @@ end
 # ╠═06eb23dc-0675-4f94-abdd-6a15bed46849
 # ╠═54393b32-51ed-45f7-a857-d67819764f36
 # ╠═1cce58f4-ebe9-4441-aeaa-9d8535793405
+# ╠═3f9189a5-edc2-4bbf-bb9e-891cf0c39391
