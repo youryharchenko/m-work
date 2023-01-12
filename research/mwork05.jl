@@ -99,6 +99,8 @@ KBs.select_o(kb, (x)->x.v == KBs.id(kb, "one"))
 
 # ╔═╡ e1fcb5ca-5cde-454d-bff6-50358e9ab53a
 begin
+	v_nothing = KBs.id(kb, "nothing")
+	
 	c_document = KBs.C(KBs.id(kb, "Document"))
 	i_c_document = KBs.id(kb, c_document)
 
@@ -188,17 +190,80 @@ KBs.select_rco(kb)
 # ╔═╡ 1f6663b4-8e9d-4351-bff7-6543acf26d2a
 KBs.select_a(kb)
 
+# ╔═╡ df9897c9-c5f7-4d2b-9d48-72f10cf90a27
+begin
+	v_number = KBs.id(kb, "Number")
+	a_number = KBs.A(v_number)
+	i_a_number = KBs.id(kb, a_number)
+
+	v_title = KBs.id(kb, "Title")
+	a_title = KBs.A(v_title)
+	i_a_title = KBs.id(kb, a_title)
+end
+
 # ╔═╡ 6b6f8c32-b558-4ab5-889c-40d4439ef20d
+KBs.select_ac(kb, (x)->x.a == i_a_title)
+
+# ╔═╡ 75b38573-b3f2-4c6f-8769-5f1b9cd2f414
+KBs.select_ac(kb, (x)->x.c == i_c_document)
+
+# ╔═╡ 5b6c605b-c14f-4e4c-a30f-1fad37e2899a
 KBs.select_ac(kb)
 
 # ╔═╡ 4198b1b4-ad30-4bc8-bcd3-bc1e4a065a65
-KBs.select_ar(kb)
+KBs.select_ar(kb, (x)->x.a == i_a_number)
+
+# ╔═╡ b8440fb0-60a2-466b-b16f-ff39161ed91e
+KBs.select_ar(kb, (x)->x.r == i_r_has_parts)
+
+# ╔═╡ bd13f7c1-bb16-4981-bffb-5836d4050b0b
+begin
+	i_o_document_1 = KBs.id(kb, KBs.O(KBs.id(kb, "Preface To Artificial Intelligence: A Modern Approach")))
+	i_ac_title_document = KBs.id(kb, KBs.ACKey(i_c_document, i_a_title))
+	i_co_document_1 = KBs.id(kb, KBs.CO(i_c_document, i_o_document_1))
+
+	i_o_document_2 = KBs.id(kb, KBs.O(KBs.id(kb, "Knowledge Representation and the Semantics of Natural Language")))
+	i_co_document_2 = KBs.id(kb, KBs.CO(i_c_document, i_o_document_2))
+end
+
+# ╔═╡ d683b840-ed7f-4883-9d4d-6a3ca16b23f7
+KBs.select_rco(kb, (x)->x.cof == i_co_document_1)
+
+# ╔═╡ 339d4aad-d5f1-4e0c-9f0e-170716acc7f8
+KBs.select_aco(kb, (x)->x.ac == i_ac_title_document)
+
+# ╔═╡ f2386b0f-0759-4496-ac1d-34919f629527
+KBs.select_aco(kb, (x)->x.co == i_co_document_1)
+
+# ╔═╡ 71fde9e6-c5cb-4a7a-8a37-79a3a884c5ce
+KBs.select_aco(kb, (x)->x.co == i_co_document_2)
 
 # ╔═╡ 199abb46-4059-48ae-9ad2-a14023d9194c
 KBs.select_aco(kb)
 
-# ╔═╡ ef9f50c4-3dc9-4ebd-8896-96d0a3888363
+# ╔═╡ 04d1a92f-0668-4ea1-83c5-85060f8cfb5f
+begin
+	i_ar_hasparts_number = KBs.id(kb, KBs.ARKey(i_r_has_parts, i_a_number))
+end
+
+# ╔═╡ fc1d39fe-94f8-410d-b5bb-6f2211a3eece
+KBs.select_arc(kb, (x)->x.rc == i_rc_hasparts_document_sentenceinst)
+
+# ╔═╡ 77cf2ae8-da95-408b-9742-27978ae18629
+KBs.select_arc(kb, (x)->x.ar == i_ar_hasparts_number)
+
+# ╔═╡ 7bb10aef-d83d-4810-982f-1facbe1e03d0
 KBs.select_arc(kb)
+
+# ╔═╡ b4d301df-f00b-4211-a1c1-3633996732d0
+begin
+	i_arc_hasparts_number = KBs.id(kb, KBs.ARCKey(i_rc_hasparts_document_sentenceinst, i_ar_hasparts_number))
+
+	i_rco_hasparts_number = KBs.id(kb, KBs.RCO(i_rc_hasparts_document_sentenceinst, i_co_document_2, i_co_sentence_b))
+end
+
+# ╔═╡ 746dc195-9c98-4b1b-b893-fcb48ec2543d
+KBs.select_arco(kb, (x)->x.arc == i_arc_hasparts_number)
 
 # ╔═╡ 43ac3d53-eaf7-4235-913b-689c356215d9
 KBs.select_arco(kb)
@@ -253,11 +318,25 @@ end
 # ╠═52da4039-1d86-4cb6-b8d5-062c78d5b0ed
 # ╠═78397bd7-728a-40b0-94ac-262f8dfaf7b7
 # ╠═3437cde5-e45c-4292-8787-ea3db12ee6e5
+# ╠═d683b840-ed7f-4883-9d4d-6a3ca16b23f7
 # ╠═30a74d55-f2ae-4f30-9c8a-0a1fc9f39d7d
 # ╠═1f6663b4-8e9d-4351-bff7-6543acf26d2a
+# ╠═df9897c9-c5f7-4d2b-9d48-72f10cf90a27
 # ╠═6b6f8c32-b558-4ab5-889c-40d4439ef20d
+# ╠═75b38573-b3f2-4c6f-8769-5f1b9cd2f414
+# ╠═5b6c605b-c14f-4e4c-a30f-1fad37e2899a
 # ╠═4198b1b4-ad30-4bc8-bcd3-bc1e4a065a65
+# ╠═b8440fb0-60a2-466b-b16f-ff39161ed91e
+# ╠═bd13f7c1-bb16-4981-bffb-5836d4050b0b
+# ╠═339d4aad-d5f1-4e0c-9f0e-170716acc7f8
+# ╠═f2386b0f-0759-4496-ac1d-34919f629527
+# ╠═71fde9e6-c5cb-4a7a-8a37-79a3a884c5ce
 # ╠═199abb46-4059-48ae-9ad2-a14023d9194c
-# ╠═ef9f50c4-3dc9-4ebd-8896-96d0a3888363
+# ╠═04d1a92f-0668-4ea1-83c5-85060f8cfb5f
+# ╠═fc1d39fe-94f8-410d-b5bb-6f2211a3eece
+# ╠═77cf2ae8-da95-408b-9742-27978ae18629
+# ╠═7bb10aef-d83d-4810-982f-1facbe1e03d0
+# ╠═b4d301df-f00b-4211-a1c1-3633996732d0
+# ╠═746dc195-9c98-4b1b-b893-fcb48ec2543d
 # ╠═43ac3d53-eaf7-4235-913b-689c356215d9
 # ╠═f561b509-e20c-4549-b123-d245d839cada

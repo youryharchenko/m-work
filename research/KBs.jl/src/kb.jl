@@ -775,7 +775,7 @@ function id!(kb::KBase, n::AC)::ACID
     end
 end
 
-function id(kb::KBase, n::AC)::Union{ACID, Nothing}
+function id(kb::KBase, n::ACKey)::Union{ACID, Nothing}
     get(kb.aci, n, nothing)
 end
 
@@ -799,7 +799,7 @@ function id!(kb::KBase, n::AR)::ARID
     end
 end
 
-function id(kb::KBase, n::AR)::Union{ARID, Nothing}
+function id(kb::KBase, n::ARKey)::Union{ARID, Nothing}
     get(kb.ari, n, nothing)
 end
 
@@ -823,7 +823,7 @@ function id!(kb::KBase, n::ACO)::ACOID
     end
 end
 
-function id(kb::KBase, n::ACO)::Union{ACOID, Nothing}
+function id(kb::KBase, n::ACOKey)::Union{ACOID, Nothing}
     get(kb.acoi, n, nothing)
 end
 
@@ -847,7 +847,7 @@ function id!(kb::KBase, n::ARC)::ARCID
     end
 end
 
-function id(kb::KBase, n::ARC)::Union{ARCID, Nothing}
+function id(kb::KBase, n::ARCKey)::Union{ARCID, Nothing}
     get(kb.arci, n, nothing)
 end
 
