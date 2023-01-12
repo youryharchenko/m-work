@@ -590,7 +590,7 @@ function id!(kb::KBase, v::V)::VID
     end
 end
 
-function id(kb::KBase, value::ValueTypes)::VID
+function id(kb::KBase, value::ValueTypes)::Union{VID, Nothing}
     v = V(value)
     id(kb, v)
 end
@@ -881,8 +881,8 @@ end
 
 # df
 
-function select_v(kb::KBase)
-    ks = keys(kb.v)
+function select_v(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.v) if f(kb.v[k])]
     DataFrame(
         vid = [k.i for k in ks],
         value = [kb.v[k].value for k in ks]
@@ -890,8 +890,8 @@ function select_v(kb::KBase)
 end
 
 
-function select_c(kb::KBase)
-    ks = keys(kb.c)
+function select_c(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.c) if f(kb.c[k])]
     DataFrame(
         cid = [k.i for k in ks],
         v = [value(kb, kb.c[k].v.i) for k in ks],
@@ -899,8 +899,8 @@ function select_c(kb::KBase)
     )
 end
 
-function select_r(kb::KBase)
-    ks = keys(kb.r)
+function select_r(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.r) if f(kb.r[k])]
     DataFrame(
         rid = [k.i for k in ks],
         v = [value(kb, kb.r[k].v.i) for k in ks],
@@ -908,8 +908,8 @@ function select_r(kb::KBase)
     )
 end
 
-function select_a(kb::KBase)
-    ks = keys(kb.a)
+function select_a(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.a) if f(kb.a[k])]
     DataFrame(
         aid = [k.i for k in ks],
         v = [value(kb, kb.a[k].v.i) for k in ks],
@@ -917,8 +917,8 @@ function select_a(kb::KBase)
     )
 end
 
-function select_o(kb::KBase)
-    ks = keys(kb.o)
+function select_o(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.o) if f(kb.o[k])]
     DataFrame(
         oid = [k.i for k in ks],
         v = [value(kb, kb.o[k].v.i) for k in ks],
@@ -926,8 +926,8 @@ function select_o(kb::KBase)
     )
 end
 
-function select_co(kb::KBase)
-    ks = keys(kb.co)
+function select_co(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.co) if f(kb.co[k])]
     DataFrame(
         coid = [k.i for k in ks],
         cv = [value(kb, value(kb, kb.co[k].c).v.i) for k in ks],
@@ -937,8 +937,8 @@ function select_co(kb::KBase)
     )
 end
 
-function select_rc(kb::KBase)
-    ks = keys(kb.rc)
+function select_rc(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.rc) if f(kb.rc[k])]
     DataFrame(
         rcid = [k.i for k in ks],
         rv = [value(kb, value(kb, kb.rc[k].r).v.i) for k in ks],
@@ -950,8 +950,8 @@ function select_rc(kb::KBase)
     )
 end
 
-function select_rco(kb::KBase)
-    ks = keys(kb.rco)
+function select_rco(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.rco) if f(kb.rco[k])]
     DataFrame(
         rcoid = [k.i for k in ks],
         rv = [value(kb, value(kb, value(kb, kb.rco[k].rc).r).v.i) for k in ks],
@@ -965,8 +965,8 @@ function select_rco(kb::KBase)
     )
 end
 
-function select_ac(kb::KBase)
-    ks = keys(kb.ac)
+function select_ac(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.ac) if f(kb.ac[k])]
     DataFrame(
         acid = [k.i for k in ks],
         cv = [value(kb, value(kb, kb.ac[k].c).v.i) for k in ks],
@@ -978,8 +978,8 @@ function select_ac(kb::KBase)
     )
 end
 
-function select_ar(kb::KBase)
-    ks = keys(kb.ar)
+function select_ar(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.ar) if f(kb.ar[k])]
     DataFrame(
         arid = [k.i for k in ks],
         rv = [value(kb, value(kb, kb.ar[k].r).v.i) for k in ks],
@@ -991,8 +991,8 @@ function select_ar(kb::KBase)
     )
 end
 
-function select_aco(kb::KBase)
-    ks = keys(kb.aco)
+function select_aco(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.aco) if f(kb.aco[k])]
     DataFrame(
         acoid = [k.i for k in ks],
         cv = [value(kb, value(kb, value(kb, kb.aco[k].co).c).v.i) for k in ks],
@@ -1005,8 +1005,8 @@ function select_aco(kb::KBase)
     )
 end
 
-function select_arc(kb::KBase)
-    ks = keys(kb.arc)
+function select_arc(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.arc) if f(kb.arc[k])]
     DataFrame(
         arcid = [k.i for k in ks],
         rv = [value(kb, value(kb, value(kb, kb.arc[k].rc).r).v.i) for k in ks],
@@ -1020,8 +1020,8 @@ function select_arc(kb::KBase)
     )
 end
 
-function select_arco(kb::KBase)
-    ks = keys(kb.arco)
+function select_arco(kb::KBase, f = (x)->true)
+    ks = [k for k in keys(kb.arco) if f(kb.arco[k])]
     DataFrame(
         arcoid = [k.i for k in ks],
         rv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).rc).r).v.i) for k in ks],
