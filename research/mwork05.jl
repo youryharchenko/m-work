@@ -86,16 +86,16 @@ Dict(
     
 
 # ╔═╡ 67173d68-1efd-46ab-b6ad-09287d487eb8
-KBs.select_v(kb, (x)->x.value isa String)
+KBs.select(KBs.V ,kb, (x)->x.value isa String)
 
 # ╔═╡ 13fdd8a1-2fc6-477a-bde5-636ab187f077
-KBs.select_c(kb, (x)->true)
+KBs.select(KBs.C ,kb, (x)->true)
 
 # ╔═╡ e0357704-20ef-4123-8ea2-00ca3ff78040
-KBs.select_c(kb, (x)->x.v == KBs.id(kb, "Document"))
+KBs.select(KBs.C ,kb, (x)->x.v == KBs.id(kb, "Document"))
 
 # ╔═╡ aa6e48e7-6220-43a4-9e43-2e3765d4c9aa
-KBs.select_o(kb, (x)->x.v == KBs.id(kb, "one"))
+KBs.select(KBs.O, kb, (x)->x.v == KBs.id(kb, "one"))
 
 # ╔═╡ e1fcb5ca-5cde-454d-bff6-50358e9ab53a
 begin
@@ -115,13 +115,13 @@ begin
 end
 
 # ╔═╡ d1199439-36d7-4b19-814b-0080b013b05a
-KBs.select_co(kb, (x)->x.c == i_c_document)
+KBs.select(KBs.CO, kb, (x)->x.c == i_c_document)
 
 # ╔═╡ 228dfeeb-9c46-467c-b6ea-509693b6137a
-KBs.select_co(kb, (x)->x.c == i_c_word)
+KBs.select(KBs.CO, kb, (x)->x.c == i_c_word)
 
 # ╔═╡ 6c3177d6-be77-4126-a87c-98b66d490b75
-KBs.select_co(kb, (x)->x.c == i_c_sentence)
+KBs.select(KBs.CO, kb, (x)->x.c == i_c_sentence)
 
 # ╔═╡ 03352c54-4b55-46eb-9d49-17ca822cc743
 begin
@@ -133,7 +133,7 @@ begin
 end
 
 # ╔═╡ 97f9aab4-6d9a-4354-bf5a-d5fcdddb7d31
-KBs.select_co(kb, (x)->x.o == i_o_modeling)
+KBs.select(KBs.CO, kb, (x)->x.o == i_o_modeling)
 
 # ╔═╡ ca309c65-b469-4f82-8758-a47d8bf5bacc
 KBs.select_co(kb, (x)->x.o == i_o_b)
@@ -147,19 +147,19 @@ begin
 end
 
 # ╔═╡ fc80b046-43af-45af-8087-462a0a5e1531
-KBs.select_r(kb, (x)->x.v == v_r_has_parts)
+KBs.select(KBs.R, kb, (x)->x.v == v_r_has_parts)
 
 # ╔═╡ 2e46d7a4-a44d-4f07-8bad-d0a394d6d0ea
-KBs.select_rc(kb, (x)->x.r == i_r_has_parts)
+KBs.select(KBs.RC, kb, (x)->x.r == i_r_has_parts)
 
 # ╔═╡ 4e178fd8-658a-47e4-a77b-c820bd2c4ba3
-KBs.select_rc(kb, (x)->x.cf == i_c_sentence)
+KBs.select(KBs.RC, kb, (x)->x.cf == i_c_sentence)
 
 # ╔═╡ 9cabdfb9-3b6d-4b7d-b1b2-4738a8ecc91e
-KBs.select_rc(kb, (x)->x.ct == i_c_sentence_inst)
+KBs.select(KBs.RC, kb, (x)->x.ct == i_c_sentence_inst)
 
 # ╔═╡ 0a73a14c-6086-4ef3-9762-382e89483814
-KBs.select_rc(kb)
+KBs.select(KBs.RC, kb)
 
 # ╔═╡ 3fd6bc52-038a-45c3-a5bc-3684f2847b1d
 begin
@@ -176,19 +176,19 @@ begin
 end
 
 # ╔═╡ 52da4039-1d86-4cb6-b8d5-062c78d5b0ed
-KBs.select_rco(kb, (x)->x.rc == i_rc_hasparts_document_sentenceinst)
+KBs.select(KBs.RCO, kb, (x)->x.rc == i_rc_hasparts_document_sentenceinst)
 
 # ╔═╡ 78397bd7-728a-40b0-94ac-262f8dfaf7b7
-KBs.select_rco(kb, (x)->x.cot == i_co_word_b)
+KBs.select(KBs.RCO, kb, (x)->x.cot == i_co_word_b)
 
 # ╔═╡ 3437cde5-e45c-4292-8787-ea3db12ee6e5
-KBs.select_rco(kb, (x)->x.cof == i_co_sentence_b)
+KBs.select(KBs.RCO, kb, (x)->x.cof == i_co_sentence_b)
 
 # ╔═╡ 30a74d55-f2ae-4f30-9c8a-0a1fc9f39d7d
-KBs.select_rco(kb)
+KBs.select(KBs.RCO, kb)
 
 # ╔═╡ 1f6663b4-8e9d-4351-bff7-6543acf26d2a
-KBs.select_a(kb)
+KBs.select(KBs.A, kb)
 
 # ╔═╡ df9897c9-c5f7-4d2b-9d48-72f10cf90a27
 begin
@@ -202,19 +202,19 @@ begin
 end
 
 # ╔═╡ 6b6f8c32-b558-4ab5-889c-40d4439ef20d
-KBs.select_ac(kb, (x)->x.a == i_a_title)
+KBs.select(KBs.AC, kb, (x)->x.a == i_a_title)
 
 # ╔═╡ 75b38573-b3f2-4c6f-8769-5f1b9cd2f414
-KBs.select_ac(kb, (x)->x.c == i_c_document)
+KBs.select(KBs.AC, kb, (x)->x.c == i_c_document)
 
 # ╔═╡ 5b6c605b-c14f-4e4c-a30f-1fad37e2899a
-KBs.select_ac(kb)
+KBs.select(KBs.AC, kb)
 
 # ╔═╡ 4198b1b4-ad30-4bc8-bcd3-bc1e4a065a65
-KBs.select_ar(kb, (x)->x.a == i_a_number)
+KBs.select(KBs.AR, kb, (x)->x.a == i_a_number)
 
 # ╔═╡ b8440fb0-60a2-466b-b16f-ff39161ed91e
-KBs.select_ar(kb, (x)->x.r == i_r_has_parts)
+KBs.select(KBs.AR, kb, (x)->x.r == i_r_has_parts)
 
 # ╔═╡ bd13f7c1-bb16-4981-bffb-5836d4050b0b
 begin
@@ -227,19 +227,19 @@ begin
 end
 
 # ╔═╡ d683b840-ed7f-4883-9d4d-6a3ca16b23f7
-KBs.select_rco(kb, (x)->x.cof == i_co_document_1)
+KBs.select(KBs.RCO, kb, (x)->x.cof == i_co_document_1)
 
 # ╔═╡ 339d4aad-d5f1-4e0c-9f0e-170716acc7f8
-KBs.select_aco(kb, (x)->x.ac == i_ac_title_document)
+KBs.select(KBs.ACO, kb, (x)->x.ac == i_ac_title_document)
 
 # ╔═╡ f2386b0f-0759-4496-ac1d-34919f629527
-KBs.select_aco(kb, (x)->x.co == i_co_document_1)
+KBs.select(KBs.ACO, kb, (x)->x.co == i_co_document_1)
 
 # ╔═╡ 71fde9e6-c5cb-4a7a-8a37-79a3a884c5ce
-KBs.select_aco(kb, (x)->x.co == i_co_document_2)
+KBs.select(KBs.ACO, kb, (x)->x.co == i_co_document_2)
 
 # ╔═╡ 199abb46-4059-48ae-9ad2-a14023d9194c
-KBs.select_aco(kb)
+KBs.select(KBs.ACO, kb)
 
 # ╔═╡ 04d1a92f-0668-4ea1-83c5-85060f8cfb5f
 begin
@@ -247,13 +247,13 @@ begin
 end
 
 # ╔═╡ fc1d39fe-94f8-410d-b5bb-6f2211a3eece
-KBs.select_arc(kb, (x)->x.rc == i_rc_hasparts_document_sentenceinst)
+KBs.select(KBs.ARC, kb, (x)->x.rc == i_rc_hasparts_document_sentenceinst)
 
 # ╔═╡ 77cf2ae8-da95-408b-9742-27978ae18629
-KBs.select_arc(kb, (x)->x.ar == i_ar_hasparts_number)
+KBs.select(KBs.ARC, kb, (x)->x.ar == i_ar_hasparts_number)
 
 # ╔═╡ 7bb10aef-d83d-4810-982f-1facbe1e03d0
-KBs.select_arc(kb)
+KBs.select(KBs.ARC, kb)
 
 # ╔═╡ b4d301df-f00b-4211-a1c1-3633996732d0
 begin
@@ -263,10 +263,10 @@ begin
 end
 
 # ╔═╡ 746dc195-9c98-4b1b-b893-fcb48ec2543d
-KBs.select_arco(kb, (x)->x.arc == i_arc_hasparts_number)
+KBs.select(KBs.ARCO, kb, (x)->x.arc == i_arc_hasparts_number)
 
 # ╔═╡ 43ac3d53-eaf7-4235-913b-689c356215d9
-KBs.select_arco(kb)
+KBs.select(KBs.ARCO, kb)
 
 # ╔═╡ f561b509-e20c-4549-b123-d245d839cada
 function ingredients(path::String)

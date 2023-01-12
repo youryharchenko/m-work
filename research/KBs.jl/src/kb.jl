@@ -871,7 +871,7 @@ function id!(kb::KBase, n::ARCO)::ARCOID
     end
 end
 
-function id(kb::KBase, n::ARCO)::Union{ARCOID, Nothing}
+function id(kb::KBase, n::ARCOKey)::Union{ARCOID, Nothing}
     get(kb.arcoi, n, nothing)
 end
 
@@ -881,7 +881,7 @@ end
 
 # df
 
-function select_v(kb::KBase, f = (x)->true)
+function select(::Type{V}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.v) if f(kb.v[k])]
     DataFrame(
         vid = [k.i for k in ks],
@@ -890,7 +890,7 @@ function select_v(kb::KBase, f = (x)->true)
 end
 
 
-function select_c(kb::KBase, f = (x)->true)
+function select(::Type{C}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.c) if f(kb.c[k])]
     DataFrame(
         cid = [k.i for k in ks],
@@ -899,7 +899,7 @@ function select_c(kb::KBase, f = (x)->true)
     )
 end
 
-function select_r(kb::KBase, f = (x)->true)
+function select(::Type{R}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.r) if f(kb.r[k])]
     DataFrame(
         rid = [k.i for k in ks],
@@ -908,7 +908,7 @@ function select_r(kb::KBase, f = (x)->true)
     )
 end
 
-function select_a(kb::KBase, f = (x)->true)
+function select(::Type{A}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.a) if f(kb.a[k])]
     DataFrame(
         aid = [k.i for k in ks],
@@ -917,7 +917,7 @@ function select_a(kb::KBase, f = (x)->true)
     )
 end
 
-function select_o(kb::KBase, f = (x)->true)
+function select(::Type{O}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.o) if f(kb.o[k])]
     DataFrame(
         oid = [k.i for k in ks],
@@ -926,7 +926,7 @@ function select_o(kb::KBase, f = (x)->true)
     )
 end
 
-function select_co(kb::KBase, f = (x)->true)
+function select(::Type{CO}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.co) if f(kb.co[k])]
     DataFrame(
         coid = [k.i for k in ks],
@@ -937,7 +937,7 @@ function select_co(kb::KBase, f = (x)->true)
     )
 end
 
-function select_rc(kb::KBase, f = (x)->true)
+function select(::Type{RC}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.rc) if f(kb.rc[k])]
     DataFrame(
         rcid = [k.i for k in ks],
@@ -950,7 +950,7 @@ function select_rc(kb::KBase, f = (x)->true)
     )
 end
 
-function select_rco(kb::KBase, f = (x)->true)
+function select(::Type{RCO}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.rco) if f(kb.rco[k])]
     DataFrame(
         rcoid = [k.i for k in ks],
@@ -965,7 +965,7 @@ function select_rco(kb::KBase, f = (x)->true)
     )
 end
 
-function select_ac(kb::KBase, f = (x)->true)
+function select(::Type{AC}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.ac) if f(kb.ac[k])]
     DataFrame(
         acid = [k.i for k in ks],
@@ -978,7 +978,7 @@ function select_ac(kb::KBase, f = (x)->true)
     )
 end
 
-function select_ar(kb::KBase, f = (x)->true)
+function select(::Type{AR}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.ar) if f(kb.ar[k])]
     DataFrame(
         arid = [k.i for k in ks],
@@ -991,7 +991,7 @@ function select_ar(kb::KBase, f = (x)->true)
     )
 end
 
-function select_aco(kb::KBase, f = (x)->true)
+function select(::Type{ACO}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.aco) if f(kb.aco[k])]
     DataFrame(
         acoid = [k.i for k in ks],
@@ -1005,7 +1005,7 @@ function select_aco(kb::KBase, f = (x)->true)
     )
 end
 
-function select_arc(kb::KBase, f = (x)->true)
+function select(::Type{ARC}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.arc) if f(kb.arc[k])]
     DataFrame(
         arcid = [k.i for k in ks],
@@ -1020,7 +1020,7 @@ function select_arc(kb::KBase, f = (x)->true)
     )
 end
 
-function select_arco(kb::KBase, f = (x)->true)
+function select(::Type{ARCO}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.arco) if f(kb.arco[k])]
     DataFrame(
         arcoid = [k.i for k in ks],
