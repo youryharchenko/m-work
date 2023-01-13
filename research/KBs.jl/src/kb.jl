@@ -5,7 +5,7 @@ include("document.jl")
 abstract type AbstractNode end
 abstract type AbstractID end
 
-const ValueTypes = Union{Symbol, Number, Bool, String, Date, Time, DateTime, UUID, Nothing}
+const ValueTypes = Union{Expr, Symbol, Number, Bool, String, Date, Time, DateTime, UUID, Nothing}
 
 
 # V
@@ -884,7 +884,7 @@ end
 function select(::Type{V}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.v) if f(kb.v[k])]
     DataFrame(
-        vid = [k.i for k in ks],
+        vid = [k for k in ks],
         value = [kb.v[k].value for k in ks]
     )
 end
@@ -893,137 +893,137 @@ end
 function select(::Type{C}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.c) if f(kb.c[k])]
     DataFrame(
-        cid = [k.i for k in ks],
+        cid = [k for k in ks],
         v = [value(kb, kb.c[k].v.i) for k in ks],
-        vid = [kb.c[k].v.i for k in ks],
+        vid = [kb.c[k].v for k in ks],
     )
 end
 
 function select(::Type{R}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.r) if f(kb.r[k])]
     DataFrame(
-        rid = [k.i for k in ks],
+        rid = [k for k in ks],
         v = [value(kb, kb.r[k].v.i) for k in ks],
-        vid = [kb.r[k].v.i for k in ks],
+        vid = [kb.r[k].v for k in ks],
     )
 end
 
 function select(::Type{A}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.a) if f(kb.a[k])]
     DataFrame(
-        aid = [k.i for k in ks],
+        aid = [k for k in ks],
         v = [value(kb, kb.a[k].v.i) for k in ks],
-        vid = [kb.a[k].v.i for k in ks],
+        vid = [kb.a[k].v for k in ks],
     )
 end
 
 function select(::Type{O}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.o) if f(kb.o[k])]
     DataFrame(
-        oid = [k.i for k in ks],
+        oid = [k for k in ks],
         v = [value(kb, kb.o[k].v.i) for k in ks],
-        vid = [kb.o[k].v.i for k in ks],
+        vid = [kb.o[k].v for k in ks],
     )
 end
 
 function select(::Type{CO}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.co) if f(kb.co[k])]
     DataFrame(
-        coid = [k.i for k in ks],
+        coid = [k for k in ks],
         cv = [value(kb, value(kb, kb.co[k].c).v.i) for k in ks],
         ov = [value(kb, value(kb, kb.co[k].o).v.i) for k in ks],
-        cid = [kb.co[k].c.i for k in ks],
-        oid = [kb.co[k].o.i for k in ks],
+        cid = [kb.co[k].c for k in ks],
+        oid = [kb.co[k].o for k in ks],
     )
 end
 
 function select(::Type{RC}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.rc) if f(kb.rc[k])]
     DataFrame(
-        rcid = [k.i for k in ks],
+        rcid = [k for k in ks],
         rv = [value(kb, value(kb, kb.rc[k].r).v.i) for k in ks],
         cfv = [value(kb, value(kb, kb.rc[k].cf).v.i) for k in ks],
         ctv = [value(kb, value(kb, kb.rc[k].ct).v.i) for k in ks],
-        rid = [kb.rc[k].r.i for k in ks],
-        cfid = [kb.rc[k].cf.i for k in ks],
-        ctid = [kb.rc[k].ct.i for k in ks],
+        rid = [kb.rc[k].r for k in ks],
+        cfid = [kb.rc[k].cf for k in ks],
+        ctid = [kb.rc[k].ct for k in ks],
     )
 end
 
 function select(::Type{RCO}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.rco) if f(kb.rco[k])]
     DataFrame(
-        rcoid = [k.i for k in ks],
+        rcoid = [k for k in ks],
         rv = [value(kb, value(kb, value(kb, kb.rco[k].rc).r).v.i) for k in ks],
         cfv = [value(kb, value(kb, value(kb, kb.rco[k].cof).c).v.i) for k in ks],
         ofv = [value(kb, value(kb, value(kb, kb.rco[k].cof).o).v.i) for k in ks],
         ctv = [value(kb, value(kb, value(kb, kb.rco[k].cot).c).v.i) for k in ks],
         otv = [value(kb, value(kb, value(kb, kb.rco[k].cot).o).v.i) for k in ks],
-        rcid = [kb.rco[k].rc.i for k in ks],
-        cofid = [kb.rco[k].cof.i for k in ks],
-        cotid = [kb.rco[k].cot.i for k in ks],
+        rcid = [kb.rco[k].rc for k in ks],
+        cofid = [kb.rco[k].cof for k in ks],
+        cotid = [kb.rco[k].cot for k in ks],
     )
 end
 
 function select(::Type{AC}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.ac) if f(kb.ac[k])]
     DataFrame(
-        acid = [k.i for k in ks],
+        acid = [k for k in ks],
         cv = [value(kb, value(kb, kb.ac[k].c).v.i) for k in ks],
         av = [value(kb, value(kb, kb.ac[k].a).v.i) for k in ks],
         v = [value(kb, kb.ac[k].v.i) for k in ks],
-        cid = [kb.ac[k].c.i for k in ks],
-        aid = [kb.ac[k].a.i for k in ks],
-        vid = [kb.ac[k].v.i for k in ks],
+        cid = [kb.ac[k].c for k in ks],
+        aid = [kb.ac[k].a for k in ks],
+        vid = [kb.ac[k].v for k in ks],
     )
 end
 
 function select(::Type{AR}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.ar) if f(kb.ar[k])]
     DataFrame(
-        arid = [k.i for k in ks],
+        arid = [k for k in ks],
         rv = [value(kb, value(kb, kb.ar[k].r).v.i) for k in ks],
         av = [value(kb, value(kb, kb.ar[k].a).v.i) for k in ks],
         v = [value(kb, kb.ar[k].v.i) for k in ks],
-        rid = [kb.ar[k].r.i for k in ks],
-        aid = [kb.ar[k].a.i for k in ks],
-        vid = [kb.ar[k].v.i for k in ks],
+        rid = [kb.ar[k].r for k in ks],
+        aid = [kb.ar[k].a for k in ks],
+        vid = [kb.ar[k].v for k in ks],
     )
 end
 
 function select(::Type{ACO}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.aco) if f(kb.aco[k])]
     DataFrame(
-        acoid = [k.i for k in ks],
+        acoid = [k for k in ks],
         cv = [value(kb, value(kb, value(kb, kb.aco[k].co).c).v.i) for k in ks],
         ov = [value(kb, value(kb, value(kb, kb.aco[k].co).o).v.i) for k in ks],
         av = [value(kb, value(kb, value(kb, kb.aco[k].ac).a).v.i) for k in ks],
         v = [value(kb, kb.aco[k].v.i) for k in ks],
-        coid = [kb.aco[k].co.i for k in ks],
-        acid = [kb.aco[k].ac.i for k in ks],
-        vid = [kb.aco[k].v.i for k in ks],
+        coid = [kb.aco[k].co for k in ks],
+        acid = [kb.aco[k].ac for k in ks],
+        vid = [kb.aco[k].v for k in ks],
     )
 end
 
 function select(::Type{ARC}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.arc) if f(kb.arc[k])]
     DataFrame(
-        arcid = [k.i for k in ks],
+        arcid = [k for k in ks],
         rv = [value(kb, value(kb, value(kb, kb.arc[k].rc).r).v.i) for k in ks],
         cfv = [value(kb, value(kb, value(kb, kb.arc[k].rc).cf).v.i) for k in ks],
         ctv = [value(kb, value(kb, value(kb, kb.arc[k].rc).ct).v.i) for k in ks],
         av = [value(kb, value(kb, value(kb, kb.arc[k].ar).a).v.i) for k in ks],
         v = [value(kb, kb.arc[k].v.i) for k in ks],
-        rcid = [kb.arc[k].rc.i for k in ks],
-        arid = [kb.arc[k].ar.i for k in ks],
-        vid = [kb.arc[k].v.i for k in ks],
+        rcid = [kb.arc[k].rc for k in ks],
+        arid = [kb.arc[k].ar for k in ks],
+        vid = [kb.arc[k].v for k in ks],
     )
 end
 
 function select(::Type{ARCO}, kb::KBase, f = (x)->true)
     ks = [k for k in keys(kb.arco) if f(kb.arco[k])]
     DataFrame(
-        arcoid = [k.i for k in ks],
+        arcoid = [k for k in ks],
         rv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).rc).r).v.i) for k in ks],
         cfv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).cof).c).v.i) for k in ks],
         ofv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).cof).o).v.i) for k in ks],
@@ -1031,9 +1031,9 @@ function select(::Type{ARCO}, kb::KBase, f = (x)->true)
         otv = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].rco).cot).o).v.i) for k in ks],
         av = [value(kb, value(kb, value(kb, value(kb, kb.arco[k].arc).ar).a).v.i) for k in ks],
         v = [value(kb, kb.arco[k].v.i) for k in ks],
-        rcoid = [kb.arco[k].rco.i for k in ks],
-        arcid = [kb.arco[k].arc.i for k in ks],
-        vid = [kb.arco[k].v.i for k in ks],
+        rcoid = [kb.arco[k].rco for k in ks],
+        arcid = [kb.arco[k].arc for k in ks],
+        vid = [kb.arco[k].v for k in ks],
     )
 end
 
