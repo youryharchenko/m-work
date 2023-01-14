@@ -96,43 +96,50 @@ f(kb3, oid)
 kb4 = KBs.load("db-save")
 
 # ╔═╡ efaee156-00af-4af5-b1c7-8f80d2cb6e7a
-KBs.select(KBs.V, kb4)
+KBs.select(KBs.V, kb4; cs = [:vid])
 
 # ╔═╡ b061fe29-e9ad-4631-b9d0-4a4f40205dc5
-KBs.select(KBs.C, kb4)
+KBs.select(KBs.C, kb4; cs = [:cid, :v])
 
 # ╔═╡ 9a07b080-5bda-4627-992c-060c3f7e7e63
-KBs.select(KBs.O, kb4)
+KBs.select(KBs.O, kb4; cs = [:oid, :v])
 
 # ╔═╡ d9f0eb77-7d8b-4092-8bd5-c6cfabb66f25
-KBs.select(KBs.CO, kb4)
+KBs.select(KBs.CO, kb4; cs = [:cid, :cv, :ov])
 
 # ╔═╡ f27ea266-47e4-43ef-b4e4-edd5a405adef
-KBs.select(KBs.R, kb4)
+KBs.select(KBs.R, kb4; cs = [:rid, :v])
 
 # ╔═╡ 887dbe97-a328-4705-a456-01c16433feff
-KBs.select(KBs.RC, kb4)
+KBs.select(KBs.RC, kb4; cs = [:rcid, :cfv, :ctv])
 
 # ╔═╡ dc08d73c-0e83-45eb-b0e5-284589129901
-KBs.select(KBs.RCO, kb4)
+KBs.select(KBs.RCO, kb4; cs = [:rcoid, :cfv, :ofv, :ctv, :otv])
 
 # ╔═╡ e59e9e64-d5a7-459a-b367-4ffd1b3343ed
-KBs.select(KBs.A, kb4)
+KBs.select(KBs.A, kb4; cs = [:aid, :v])
 
 # ╔═╡ c9f1c4fd-f56a-4455-b9a8-c23da866e840
-KBs.select(KBs.AC, kb4)
+KBs.select(KBs.AC, kb4; cs = [:acid, :cv, :av, :v])
 
 # ╔═╡ 1d9794ea-d4b5-4b39-bea0-42313304e71d
-KBs.select(KBs.ACO, kb4)
+KBs.select(KBs.ACO, kb4; cs = [:acid, :cv, :ov, :av, :v])
 
 # ╔═╡ bb240998-f987-4b30-b039-498c5c177488
-KBs.select(KBs.AR, kb4)
+KBs.select(KBs.AR, kb4; cs = [:acid, :rv, :av, :v])
 
 # ╔═╡ d6045b12-49eb-4246-8505-705dcf2ce213
-KBs.select(KBs.ARC, kb4)
+KBs.select(KBs.ARC, kb4; cs = [:arcid, :cfv, :ctv, :av, :v])
 
 # ╔═╡ 025645c0-497c-4451-9d01-98fe67887dde
-KBs.select(KBs.ARCO, kb4)
+KBs.select(KBs.ARCO, kb4; cs = [:arcid, :cfv, :ofv, :ctv, :otv, :av, :v])
+
+# ╔═╡ 1a8f0993-0022-4255-92c2-7493e816ab81
+let
+	d = Dict()
+	(:vid in [:vid, :value]) && (d[:vid] = [1, 2])
+	d
+end
 
 # ╔═╡ Cell order:
 # ╠═3f030f34-932d-11ed-3c86-cdd782a64ac1
@@ -169,3 +176,4 @@ KBs.select(KBs.ARCO, kb4)
 # ╠═bb240998-f987-4b30-b039-498c5c177488
 # ╠═d6045b12-49eb-4246-8505-705dcf2ce213
 # ╠═025645c0-497c-4451-9d01-98fe67887dde
+# ╠═1a8f0993-0022-4255-92c2-7493e816ab81
