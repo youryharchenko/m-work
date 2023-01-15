@@ -65,6 +65,9 @@ kb1
 # ╔═╡ 486caeef-2165-492a-86df-5b99abc66f71
 kb3 = KBs.load("mwork06/save")
 
+# ╔═╡ a9ff18fa-c063-4488-99bd-838f81dc2bdb
+Core.eval(KBs, :((a, b) = (4, 5)))
+
 # ╔═╡ caf2a996-b4a2-41ee-ac22-4b20a083b9fb
 KBs.select(KBs.V, kb3)
 
@@ -78,7 +81,7 @@ KBs.select(KBs.O, kb3)
 KBs.select(KBs.CO, kb3)
 
 # ╔═╡ ee5620ae-282b-4481-9630-9737ffd6a734
-eval(KBs.select(KBs.O, kb3)[1, :v].value)
+Core.eval(KBs, KBs.select(KBs.O, kb3)[1, :v].value)
 
 # ╔═╡ fe06bd10-1a0a-4d97-b39d-54857e286e5d
 oid = KBs.select(KBs.O, kb3)[1, :oid]
@@ -96,16 +99,16 @@ f(kb3, oid)
 kb4 = KBs.load("db-save")
 
 # ╔═╡ efaee156-00af-4af5-b1c7-8f80d2cb6e7a
-KBs.select(KBs.V, kb4; cs = [:vid])
+KBs.select(KBs.V, kb4; cs = [:vid, :ev])
 
 # ╔═╡ b061fe29-e9ad-4631-b9d0-4a4f40205dc5
-KBs.select(KBs.C, kb4; cs = [:cid, :v])
+KBs.select(KBs.C, kb4; cs = [:cid, :v, :ev])
 
 # ╔═╡ 9a07b080-5bda-4627-992c-060c3f7e7e63
-KBs.select(KBs.O, kb4; cs = [:oid, :v])
+KBs.select(KBs.O, kb4; cs = [:oid, :v, :ev])
 
 # ╔═╡ d9f0eb77-7d8b-4092-8bd5-c6cfabb66f25
-KBs.select(KBs.CO, kb4; cs = [:cid, :cv, :ov])
+KBs.select(KBs.CO, kb4; cs = [:cid, :cev, :oev])
 
 # ╔═╡ f27ea266-47e4-43ef-b4e4-edd5a405adef
 KBs.select(KBs.R, kb4; cs = [:rid, :v])
@@ -126,7 +129,7 @@ KBs.select(KBs.AC, kb4; cs = [:acid, :cv, :av, :v])
 KBs.select(KBs.ACO, kb4; cs = [:acid, :cv, :ov, :av, :v])
 
 # ╔═╡ bb240998-f987-4b30-b039-498c5c177488
-KBs.select(KBs.AR, kb4; cs = [:acid, :rv, :av, :v])
+KBs.select(KBs.AR, kb4; cs = [:arid, :rv, :av, :v])
 
 # ╔═╡ d6045b12-49eb-4246-8505-705dcf2ce213
 KBs.select(KBs.ARC, kb4; cs = [:arcid, :cfv, :ctv, :av, :v])
@@ -153,6 +156,7 @@ end
 # ╠═d951bc8b-1d5c-4167-b5fe-306dbc3a91b5
 # ╠═db39194d-3fe4-45c8-8fa8-fd7b4bcc6180
 # ╠═486caeef-2165-492a-86df-5b99abc66f71
+# ╠═a9ff18fa-c063-4488-99bd-838f81dc2bdb
 # ╠═caf2a996-b4a2-41ee-ac22-4b20a083b9fb
 # ╠═8d450d39-5663-477f-862e-432d70973900
 # ╠═feee8bd9-7598-4dde-b797-09b72c3e2547

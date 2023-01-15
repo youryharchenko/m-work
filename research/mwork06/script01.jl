@@ -1,11 +1,9 @@
-#import Pkg
-#Pkg.activate(joinpath(@__DIR__, ".."))
 
 include("expr.jl")
 
 using KBs
 
-script1 = "1 + 1"
+script1 = "a + b"
 
 expr1 = Meta.parse(script1)
 
@@ -14,7 +12,9 @@ println(expr1)
 
 dump(expr1)
 
-eval(expr1)
+
+a, b = 5, 4
+print(eval(expr1))
 
 
 kb = KBs.KBase()

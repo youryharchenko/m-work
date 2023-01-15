@@ -574,6 +574,10 @@ end
 
 # V
 
+function eval(v::ValueTypes)::ValueTypes
+    (v isa Expr) ? Core.eval(@__MODULE__, v) : v 
+end
+
 function id!(kb::KBase, value::ValueTypes)::VID
     v = V(value)
     id!(kb, v)
@@ -604,9 +608,22 @@ function value(kb::KBase, u::UUID)::V
     value(kb, i)
 end
 
+function evalue(kb::KBase, u::UUID)::ValueTypes
+    i = VID(u)
+    evalue(kb, i)
+end
+
 function value(kb::KBase, i::VID)::V
     if haskey(kb.v, i)
         kb.v[i]
+    else
+        kb.v[id!(kb, nothing)]
+    end
+end
+
+function evalue(kb::KBase, i::VID)::ValueTypes
+    if haskey(kb.v, i)
+        eval(kb.v[i].value)
     else
         kb.v[id!(kb, nothing)]
     end
@@ -879,24 +896,28 @@ function value(kb::KBase, i::ARCOID)::Union{ARCO, Nothing}
     get(kb.arco, i, nothing)
 end
 
+
+
 # df
 
-function select(::Type{V}, kb::KBase; cs = [:vid, :value], f = ((x)->true))
+function select(::Type{V}, kb::KBase; cs = [:vid, :ev, :value], f = ((x)->true))
     ks = [k for k in keys(kb.v) if f(kb.v[k])]
     d = Dict()
     (:vid in cs) && (d[:vid] = [k for k in ks])
     (:value in cs) && (d[:value] = [kb.v[k].value for k in ks])
-    DataFrame(d)
+    (:ev in cs) && (d[:ev] = [evalue(kb, k) for k in ks])
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 
-function select(::Type{C}, kb::KBase; cs = [:cid, :v, :vid], f = (x)->true)
+function select(::Type{C}, kb::KBase; cs = [:cid, :v, :ev, :vid], f = (x)->true)
     ks = [k for k in keys(kb.c) if f(kb.c[k])]
     d = Dict()
     (:cid in cs) && (d[:cid] = [k for k in ks])
     (:v in cs) && (d[:v] = [value(kb, kb.c[k].v.i) for k in ks])
+    (:ev in cs) && (d[:ev] = [evalue(kb, kb.c[k].v.i) for k in ks])
     (:vid in cs) && (d[:vid] = [kb.c[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{R}, kb::KBase; cs = [:rid, :v, :vid], f = (x)->true)
@@ -905,7 +926,7 @@ function select(::Type{R}, kb::KBase; cs = [:rid, :v, :vid], f = (x)->true)
     (:rid in cs) && (d[:rid] = [k for k in ks])
     (:v in cs) && (d[:v] = [value(kb, kb.r[k].v.i) for k in ks])
     (:vid in cs) && (d[:vid] = [kb.r[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{A}, kb::KBase; cs = [:aid, :v, :vid], f = (x)->true)
@@ -914,27 +935,30 @@ function select(::Type{A}, kb::KBase; cs = [:aid, :v, :vid], f = (x)->true)
     (:aid in cs) && (d[:aid] = [k for k in ks])
     (:v in cs) && (d[:v] = [value(kb, kb.a[k].v.i) for k in ks])
     (:vid in cs) && (d[:vid] = [kb.a[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
-function select(::Type{O}, kb::KBase; cs = [:oid, :v, :vid], f = (x)->true)
+function select(::Type{O}, kb::KBase; cs = [:oid, :v, :ev, :vid], f = (x)->true)
     ks = [k for k in keys(kb.o) if f(kb.o[k])]
     d = Dict()
     (:oid in cs) && (d[:oid] = [k for k in ks])
     (:v in cs) && (d[:v] = [value(kb, kb.o[k].v.i) for k in ks])
+    (:ev in cs) && (d[:ev] = [evalue(kb, kb.o[k].v.i) for k in ks])
     (:vid in cs) && (d[:vid] = [kb.o[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
-function select(::Type{CO}, kb::KBase; cs = [:coid, :cv, :ov, :cid, :oid], f = (x)->true)
+function select(::Type{CO}, kb::KBase; cs = [:coid, :cv, :cev, :ov, :oev, :cid, :oid], f = (x)->true)
     ks = [k for k in keys(kb.co) if f(kb.co[k])]
     d = Dict()
     (:coid in cs) && (d[:coid] = [k for k in ks])
     (:cv in cs) && (d[:cv] = [value(kb, value(kb, kb.co[k].c).v.i) for k in ks])
+    (:cev in cs) && (d[:cev] = [evalue(kb, value(kb, kb.co[k].c).v.i) for k in ks])
     (:ov in cs) && (d[:ov] = [value(kb, value(kb, kb.co[k].o).v.i) for k in ks])
+    (:oev in cs) && (d[:oev] = [evalue(kb, value(kb, kb.co[k].o).v.i) for k in ks])
     (:cid in cs) && (d[:cid] = [kb.co[k].c for k in ks])
     (:oid in cs) && (d[:oid] = [kb.co[k].o for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{RC}, kb::KBase; cs = [:rcid, :rv, :cfv, :ctv, :rid, :cfid, :ctid], f = (x)->true)
@@ -947,7 +971,7 @@ function select(::Type{RC}, kb::KBase; cs = [:rcid, :rv, :cfv, :ctv, :rid, :cfid
     (:rid in cs) && (d[:rid] = [kb.rc[k].r for k in ks])
     (:cfid in cs) && (d[:cfid] = [kb.rc[k].cf for k in ks])
     (:ctid in cs) && (d[:ctid] = [kb.rc[k].ct for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{RCO}, kb::KBase; cs = [:rcoid, :rv, :cfv, :ofv, :ctv, :otv, :rcid, :cofid, :cotid], f = (x)->true)
@@ -962,7 +986,7 @@ function select(::Type{RCO}, kb::KBase; cs = [:rcoid, :rv, :cfv, :ofv, :ctv, :ot
     (:rcid in cs) && (d[:rcid] = [kb.rco[k].rc for k in ks])
     (:cofid in cs) && (d[:cofid] = [kb.rco[k].cof for k in ks])
     (:cotid in cs) && (d[:cotid] = [kb.rco[k].cot for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{AC}, kb::KBase; cs = [:acid, :cv, :av, :v, :cid, :aid, :vid], f = (x)->true)
@@ -975,7 +999,7 @@ function select(::Type{AC}, kb::KBase; cs = [:acid, :cv, :av, :v, :cid, :aid, :v
     (:cid in cs) && (d[:cid] = [kb.ac[k].c for k in ks])
     (:aid in cs) && (d[:aid] = [kb.ac[k].a for k in ks])
     (:vid in cs) && (d[:vid] = [kb.ac[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{AR}, kb::KBase; cs = [:arid, :rv, :av, :v, :rid, :aid, :vid], f = (x)->true)
@@ -988,7 +1012,7 @@ function select(::Type{AR}, kb::KBase; cs = [:arid, :rv, :av, :v, :rid, :aid, :v
     (:rid in cs) && (d[:rid] = [kb.ar[k].r for k in ks])
     (:aid in cs) && (d[:aid] = [kb.ar[k].a for k in ks])
     (:vid in cs) && (d[:vid] = [kb.ar[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{ACO}, kb::KBase; cs = [:acoid, :cv, :ov, :av, :v, :coid, :acid, :vid], f = (x)->true)
@@ -1002,7 +1026,7 @@ function select(::Type{ACO}, kb::KBase; cs = [:acoid, :cv, :ov, :av, :v, :coid, 
     (:coid in cs) && (d[:coid] = [kb.aco[k].co for k in ks])
     (:acid in cs) && (d[:acid] = [kb.aco[k].ac for k in ks])
     (:vid in cs) && (d[:vid] = [kb.aco[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{ARC}, kb::KBase; cs = [:arcid, :rv, :cfv, :ctv, :av, :v, :rcid, :arid, :vid], f = (x)->true)
@@ -1017,7 +1041,7 @@ function select(::Type{ARC}, kb::KBase; cs = [:arcid, :rv, :cfv, :ctv, :av, :v, 
     (:rcid in cs) && (d[:rcid] = [kb.arc[k].rc for k in ks])
     (:arid in cs) && (d[:arid] = [kb.arc[k].ar for k in ks])
     (:vid in cs) && (d[:vid] = [kb.arc[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 function select(::Type{ARCO}, kb::KBase; cs = [:arcoid, :rv, :cfv, :ofv, :ctv, :otv, :av, :v, :rcoid, :arcid, :vid],
@@ -1036,7 +1060,7 @@ function select(::Type{ARCO}, kb::KBase; cs = [:arcoid, :rv, :cfv, :ofv, :ctv, :
     (:rcoid in cs) && (d[:rcoid] = [kb.arco[k].rco for k in ks])
     (:arcid in cs) && (d[:arcid] = [kb.arco[k].arc for k in ks])
     (:vid in cs) && (d[:vid] = [kb.arco[k].v for k in ks])
-    DataFrame(d)
+    select!(DataFrame(d; copycols = false), cs)
 end
 
 # proc
