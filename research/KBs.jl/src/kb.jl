@@ -308,7 +308,7 @@ function save(kb::KBase, dir::String)
     serialize(joinpath(dir, "arco-arc.serialized"), [kb.arco[k].arc for k in ks])
     serialize(joinpath(dir, "arco-v.serialized"), [kb.arco[k].v for k in ks])
 
-
+    nothing
 end
 
 function load(dir::String)::KBase 

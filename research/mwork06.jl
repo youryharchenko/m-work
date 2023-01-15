@@ -63,7 +63,7 @@ eval(expr2)
 kb1
 
 # ╔═╡ 486caeef-2165-492a-86df-5b99abc66f71
-kb3 = KBs.load("mwork06/save")
+kb3 = KBs.load("mwork06/save-06")
 
 # ╔═╡ a9ff18fa-c063-4488-99bd-838f81dc2bdb
 Core.eval(KBs, :((a, b) = (4, 5)))
