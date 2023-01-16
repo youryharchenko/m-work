@@ -45,6 +45,9 @@ KBs.make!(KBs.ACO, kb,
 # ╔═╡ 513575b9-6c7d-4a73-97c9-d6696106d771
 KBs.select(KBs.V, kb)
 
+# ╔═╡ e95b7bec-98d4-47c0-9a96-f3706b7776db
+KBs.select(KBs.C, kb)
+
 # ╔═╡ d39f7fb9-0222-4edf-a967-9b02e79de051
 KBs.select(KBs.CO, kb)
 
@@ -57,6 +60,92 @@ KBs.select(KBs.ACO, kb)[1, :vid]
 # ╔═╡ 9dfe3f52-a6f2-401a-a56f-57746037306c
 KBs.evalue(kb, KBs.KBs.select(KBs.ACO, kb)[1, :vid])
 
+# ╔═╡ 46839ab9-9998-46e0-93d8-b0bbad17f430
+KBs.make!(KBs.RCO, kb, 
+	KBs.make!(KBs.RC, kb, 
+		KBs.make!(KBs.R, kb, :part_of), 
+		KBs.make!(KBs.C, kb, :Module),
+		KBs.make!(KBs.C, kb, :System),
+	),
+    KBs.make!(KBs.CO, kb, 
+		KBs.make!(KBs.C, kb, :Module), 
+		KBs.make!(KBs.O, kb, :Input)),
+	KBs.make!(KBs.CO, kb, 
+		KBs.make!(KBs.C, kb, :System), 
+		KBs.make!(KBs.O, kb, :Agent)),
+	
+)
+
+# ╔═╡ 0ca25fb2-8e24-4f62-88c5-5eb93893d82c
+KBs.select(KBs.RCO, kb)
+
+# ╔═╡ 8867ddc7-f98d-4f9a-bc55-a2145d24c0cb
+KBs.make!(KBs.ARC, kb,
+		KBs.make!(KBs.RC, kb, 
+			KBs.make!(KBs.R, kb, :part_of), 
+			KBs.make!(KBs.C, kb, :Module),
+			KBs.make!(KBs.C, kb, :System),
+		),
+		KBs.make!(KBs.AR, kb, 
+			KBs.make!(KBs.R, kb, :part_of), 
+			KBs.make!(KBs.A, kb, :number), 
+			0),
+        0)
+
+# ╔═╡ 3f3e79da-9d8c-47de-9021-0c84f078c9a0
+KBs.select(KBs.ARC, kb)
+
+# ╔═╡ 75b2be38-8e3f-46c5-88de-7e52176c3a86
+KBs.make!(KBs.ARCO, kb,
+		KBs.make!(KBs.RCO, kb, 
+			KBs.make!(KBs.RC, kb, 
+				KBs.make!(KBs.R, kb, :part_of), 
+				KBs.make!(KBs.C, kb, :Module),
+				KBs.make!(KBs.C, kb, :System),
+			),
+    		KBs.make!(KBs.CO, kb, 
+				KBs.make!(KBs.C, kb, :Module), 
+				KBs.make!(KBs.O, kb, :Input)
+			),
+			KBs.make!(KBs.CO, kb, 
+				KBs.make!(KBs.C, kb, :System), 
+				KBs.make!(KBs.O, kb, :Agent)
+			),
+		),
+		KBs.make!(KBs.ARC, kb, 
+			KBs.make!(KBs.RC, kb, 
+				KBs.make!(KBs.R, kb, :part_of), 
+				KBs.make!(KBs.C, kb, :Module),
+				KBs.make!(KBs.C, kb, :System),
+			),
+			KBs.make!(KBs.AR, kb, 
+				KBs.make!(KBs.R, kb, :part_of), 
+				KBs.make!(KBs.A, kb, :number), 
+				0),
+        0),
+		1)
+
+# ╔═╡ 6f124751-485f-4b96-bff2-89225b82ed8e
+KBs.select(KBs.ARCO, kb)
+
+# ╔═╡ 11e8cc52-f8f1-48ec-b072-db88970fbd4a
+methods(KBs.id)
+
+# ╔═╡ 6e7b12e6-7248-4601-8d85-48cd3ef77704
+KBs.id(kb, 0)
+
+# ╔═╡ a63013af-9454-4caa-9260-8e3cf27b6832
+v_system = KBs.id(kb, KBs.V(:System))
+
+# ╔═╡ d3610d3b-0026-44ae-8cca-3a2165840d55
+c_system = KBs.id(kb, KBs.C(v_system))
+
+# ╔═╡ 69ac47e5-a8f9-481f-80c5-cfeaafe00c41
+v_agent = KBs.id(kb, KBs.V(:Agent))
+
+# ╔═╡ 8803a9c4-badd-4df6-a510-241a9ed3c5a9
+o_agent = KBs.id(kb, KBs.O(v_agent))
+
 # ╔═╡ Cell order:
 # ╠═220ff242-94a7-11ed-2d9a-7170d2c39d11
 # ╠═b5d4587a-d496-475f-b041-8abc83624648
@@ -65,7 +154,20 @@ KBs.evalue(kb, KBs.KBs.select(KBs.ACO, kb)[1, :vid])
 # ╠═d963b987-23c8-4930-89d2-f8fd02bc6bef
 # ╠═16573a7e-b6cf-4889-9d82-2828652a6991
 # ╠═513575b9-6c7d-4a73-97c9-d6696106d771
+# ╠═e95b7bec-98d4-47c0-9a96-f3706b7776db
 # ╠═d39f7fb9-0222-4edf-a967-9b02e79de051
 # ╠═e98106f7-5efa-4f83-bbd0-27dee9b247e0
 # ╠═1015889c-30ed-4d23-b67a-69e02a670780
 # ╠═9dfe3f52-a6f2-401a-a56f-57746037306c
+# ╠═46839ab9-9998-46e0-93d8-b0bbad17f430
+# ╠═0ca25fb2-8e24-4f62-88c5-5eb93893d82c
+# ╠═8867ddc7-f98d-4f9a-bc55-a2145d24c0cb
+# ╠═3f3e79da-9d8c-47de-9021-0c84f078c9a0
+# ╠═75b2be38-8e3f-46c5-88de-7e52176c3a86
+# ╠═6f124751-485f-4b96-bff2-89225b82ed8e
+# ╠═11e8cc52-f8f1-48ec-b072-db88970fbd4a
+# ╠═6e7b12e6-7248-4601-8d85-48cd3ef77704
+# ╠═a63013af-9454-4caa-9260-8e3cf27b6832
+# ╠═d3610d3b-0026-44ae-8cca-3a2165840d55
+# ╠═69ac47e5-a8f9-481f-80c5-cfeaafe00c41
+# ╠═8803a9c4-badd-4df6-a510-241a9ed3c5a9

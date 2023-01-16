@@ -4,6 +4,7 @@ include("document.jl")
 
 abstract type AbstractNode end
 abstract type AbstractID end
+abstract type AbstractANodeKey end
 
 const ValueTypes = Union{Expr, Symbol, Number, Bool, String, Date, Time, DateTime, UUID, Nothing}
 
@@ -106,7 +107,7 @@ struct AC <: AbstractNode
     v :: VID
 end
 
-struct ACKey
+struct ACKey <: AbstractANodeKey
     c :: CID
     a :: AID
 end
@@ -123,7 +124,7 @@ struct AR <: AbstractNode
     v :: VID
 end
 
-struct ARKey
+struct ARKey <: AbstractANodeKey
     r :: RID
     a :: AID
 end
@@ -140,7 +141,7 @@ struct ACO <: AbstractNode
     v :: VID
 end
 
-struct ACOKey
+struct ACOKey <: AbstractANodeKey
     co :: COID
     ac :: ACID
 end
@@ -157,7 +158,7 @@ struct ARC <: AbstractNode
     v :: VID
 end
 
-struct ARCKey
+struct ARCKey <: AbstractANodeKey
     rc :: RCID
     ar :: ARID
 end
@@ -174,7 +175,7 @@ struct ARCO <: AbstractNode
     v :: VID
 end
 
-struct ARCOKey
+struct ARCOKey <: AbstractANodeKey
     rco :: RCOID
     arc :: ARCID
 end
@@ -594,32 +595,32 @@ function id!(kb::KBase, v::V)::VID
     end
 end
 
-function id(kb::KBase, value::ValueTypes)::Union{VID, Nothing}
-    v = V(value)
-    id(kb, v)
-end
+# function id(kb::KBase, value::ValueTypes)::Union{VID, Nothing}
+#     v = V(value)
+#     id(kb, v)
+# end
 
-function id(kb::KBase, v::V)::Union{VID, Nothing}
-    get(kb.vi, v, nothing)
-end
+# function id(kb::KBase, v::V)::Union{VID, Nothing}
+#     get(kb.vi, v, nothing)
+# end
 
-function value(kb::KBase, u::UUID)::V
-    i = VID(u)
-    value(kb, i)
-end
+# function value(kb::KBase, u::UUID)::V
+#     i = VID(u)
+#     value(kb, i)
+# end
 
 function evalue(kb::KBase, u::UUID)::ValueTypes
     i = VID(u)
     evalue(kb, i)
 end
 
-function value(kb::KBase, i::VID)::V
-    if haskey(kb.v, i)
-        kb.v[i]
-    else
-        kb.v[id!(kb, nothing)]
-    end
-end
+# function value(kb::KBase, i::VID)::V
+#     if haskey(kb.v, i)
+#         kb.v[i]
+#     else
+#         kb.v[id!(kb, nothing)]
+#     end
+# end
 
 function evalue(kb::KBase, i::VID)::ValueTypes
     if haskey(kb.v, i)
@@ -642,13 +643,13 @@ function id!(kb::KBase, n::C)::CID
     end
 end
 
-function id(kb::KBase, n::C)::Union{CID, Nothing}
-    get(kb.ci, n, nothing)
-end
+# function id(kb::KBase, n::C)::Union{CID, Nothing}
+#     get(kb.ci, n, nothing)
+# end
 
-function value(kb::KBase, i::CID)::Union{C, Nothing}
-    get(kb.c, i, nothing)
-end
+# function value(kb::KBase, i::CID)::Union{C, Nothing}
+#     get(kb.c, i, nothing)
+# end
 
 # R
 
@@ -663,13 +664,13 @@ function id!(kb::KBase, n::R)::RID
     end
 end
 
-function id(kb::KBase, n::R)::Union{RID, Nothing}
-    get(kb.ri, n, nothing)
-end
+# function id(kb::KBase, n::R)::Union{RID, Nothing}
+#     get(kb.ri, n, nothing)
+# end
 
-function value(kb::KBase, i::RID)::Union{R, Nothing}
-    get(kb.r, i, nothing)
-end
+# function value(kb::KBase, i::RID)::Union{R, Nothing}
+#     get(kb.r, i, nothing)
+# end
 
 # A
 
@@ -684,13 +685,13 @@ function id!(kb::KBase, n::A)::AID
     end
 end
 
-function id(kb::KBase, n::A)::Union{AID, Nothing}
-    get(kb.ai, n, nothing)
-end
+# function id(kb::KBase, n::A)::Union{AID, Nothing}
+#     get(kb.ai, n, nothing)
+# end
 
-function value(kb::KBase, i::AID)::Union{A, Nothing}
-    get(kb.a, i, nothing)
-end
+# function value(kb::KBase, i::AID)::Union{A, Nothing}
+#     get(kb.a, i, nothing)
+# end
 
 # O
 
@@ -705,13 +706,13 @@ function id!(kb::KBase, n::O)::OID
     end
 end
 
-function id(kb::KBase, n::O)::Union{OID, Nothing}
-    get(kb.oi, n, nothing)
-end
+# function id(kb::KBase, n::O)::Union{OID, Nothing}
+#     get(kb.oi, n, nothing)
+# end
 
-function value(kb::KBase, i::OID)::Union{O, Nothing}
-    get(kb.o, i, nothing)
-end
+# function value(kb::KBase, i::OID)::Union{O, Nothing}
+#     get(kb.o, i, nothing)
+# end
 
 # CO
 
@@ -726,13 +727,13 @@ function id!(kb::KBase, n::CO)::COID
     end
 end
 
-function id(kb::KBase, n::CO)::Union{COID, Nothing}
-    get(kb.coi, n, nothing)
-end
+# function id(kb::KBase, n::CO)::Union{COID, Nothing}
+#     get(kb.coi, n, nothing)
+# end
 
-function value(kb::KBase, i::COID)::Union{CO, Nothing}
-    get(kb.co, i, nothing)
-end
+# function value(kb::KBase, i::COID)::Union{CO, Nothing}
+#     get(kb.co, i, nothing)
+# end
 
 # RC
 
@@ -747,13 +748,13 @@ function id!(kb::KBase, n::RC)::RCID
     end
 end
 
-function id(kb::KBase, n::RC)::Union{RCID, Nothing}
-    get(kb.rci, n, nothing)
-end
+# function id(kb::KBase, n::RC)::Union{RCID, Nothing}
+#     get(kb.rci, n, nothing)
+# end
 
-function value(kb::KBase, i::RCID)::Union{RC, Nothing}
-    get(kb.rc, i, nothing)
-end
+# function value(kb::KBase, i::RCID)::Union{RC, Nothing}
+#     get(kb.rc, i, nothing)
+# end
 
 # RCO
 
@@ -768,13 +769,13 @@ function id!(kb::KBase, n::RCO)::RCOID
     end
 end
 
-function id(kb::KBase, n::RCO)::Union{RCOID, Nothing}
-    get(kb.rcoi, n, nothing)
-end
+# function id(kb::KBase, n::RCO)::Union{RCOID, Nothing}
+#     get(kb.rcoi, n, nothing)
+# end
 
-function value(kb::KBase, i::RCOID)::Union{RCO, Nothing}
-    get(kb.rco, i, nothing)
-end
+# function value(kb::KBase, i::RCOID)::Union{RCO, Nothing}
+#     get(kb.rco, i, nothing)
+# end
 
 # AC
 
@@ -792,13 +793,13 @@ function id!(kb::KBase, n::AC)::ACID
     end
 end
 
-function id(kb::KBase, n::ACKey)::Union{ACID, Nothing}
-    get(kb.aci, n, nothing)
-end
+# function id(kb::KBase, n::ACKey)::Union{ACID, Nothing}
+#     get(kb.aci, n, nothing)
+# end
 
-function value(kb::KBase, i::ACID)::Union{AC, Nothing}
-    get(kb.ac, i, nothing)
-end
+# function value(kb::KBase, i::ACID)::Union{AC, Nothing}
+#     get(kb.ac, i, nothing)
+# end
 
 # AR
 
@@ -816,13 +817,13 @@ function id!(kb::KBase, n::AR)::ARID
     end
 end
 
-function id(kb::KBase, n::ARKey)::Union{ARID, Nothing}
-    get(kb.ari, n, nothing)
-end
+# function id(kb::KBase, n::ARKey)::Union{ARID, Nothing}
+#     get(kb.ari, n, nothing)
+# end
 
-function value(kb::KBase, i::ARID)::Union{AR, Nothing}
-    get(kb.ar, i, nothing)
-end
+# function value(kb::KBase, i::ARID)::Union{AR, Nothing}
+#     get(kb.ar, i, nothing)
+# end
 
 # ACO
 
@@ -840,13 +841,13 @@ function id!(kb::KBase, n::ACO)::ACOID
     end
 end
 
-function id(kb::KBase, n::ACOKey)::Union{ACOID, Nothing}
-    get(kb.acoi, n, nothing)
-end
+# function id(kb::KBase, n::ACOKey)::Union{ACOID, Nothing}
+#     get(kb.acoi, n, nothing)
+# end
 
-function value(kb::KBase, i::ACOID)::Union{ACO, Nothing}
-    get(kb.aco, i, nothing)
-end
+# function value(kb::KBase, i::ACOID)::Union{ACO, Nothing}
+#     get(kb.aco, i, nothing)
+# end
 
 # ARC
 
@@ -864,13 +865,13 @@ function id!(kb::KBase, n::ARC)::ARCID
     end
 end
 
-function id(kb::KBase, n::ARCKey)::Union{ARCID, Nothing}
-    get(kb.arci, n, nothing)
-end
+# function id(kb::KBase, n::ARCKey)::Union{ARCID, Nothing}
+#     get(kb.arci, n, nothing)
+# end
 
-function value(kb::KBase, i::ARCID)::Union{ARC, Nothing}
-    get(kb.arc, i, nothing)
-end
+# function value(kb::KBase, i::ARCID)::Union{ARC, Nothing}
+#     get(kb.arc, i, nothing)
+# end
 
 # ARCO
 
@@ -888,15 +889,13 @@ function id!(kb::KBase, n::ARCO)::ARCOID
     end
 end
 
-function id(kb::KBase, n::ARCOKey)::Union{ARCOID, Nothing}
-    get(kb.arcoi, n, nothing)
-end
+# function id(kb::KBase, n::ARCOKey)::Union{ARCOID, Nothing}
+#     get(kb.arcoi, n, nothing)
+# end
 
-function value(kb::KBase, i::ARCOID)::Union{ARCO, Nothing}
-    get(kb.arco, i, nothing)
-end
-
-
+# function value(kb::KBase, i::ARCOID)::Union{ARCO, Nothing}
+#     get(kb.arco, i, nothing)
+# end
 
 # df
 

@@ -39,5 +39,9 @@ function make!(::Type{MT}, kb::KBase, x, y, v::VT)::AbstractID  where {MT, VT<:V
     id!(kb, MT(x, y, id!(kb, v)))
 end
 
+function make!(::Type{MT}, kb::KBase, x, y, z)::AbstractID where {MT}
+    id!(kb, MT(x, y, z))
+end
+
 
 
