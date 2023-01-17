@@ -147,28 +147,28 @@ v_agent = KBs.id(kb, KBs.V(:Agent))
 o_agent = KBs.id(kb, KBs.O(v_agent))
 
 # ╔═╡ 3992f180-7d45-437e-9e5a-e004e00761d6
-v_nothing = KBs.idg!(kb, nothing)
+v_nothing = KBs.id!(kb, nothing)
 
 # ╔═╡ b14a0b79-c4d1-4007-8281-82a11b5c5b54
-KBs.idg!(kb, KBs.V(nothing))
+KBs.id!(kb, KBs.V(nothing))
 
 # ╔═╡ 75e570c8-d5fb-4eb8-ba4f-fc076fbc4a67
-KBs.idg!(kb, KBs.C(v_system))
+KBs.id!(kb, KBs.C(v_system))
 
 # ╔═╡ 4bf9246a-88ed-4e20-bbcf-e58a88a79599
-KBs.idg!(kb, KBs.O(v_agent))
+KBs.id!(kb, KBs.O(v_agent))
 
 # ╔═╡ 764a19cf-f830-4f30-8743-62348e8887da
-KBs.idg!(kb, KBs.CO(c_system, o_agent))
+KBs.id!(kb, KBs.CO(c_system, o_agent))
 
 # ╔═╡ de421a73-0daf-4da9-b499-f308c2ccaff3
-v_script = KBs.idg!(kb, KBs.V(:script))
+v_script = KBs.id!(kb, KBs.V(:script))
 
 # ╔═╡ 17cf3152-64ea-4e3a-9d5c-9c0fe1882085
-a_script = KBs.idg!(kb, KBs.A(v_script))
+a_script = KBs.id!(kb, KBs.A(v_script))
 
 # ╔═╡ f1350238-b73e-4385-b85b-63cd67a87e61
-KBs.idg!(kb, KBs.AC(c_system, a_script, v_nothing))
+KBs.id!(kb, KBs.AC(c_system, a_script, v_nothing))
 
 # ╔═╡ 5f14115a-b20c-477b-95c7-1e735a023bc9
 KBs.select(KBs.CO, kb)

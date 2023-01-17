@@ -1,6 +1,6 @@
 
 
-@generated function idg!(kb::KBase, n::T) where {T<:Union{ValueTypes, AbstractNode}}
+@generated function id!(kb::KBase, n::T) where {T<:Union{ValueTypes, AbstractNode}}
     
     if n <: Union{V, C, O, CO, R, RC, RCO, A}
         di = Dict(V => :vi, C => :ci, O => :oi, CO => :coi, R => :ri, RC => :rci, RCO => :rcoi, A => :ai)
@@ -25,7 +25,7 @@
         args = [:(n.$fld) for fld in flds]
         return quote
             k = $(dk[T])($(args...))
-            if haskey(kb.vi, k)
+            if haskey(kb.$(di[T]), k)
                 kb.$(di[T])[k]
             else
                 i = $(dt[T])(UUIDs.uuid4())

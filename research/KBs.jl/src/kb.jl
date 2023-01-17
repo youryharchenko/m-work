@@ -579,21 +579,21 @@ function eval(v::ValueTypes)::ValueTypes
     (v isa Expr) ? Core.eval(@__MODULE__, v) : v 
 end
 
-function id!(kb::KBase, value::ValueTypes)::VID
-    v = V(value)
-    id!(kb, v)
-end
+# function id!(kb::KBase, value::ValueTypes)::VID
+#     v = V(value)
+#     id!(kb, v)
+# end
 
-function id!(kb::KBase, v::V)::VID
-    if haskey(kb.vi, v)
-        kb.vi[v]
-    else
-        i = VID(UUIDs.uuid4())
-        kb.v[i] = v
-        kb.vi[v] = i
-        i
-    end
-end
+# function id!(kb::KBase, v::V)::VID
+#     if haskey(kb.vi, v)
+#         kb.vi[v]
+#     else
+#         i = VID(UUIDs.uuid4())
+#         kb.v[i] = v
+#         kb.vi[v] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, value::ValueTypes)::Union{VID, Nothing}
 #     v = V(value)
@@ -632,16 +632,16 @@ end
 
 # C
 
-function id!(kb::KBase, n::C)::CID
-    if haskey(kb.ci, n)
-        kb.ci[n]
-    else
-        i = CID(UUIDs.uuid4())
-        kb.c[i] = n
-        kb.ci[n] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::C)::CID
+#     if haskey(kb.ci, n)
+#         kb.ci[n]
+#     else
+#         i = CID(UUIDs.uuid4())
+#         kb.c[i] = n
+#         kb.ci[n] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::C)::Union{CID, Nothing}
 #     get(kb.ci, n, nothing)
@@ -653,16 +653,16 @@ end
 
 # R
 
-function id!(kb::KBase, n::R)::RID
-    if haskey(kb.ri, n)
-        kb.ri[n]
-    else
-        i = RID(UUIDs.uuid4())
-        kb.r[i] = n
-        kb.ri[n] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::R)::RID
+#     if haskey(kb.ri, n)
+#         kb.ri[n]
+#     else
+#         i = RID(UUIDs.uuid4())
+#         kb.r[i] = n
+#         kb.ri[n] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::R)::Union{RID, Nothing}
 #     get(kb.ri, n, nothing)
@@ -674,16 +674,16 @@ end
 
 # A
 
-function id!(kb::KBase, n::A)::AID
-    if haskey(kb.ai, n)
-        kb.ai[n]
-    else
-        i = AID(UUIDs.uuid4())
-        kb.a[i] = n
-        kb.ai[n] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::A)::AID
+#     if haskey(kb.ai, n)
+#         kb.ai[n]
+#     else
+#         i = AID(UUIDs.uuid4())
+#         kb.a[i] = n
+#         kb.ai[n] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::A)::Union{AID, Nothing}
 #     get(kb.ai, n, nothing)
@@ -695,16 +695,16 @@ end
 
 # O
 
-function id!(kb::KBase, n::O)::OID
-    if haskey(kb.oi, n)
-        kb.oi[n]
-    else
-        i = OID(UUIDs.uuid4())
-        kb.o[i] = n
-        kb.oi[n] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::O)::OID
+#     if haskey(kb.oi, n)
+#         kb.oi[n]
+#     else
+#         i = OID(UUIDs.uuid4())
+#         kb.o[i] = n
+#         kb.oi[n] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::O)::Union{OID, Nothing}
 #     get(kb.oi, n, nothing)
@@ -716,16 +716,16 @@ end
 
 # CO
 
-function id!(kb::KBase, n::CO)::COID
-    if haskey(kb.coi, n)
-        kb.coi[n]
-    else
-        i = COID(UUIDs.uuid4())
-        kb.co[i] = n
-        kb.coi[n] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::CO)::COID
+#     if haskey(kb.coi, n)
+#         kb.coi[n]
+#     else
+#         i = COID(UUIDs.uuid4())
+#         kb.co[i] = n
+#         kb.coi[n] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::CO)::Union{COID, Nothing}
 #     get(kb.coi, n, nothing)
@@ -737,16 +737,16 @@ end
 
 # RC
 
-function id!(kb::KBase, n::RC)::RCID
-    if haskey(kb.rci, n)
-        kb.rci[n]
-    else
-        i = RCID(UUIDs.uuid4())
-        kb.rc[i] = n
-        kb.rci[n] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::RC)::RCID
+#     if haskey(kb.rci, n)
+#         kb.rci[n]
+#     else
+#         i = RCID(UUIDs.uuid4())
+#         kb.rc[i] = n
+#         kb.rci[n] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::RC)::Union{RCID, Nothing}
 #     get(kb.rci, n, nothing)
@@ -758,16 +758,16 @@ end
 
 # RCO
 
-function id!(kb::KBase, n::RCO)::RCOID
-    if haskey(kb.rcoi, n)
-        kb.rcoi[n]
-    else
-        i = RCOID(UUIDs.uuid4())
-        kb.rco[i] = n
-        kb.rcoi[n] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::RCO)::RCOID
+#     if haskey(kb.rcoi, n)
+#         kb.rcoi[n]
+#     else
+#         i = RCOID(UUIDs.uuid4())
+#         kb.rco[i] = n
+#         kb.rcoi[n] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::RCO)::Union{RCOID, Nothing}
 #     get(kb.rcoi, n, nothing)
@@ -779,19 +779,19 @@ end
 
 # AC
 
-function id!(kb::KBase, n::AC)::ACID
-    ack = ACKey(n.c, n.a)
-    if haskey(kb.aci, ack)
-        i = kb.aci[ack]
-        kb.ac[i] = n
-        i
-    else
-        i = ACID(UUIDs.uuid4())
-        kb.ac[i] = n
-        kb.aci[ack] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::AC)::ACID
+#     ack = ACKey(n.c, n.a)
+#     if haskey(kb.aci, ack)
+#         i = kb.aci[ack]
+#         kb.ac[i] = n
+#         i
+#     else
+#         i = ACID(UUIDs.uuid4())
+#         kb.ac[i] = n
+#         kb.aci[ack] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::ACKey)::Union{ACID, Nothing}
 #     get(kb.aci, n, nothing)
@@ -803,19 +803,19 @@ end
 
 # AR
 
-function id!(kb::KBase, n::AR)::ARID
-    ark = ARKey(n.r, n.a)
-    if haskey(kb.ari, ark)
-        i = kb.ari[ark]
-        kb.ar[i] = n
-        i
-    else
-        i = ARID(UUIDs.uuid4())
-        kb.ar[i] = n
-        kb.ari[ark] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::AR)::ARID
+#     ark = ARKey(n.r, n.a)
+#     if haskey(kb.ari, ark)
+#         i = kb.ari[ark]
+#         kb.ar[i] = n
+#         i
+#     else
+#         i = ARID(UUIDs.uuid4())
+#         kb.ar[i] = n
+#         kb.ari[ark] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::ARKey)::Union{ARID, Nothing}
 #     get(kb.ari, n, nothing)
@@ -827,19 +827,19 @@ end
 
 # ACO
 
-function id!(kb::KBase, n::ACO)::ACOID
-    acok = ACOKey(n.co, n.ac)
-    if haskey(kb.acoi, acok)
-        i = kb.acoi[acok]
-        kb.aco[i] = n
-        i
-    else
-        i = ACOID(UUIDs.uuid4())
-        kb.aco[i] = n
-        kb.acoi[acok] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::ACO)::ACOID
+#     acok = ACOKey(n.co, n.ac)
+#     if haskey(kb.acoi, acok)
+#         i = kb.acoi[acok]
+#         kb.aco[i] = n
+#         i
+#     else
+#         i = ACOID(UUIDs.uuid4())
+#         kb.aco[i] = n
+#         kb.acoi[acok] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::ACOKey)::Union{ACOID, Nothing}
 #     get(kb.acoi, n, nothing)
@@ -851,19 +851,19 @@ end
 
 # ARC
 
-function id!(kb::KBase, n::ARC)::ARCID
-    arck = ARCKey(n.rc, n.ar)
-    if haskey(kb.arci, arck)
-        i = kb.arci[arck]
-        kb.arc[i] = n
-        i
-    else
-        i = ARCID(UUIDs.uuid4())
-        kb.arc[i] = n
-        kb.arci[arck] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::ARC)::ARCID
+#     arck = ARCKey(n.rc, n.ar)
+#     if haskey(kb.arci, arck)
+#         i = kb.arci[arck]
+#         kb.arc[i] = n
+#         i
+#     else
+#         i = ARCID(UUIDs.uuid4())
+#         kb.arc[i] = n
+#         kb.arci[arck] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::ARCKey)::Union{ARCID, Nothing}
 #     get(kb.arci, n, nothing)
@@ -875,19 +875,19 @@ end
 
 # ARCO
 
-function id!(kb::KBase, n::ARCO)::ARCOID
-    arcok = ARCOKey(n.rco, n.arc)
-    if haskey(kb.arcoi, arcok)
-        i = kb.arcoi[arcok]
-        kb.arco[i] = n
-        i
-    else
-        i = ARCOID(UUIDs.uuid4())
-        kb.arco[i] = n
-        kb.arcoi[arcok] = i
-        i
-    end
-end
+# function id!(kb::KBase, n::ARCO)::ARCOID
+#     arcok = ARCOKey(n.rco, n.arc)
+#     if haskey(kb.arcoi, arcok)
+#         i = kb.arcoi[arcok]
+#         kb.arco[i] = n
+#         i
+#     else
+#         i = ARCOID(UUIDs.uuid4())
+#         kb.arco[i] = n
+#         kb.arcoi[arcok] = i
+#         i
+#     end
+# end
 
 # function id(kb::KBase, n::ARCOKey)::Union{ARCOID, Nothing}
 #     get(kb.arcoi, n, nothing)
