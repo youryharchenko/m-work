@@ -146,6 +146,39 @@ v_agent = KBs.id(kb, KBs.V(:Agent))
 # ╔═╡ 8803a9c4-badd-4df6-a510-241a9ed3c5a9
 o_agent = KBs.id(kb, KBs.O(v_agent))
 
+# ╔═╡ 3992f180-7d45-437e-9e5a-e004e00761d6
+v_nothing = KBs.idg!(kb, nothing)
+
+# ╔═╡ b14a0b79-c4d1-4007-8281-82a11b5c5b54
+KBs.idg!(kb, KBs.V(nothing))
+
+# ╔═╡ 75e570c8-d5fb-4eb8-ba4f-fc076fbc4a67
+KBs.idg!(kb, KBs.C(v_system))
+
+# ╔═╡ 4bf9246a-88ed-4e20-bbcf-e58a88a79599
+KBs.idg!(kb, KBs.O(v_agent))
+
+# ╔═╡ 764a19cf-f830-4f30-8743-62348e8887da
+KBs.idg!(kb, KBs.CO(c_system, o_agent))
+
+# ╔═╡ de421a73-0daf-4da9-b499-f308c2ccaff3
+v_script = KBs.idg!(kb, KBs.V(:script))
+
+# ╔═╡ 17cf3152-64ea-4e3a-9d5c-9c0fe1882085
+a_script = KBs.idg!(kb, KBs.A(v_script))
+
+# ╔═╡ f1350238-b73e-4385-b85b-63cd67a87e61
+KBs.idg!(kb, KBs.AC(c_system, a_script, v_nothing))
+
+# ╔═╡ 5f14115a-b20c-477b-95c7-1e735a023bc9
+KBs.select(KBs.CO, kb)
+
+# ╔═╡ 21f0b2cc-4910-431b-8f0d-835cb386e558
+KBs.select(KBs.AC, kb)
+
+# ╔═╡ 9e7c443e-1322-4d6f-94b4-b3e2a41b8d87
+KBs.select(KBs.A, kb)
+
 # ╔═╡ Cell order:
 # ╠═220ff242-94a7-11ed-2d9a-7170d2c39d11
 # ╠═b5d4587a-d496-475f-b041-8abc83624648
@@ -171,3 +204,14 @@ o_agent = KBs.id(kb, KBs.O(v_agent))
 # ╠═d3610d3b-0026-44ae-8cca-3a2165840d55
 # ╠═69ac47e5-a8f9-481f-80c5-cfeaafe00c41
 # ╠═8803a9c4-badd-4df6-a510-241a9ed3c5a9
+# ╠═3992f180-7d45-437e-9e5a-e004e00761d6
+# ╠═b14a0b79-c4d1-4007-8281-82a11b5c5b54
+# ╠═75e570c8-d5fb-4eb8-ba4f-fc076fbc4a67
+# ╠═4bf9246a-88ed-4e20-bbcf-e58a88a79599
+# ╠═764a19cf-f830-4f30-8743-62348e8887da
+# ╠═de421a73-0daf-4da9-b499-f308c2ccaff3
+# ╠═17cf3152-64ea-4e3a-9d5c-9c0fe1882085
+# ╠═f1350238-b73e-4385-b85b-63cd67a87e61
+# ╠═5f14115a-b20c-477b-95c7-1e735a023bc9
+# ╠═21f0b2cc-4910-431b-8f0d-835cb386e558
+# ╠═9e7c443e-1322-4d6f-94b4-b3e2a41b8d87
