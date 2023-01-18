@@ -1,4 +1,8 @@
 
+macro o!()
+    
+end
+
 
 @generated function id!(kb::KBase, n::T) where {T<:Union{ValueTypes, AbstractNode}}
     

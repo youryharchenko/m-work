@@ -179,6 +179,72 @@ KBs.select(KBs.AC, kb)
 # ╔═╡ 9e7c443e-1322-4d6f-94b4-b3e2a41b8d87
 KBs.select(KBs.A, kb)
 
+# ╔═╡ 9e9dd64e-c5ed-4c99-8da2-37a8fe1267f5
+macro test_c!(kb, args...)
+	la = length(args)
+	if la == 1
+		c = args[1]
+    	:(KBs.make!(KBs.C, $kb, $c))
+	elseif la == 2
+		
+		c = args[1]
+		#dump(args[2])
+		ks = [arg.args[1] for arg in args[2].args]
+		#dump(ks)
+		vs = [arg.args[2].args for arg in args[2].args]
+		#dump(vs)
+		quote
+			cid = KBs.make!(KBs.C, $kb, $c)
+			tps = [$(ks)...]
+			dump(tps)
+			llst = [$(vs)...]
+			dump(llst)
+			for i in eachindex(tps)
+				if tps[i] == :a
+					for v in llst[i]
+						a = KBs.make!(KBs.A, $kb, v.args[1])
+						KBs.make!(KBs.AC, $kb, cid, a, v.args[2])
+					end
+				end
+			end
+		end
+	end
+end
+
+# ╔═╡ 76e443b7-5bf2-4aaa-8a8f-35490e2044ea
+macro test_o!(kb, value)
+	quote
+    	KBs.make!(KBs.O, $kb, $value)
+	end
+end
+
+# ╔═╡ 5498339d-a47f-454c-bf86-9c00a7696cc4
+@macroexpand @test_o! kb :test_object
+
+# ╔═╡ ce76193c-afa1-4a97-8298-33d6f701aeb1
+@test_c! kb :test_cat (a=[(test_attr_1, true), (test_attr_2, false), ("test_attr_3", "*")],)
+
+# ╔═╡ fb021de2-c14e-48b3-9887-f99dcfe90db7
+@test_o! kb :test_obj
+
+# ╔═╡ 389a801b-c297-4b43-ae45-dc62d85f1560
+KBs.select(KBs.C, kb)
+
+# ╔═╡ 7a17934c-d44d-4725-8a28-d4c67897bb76
+KBs.select(KBs.A, kb)
+
+# ╔═╡ f927d158-6568-4b09-baf1-a5960f33b257
+KBs.select(KBs.AC, kb)
+
+# ╔═╡ 19a300ea-1788-4baa-b9a9-b216768678d3
+KBs.select(KBs.O, kb)
+
+# ╔═╡ be40670f-dee1-4a43-8742-b32d4b747a1d
+keys((a=1, b=2))
+
+# ╔═╡ e05fe3fe-057b-4fe6-a103-09b055a2e23d
+values((a=1, b=2))
+
 # ╔═╡ Cell order:
 # ╠═220ff242-94a7-11ed-2d9a-7170d2c39d11
 # ╠═b5d4587a-d496-475f-b041-8abc83624648
@@ -215,3 +281,14 @@ KBs.select(KBs.A, kb)
 # ╠═5f14115a-b20c-477b-95c7-1e735a023bc9
 # ╠═21f0b2cc-4910-431b-8f0d-835cb386e558
 # ╠═9e7c443e-1322-4d6f-94b4-b3e2a41b8d87
+# ╠═9e9dd64e-c5ed-4c99-8da2-37a8fe1267f5
+# ╠═76e443b7-5bf2-4aaa-8a8f-35490e2044ea
+# ╠═5498339d-a47f-454c-bf86-9c00a7696cc4
+# ╠═ce76193c-afa1-4a97-8298-33d6f701aeb1
+# ╠═fb021de2-c14e-48b3-9887-f99dcfe90db7
+# ╠═389a801b-c297-4b43-ae45-dc62d85f1560
+# ╠═7a17934c-d44d-4725-8a28-d4c67897bb76
+# ╠═f927d158-6568-4b09-baf1-a5960f33b257
+# ╠═19a300ea-1788-4baa-b9a9-b216768678d3
+# ╠═be40670f-dee1-4a43-8742-b32d4b747a1d
+# ╠═e05fe3fe-057b-4fe6-a103-09b055a2e23d
