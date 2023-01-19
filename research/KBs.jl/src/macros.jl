@@ -1,7 +1,103 @@
 
-macro o!()
-    
+macro c!(kb, args...)
+    la = length(args)
+    kb = esc(kb)
+	if la == 1
+		c = args[1]
+    	:(make!(C, $(kb), $c))
+	elseif la == 2
+		c = args[1]
+		#dump(args[2])
+		ks = [arg.args[1] for arg in args[2].args]
+		#dump(ks)
+		vs = [arg.args[2].args for arg in args[2].args]
+		#dump(vs)
+		quote
+			cid = make!(C, $(kb), $c)
+			tps = [$(ks)...]
+			#dump(tps)
+			llst = [$(vs)...]
+			#dump(llst)
+			for i in eachindex(tps)
+				if tps[i] == :ac
+					for v in llst[i]
+						a = make!(A, $(kb), v.args[1])
+						make!(AC, $(kb), cid, a, v.args[2])
+					end
+				end
+				if tps[i] == :rct
+					for v in llst[i]
+                        r = make!(R, $(kb), v.args[1])
+						ct = make!(C, $(kb), v.args[2])
+						make!(RC, $(kb), r, cid, ct)
+					end
+				end
+                if tps[i] == :rcf
+					for v in llst[i]
+                        r = make!(R, $(kb), v.args[1])
+						cf = make!(C, $(kb), v.args[2])
+						make!(RC, $(kb), r, cf, cid)
+					end
+				end
+			end
+            cid
+		end
+    else
+        error("must be 1 or 2 arguments")
+	end
 end
+
+macro r!(kb, args...)
+    la = length(args)
+    kb = esc(kb)
+	if la == 1
+		r = args[1]
+    	:(make!(R, $(kb), $r))
+	elseif la == 2
+		r = args[1]
+		#dump(args[2])
+		ks = [arg.args[1] for arg in args[2].args]
+		#dump(ks)
+		vs = [arg.args[2].args for arg in args[2].args]
+		#dump(vs)
+		quote
+			rid = make!(R, $(kb), $r)
+			tps = [$(ks)...]
+			#dump(tps)
+			llst = [$(vs)...]
+			#dump(llst)
+			for i in eachindex(tps)
+				if tps[i] == :ar
+					for v in llst[i]
+						a = make!(A, $(kb), v.args[1])
+						make!(AR, $(kb), rid, a, v.args[2])
+					end
+				end
+                if tps[i] == :rc
+					for v in llst[i]
+						cf = make!(C, $(kb), v.args[1])
+                        ct = make!(C, $(kb), v.args[2])
+						make!(RC, $(kb), rid, cf, ct)
+					end
+				end
+                if tps[i] == :arc
+					for v in llst[i]
+						cf = make!(C, $(kb), v.args[1])
+                        ct = make!(C, $(kb), v.args[2])
+                        rc = make!(RC, $(kb), rid, cf, ct)
+                        a = make!(A, $(kb), v.args[3])
+                        ar = make!(AR, $(kb), rid, a, v.args[4])
+                        make!(ARC, $(kb), rc, ar, v.args[4])
+					end
+				end
+			end
+            rid
+		end
+    else
+        error("must be 1 or 2 arguments")
+	end
+end
+
 
 
 @generated function id!(kb::KBase, n::T) where {T<:Union{ValueTypes, AbstractNode}}
