@@ -39,6 +39,26 @@ macro c!(kb, args...)
 						make!(RC, $(kb), r, cf, cid)
 					end
 				end
+                if tps[i] == :arct
+					for v in llst[i]
+                        r = make!(R, $(kb), v.args[1])
+						ct = make!(C, $(kb), v.args[2])
+						rc = make!(RC, $(kb), r, cid, ct)
+                        a = make!(A, $(kb), v.args[3])
+						ar = make!(AR, $(kb), r, a, v.args[4])
+                        make!(ARC, $(kb), rc, ar, v.args[4])
+					end
+				end
+                if tps[i] == :arcf
+					for v in llst[i]
+                        r = make!(R, $(kb), v.args[1])
+						cf = make!(C, $(kb), v.args[2])
+						rc = make!(RC, $(kb), r, cf, cid)
+                        a = make!(A, $(kb), v.args[3])
+						ar = make!(AR, $(kb), r, a, v.args[4])
+                        make!(ARC, $(kb), rc, ar, v.args[4])
+					end
+				end
 			end
             cid
 		end
@@ -98,7 +118,104 @@ macro r!(kb, args...)
 	end
 end
 
-
+macro o!(kb, args...)
+    la = length(args)
+    kb = esc(kb)
+	if la == 1
+		o = args[1]
+    	:(make!(O, $(kb), $o))
+	elseif la == 2
+		o = args[1]
+		#dump(args[2])
+		ks = [arg.args[1] for arg in args[2].args]
+		#dump(ks)
+		vs = [arg.args[2].args for arg in args[2].args]
+		#dump(vs)
+		quote
+			oid = make!(O, $(kb), $o)
+			tps = [$(ks)...]
+			#dump(tps)
+			llst = [$(vs)...]
+			#dump(llst)
+			for i in eachindex(tps)
+				if tps[i] == :co
+					for v in llst[i]
+						c = make!(C, $(kb), v.args[1])
+						make!(CO, $(kb), c, oid)
+					end
+				end
+				if tps[i] == :aco
+					for v in llst[i]
+                        c = make!(C, $(kb), v.args[1])
+                        co = make!(CO, $(kb), c, oid)
+                        a = make!(A, $(kb), v.args[2])
+                        ac = make!(AC, $(kb), c, a, v.args[3])
+						make!(ACO, $(kb), co, ac, v.args[3])
+					end
+				end
+                if tps[i] == :rcot
+					for v in llst[i]
+                        c = make!(C, $(kb), v.args[1])
+                        co = make!(CO, $(kb), c, oid)
+                        r = make!(R, $(kb), v.args[2])
+						ct = make!(C, $(kb), v.args[3])
+                        ot = make!(O, $(kb), v.args[4])
+                        cot = make!(CO, $(kb), ct, ot)
+						rc = make!(RC, $(kb), r, c, ct)
+                        make!(RCO, $(kb), rc, co, cot)
+					end
+				end
+                if tps[i] == :rcof
+					for v in llst[i]
+                        c = make!(C, $(kb), v.args[1])
+                        co = make!(CO, $(kb), c, oid)
+                        r = make!(R, $(kb), v.args[2])
+						cf = make!(C, $(kb), v.args[3])
+                        of = make!(O, $(kb), v.args[4])
+                        cof = make!(CO, $(kb), cf, of)
+						rc = make!(RC, $(kb), r, cf, c)
+                        make!(RCO, $(kb), rc, cof, co)
+					end
+				end
+				if tps[i] == :arcot
+					for v in llst[i]
+                        c = make!(C, $(kb), v.args[1])
+                        co = make!(CO, $(kb), c, oid)
+                        r = make!(R, $(kb), v.args[2])
+						ct = make!(C, $(kb), v.args[3])
+                        ot = make!(O, $(kb), v.args[4])
+                        cot = make!(CO, $(kb), ct, ot)
+						rc = make!(RC, $(kb), r, c, ct)
+                        rco = make!(RCO, $(kb), rc, co, cot)
+						a = make!(A, $(kb), v.args[5])
+						ar = make!(AR, $(kb), r, a, v.args[6])
+                        arc = make!(ARC, $(kb), rc, ar, v.args[6])
+						make!(ARCO, $(kb), rco, arc, v.args[6])
+					end
+				end
+                if tps[i] == :arcof
+					for v in llst[i]
+                        c = make!(C, $(kb), v.args[1])
+                        co = make!(CO, $(kb), c, oid)
+                        r = make!(R, $(kb), v.args[2])
+						cf = make!(C, $(kb), v.args[3])
+                        of = make!(O, $(kb), v.args[4])
+                        cof = make!(CO, $(kb), cf, of)
+						rc = make!(RC, $(kb), r, cf, c)
+                        rco = make!(RCO, $(kb), rc, cof, co)
+						a = make!(A, $(kb), v.args[5])
+						ar = make!(AR, $(kb), r, a, v.args[6])
+                        arc = make!(ARC, $(kb), rc, ar, v.args[6])
+						make!(ARCO, $(kb), rco, arc, v.args[6])
+					end
+				end
+			end
+            oid
+		end
+    else
+        error("must be 1 or 2 arguments")
+	end
+end
 
 @generated function id!(kb::KBase, n::T) where {T<:Union{ValueTypes, AbstractNode}}
     
