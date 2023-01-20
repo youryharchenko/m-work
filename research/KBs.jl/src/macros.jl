@@ -1,4 +1,12 @@
 
+function _g(args, ind)
+	for a in args
+		if a.args[1] == ind 
+			return a.args[2]
+		end
+	end
+end
+
 macro c!(kb, args...)
     la = length(args)
     kb = esc(kb)
@@ -21,42 +29,43 @@ macro c!(kb, args...)
 			for i in eachindex(tps)
 				if tps[i] == :ac
 					for v in llst[i]
-						a = make!(A, $(kb), v.args[1])
-						make!(AC, $(kb), cid, a, v.args[2])
+						#dump(v.args)
+						a = make!(A, $(kb), _g(v.args, :a))
+						make!(AC, $(kb), cid, a, _g(v.args, :v))
 					end
 				end
 				if tps[i] == :rct
 					for v in llst[i]
-                        r = make!(R, $(kb), v.args[1])
-						ct = make!(C, $(kb), v.args[2])
+                        r = make!(R, $(kb), _g(v.args, :r))
+						ct = make!(C, $(kb), _g(v.args, :ct))
 						make!(RC, $(kb), r, cid, ct)
 					end
 				end
                 if tps[i] == :rcf
 					for v in llst[i]
-                        r = make!(R, $(kb), v.args[1])
-						cf = make!(C, $(kb), v.args[2])
+                        r = make!(R, $(kb), _g(v.args, :r))
+						cf = make!(C, $(kb), _g(v.args, :cf))
 						make!(RC, $(kb), r, cf, cid)
 					end
 				end
                 if tps[i] == :arct
 					for v in llst[i]
-                        r = make!(R, $(kb), v.args[1])
-						ct = make!(C, $(kb), v.args[2])
+                        r = make!(R, $(kb), _g(v.args, :r))
+						ct = make!(C, $(kb), _g(v.args, :ct))
 						rc = make!(RC, $(kb), r, cid, ct)
-                        a = make!(A, $(kb), v.args[3])
-						ar = make!(AR, $(kb), r, a, v.args[4])
-                        make!(ARC, $(kb), rc, ar, v.args[4])
+                        a = make!(A, $(kb), _g(v.args, :a))
+						ar = make!(AR, $(kb), r, a, _g(v.args, :v))
+                        make!(ARC, $(kb), rc, ar, _g(v.args, :v))
 					end
 				end
                 if tps[i] == :arcf
 					for v in llst[i]
-                        r = make!(R, $(kb), v.args[1])
-						cf = make!(C, $(kb), v.args[2])
+                        r = make!(R, $(kb), _g(v.args, :r))
+						cf = make!(C, $(kb), _g(v.args, :cf))
 						rc = make!(RC, $(kb), r, cf, cid)
-                        a = make!(A, $(kb), v.args[3])
-						ar = make!(AR, $(kb), r, a, v.args[4])
-                        make!(ARC, $(kb), rc, ar, v.args[4])
+                        a = make!(A, $(kb), _g(v.args, :a))
+						ar = make!(AR, $(kb), r, a, _g(v.args, :v))
+                        make!(ARC, $(kb), rc, ar, _g(v.args, :v))
 					end
 				end
 			end
@@ -89,25 +98,25 @@ macro r!(kb, args...)
 			for i in eachindex(tps)
 				if tps[i] == :ar
 					for v in llst[i]
-						a = make!(A, $(kb), v.args[1])
-						make!(AR, $(kb), rid, a, v.args[2])
+						a = make!(A, $(kb), _g(v.args, :a))
+						make!(AR, $(kb), rid, a, _g(v.args, :v))
 					end
 				end
                 if tps[i] == :rc
 					for v in llst[i]
-						cf = make!(C, $(kb), v.args[1])
-                        ct = make!(C, $(kb), v.args[2])
+						cf = make!(C, $(kb), _g(v.args, :cf))
+                        ct = make!(C, $(kb), _g(v.args, :ct))
 						make!(RC, $(kb), rid, cf, ct)
 					end
 				end
                 if tps[i] == :arc
 					for v in llst[i]
-						cf = make!(C, $(kb), v.args[1])
-                        ct = make!(C, $(kb), v.args[2])
+						cf = make!(C, $(kb), _g(v.args, :cf))
+                        ct = make!(C, $(kb), _g(v.args, :ct))
                         rc = make!(RC, $(kb), rid, cf, ct)
-                        a = make!(A, $(kb), v.args[3])
-                        ar = make!(AR, $(kb), rid, a, v.args[4])
-                        make!(ARC, $(kb), rc, ar, v.args[4])
+                        a = make!(A, $(kb), _g(v.args, :a))
+                        ar = make!(AR, $(kb), rid, a, _g(v.args, :v))
+                        make!(ARC, $(kb), rc, ar, _g(v.args, :v))
 					end
 				end
 			end
@@ -140,26 +149,26 @@ macro o!(kb, args...)
 			for i in eachindex(tps)
 				if tps[i] == :co
 					for v in llst[i]
-						c = make!(C, $(kb), v.args[1])
+						c = make!(C, $(kb), _g(v.args, :c))
 						make!(CO, $(kb), c, oid)
 					end
 				end
 				if tps[i] == :aco
 					for v in llst[i]
-                        c = make!(C, $(kb), v.args[1])
+                        c = make!(C, $(kb), _g(v.args, :c))
                         co = make!(CO, $(kb), c, oid)
-                        a = make!(A, $(kb), v.args[2])
-                        ac = make!(AC, $(kb), c, a, v.args[3])
-						make!(ACO, $(kb), co, ac, v.args[3])
+                        a = make!(A, $(kb), _g(v.args, :a))
+                        ac = make!(AC, $(kb), c, a, _g(v.args, :v))
+						make!(ACO, $(kb), co, ac, _g(v.args, :v))
 					end
 				end
                 if tps[i] == :rcot
 					for v in llst[i]
-                        c = make!(C, $(kb), v.args[1])
+                        c = make!(C, $(kb), _g(v.args, :c))
                         co = make!(CO, $(kb), c, oid)
-                        r = make!(R, $(kb), v.args[2])
-						ct = make!(C, $(kb), v.args[3])
-                        ot = make!(O, $(kb), v.args[4])
+                        r = make!(R, $(kb), _g(v.args, :r))
+						ct = make!(C, $(kb), _g(v.args, :ct))
+                        ot = make!(O, $(kb), _g(v.args, :ot))
                         cot = make!(CO, $(kb), ct, ot)
 						rc = make!(RC, $(kb), r, c, ct)
                         make!(RCO, $(kb), rc, co, cot)
@@ -167,11 +176,11 @@ macro o!(kb, args...)
 				end
                 if tps[i] == :rcof
 					for v in llst[i]
-                        c = make!(C, $(kb), v.args[1])
+                        c = make!(C, $(kb), _g(v.args, :c))
                         co = make!(CO, $(kb), c, oid)
-                        r = make!(R, $(kb), v.args[2])
-						cf = make!(C, $(kb), v.args[3])
-                        of = make!(O, $(kb), v.args[4])
+                        r = make!(R, $(kb), _g(v.args, :r))
+						cf = make!(C, $(kb), _g(v.args, :cf))
+                        of = make!(O, $(kb), _g(v.args, :of))
                         cof = make!(CO, $(kb), cf, of)
 						rc = make!(RC, $(kb), r, cf, c)
                         make!(RCO, $(kb), rc, cof, co)
@@ -179,34 +188,34 @@ macro o!(kb, args...)
 				end
 				if tps[i] == :arcot
 					for v in llst[i]
-                        c = make!(C, $(kb), v.args[1])
+                        c = make!(C, $(kb), _g(v.args, :c))
                         co = make!(CO, $(kb), c, oid)
-                        r = make!(R, $(kb), v.args[2])
-						ct = make!(C, $(kb), v.args[3])
-                        ot = make!(O, $(kb), v.args[4])
+                        r = make!(R, $(kb), _g(v.args, :r))
+						ct = make!(C, $(kb), _g(v.args, :ct))
+                        ot = make!(O, $(kb), _g(v.args, :ot))
                         cot = make!(CO, $(kb), ct, ot)
 						rc = make!(RC, $(kb), r, c, ct)
                         rco = make!(RCO, $(kb), rc, co, cot)
-						a = make!(A, $(kb), v.args[5])
-						ar = make!(AR, $(kb), r, a, v.args[6])
-                        arc = make!(ARC, $(kb), rc, ar, v.args[6])
-						make!(ARCO, $(kb), rco, arc, v.args[6])
+						a = make!(A, $(kb), _g(v.args, :a))
+						ar = make!(AR, $(kb), r, a, _g(v.args, :v))
+                        arc = make!(ARC, $(kb), rc, ar, _g(v.args, :v))
+						make!(ARCO, $(kb), rco, arc, _g(v.args, :v))
 					end
 				end
                 if tps[i] == :arcof
 					for v in llst[i]
-                        c = make!(C, $(kb), v.args[1])
+                        c = make!(C, $(kb), _g(v.args, :c))
                         co = make!(CO, $(kb), c, oid)
-                        r = make!(R, $(kb), v.args[2])
-						cf = make!(C, $(kb), v.args[3])
-                        of = make!(O, $(kb), v.args[4])
+                        r = make!(R, $(kb), _g(v.args, :r))
+						cf = make!(C, $(kb), _g(v.args, :cf))
+                        of = make!(O, $(kb), _g(v.args, :of))
                         cof = make!(CO, $(kb), cf, of)
 						rc = make!(RC, $(kb), r, cf, c)
                         rco = make!(RCO, $(kb), rc, cof, co)
-						a = make!(A, $(kb), v.args[5])
-						ar = make!(AR, $(kb), r, a, v.args[6])
-                        arc = make!(ARC, $(kb), rc, ar, v.args[6])
-						make!(ARCO, $(kb), rco, arc, v.args[6])
+						a = make!(A, $(kb), _g(v.args, :a))
+						ar = make!(AR, $(kb), r, a, _g(v.args, :v))
+                        arc = make!(ARC, $(kb), rc, ar, _g(v.args, :v))
+						make!(ARCO, $(kb), rco, arc, _g(v.args, :v))
 					end
 				end
 			end
