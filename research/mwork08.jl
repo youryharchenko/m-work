@@ -36,13 +36,16 @@ kb = load("mwork08/save")
 # ╔═╡ 29e598ed-a09d-48dd-b819-5b40a1d35094
 @c! kb :test_cat
 
+# ╔═╡ de4a474b-1c6d-4c9a-a489-7dde43dd3003
+
+
 # ╔═╡ 40363c39-3e86-4bcb-84f2-ac516fcc2ee9
 @c! kb :test_cat (
-	ac=[(a=test_attr_1, v=true), (a=test_attr_2, v=false)],
-	rct=[(r=test_rel, ct=test_cat_to)],
-	rcf=[(r=test_rel, cf=test_cat_from)],
-	arct=[(r=test_rel, ct=test_cat_to, a=test_attr_3, v=0)],
-	arcf=[(r=test_rel, cf=test_cat_from, a=test_attr_3, v=0)],
+	ac=[(a=:test_attr_1, v=true), (a=:test_attr_2, v=false)],
+	rct=[(r=:test_rel, ct=:test_cat_to)],
+	rcf=[(r=:test_rel, cf=:test_cat_from)],
+	arct=[(r=:test_rel, ct=:test_cat_to, a=:test_attr_3, v=0)],
+	arcf=[(r=:test_rel, cf=:test_cat_from, a=:test_attr_3, v=0)],
 )
 
 # ╔═╡ fd74ec9b-af25-4025-b417-8be5cdfaf40e
@@ -59,9 +62,9 @@ select(AC, kb)
 
 # ╔═╡ aac04ff7-2ddf-4014-b7cb-4d6a83519e63
 @r! kb :test_rel (
-	ar=[(r=test_attr_3, v=nothing)],
-	rc=[(cf=test_cat, ct=test_cat_to)],
-	arc=[(cf=test_cat, ct=test_cat_to, a=test_attr_3, v=1)],
+	ar=[(r=:test_attr_3, v=nothing)],
+	rc=[(cf=:test_cat, ct=:test_cat_to)],
+	arc=[(cf=:test_cat, ct=:test_cat_to, a=:test_attr_3, v=1)],
 )
 
 
@@ -79,18 +82,18 @@ select(ARC, kb)
 
 # ╔═╡ a4f4c1f5-9563-4d3e-8f1e-14338705b107
 @o! kb :test_obj_1 (
-	co=[(c=test_cat,)],
-	aco=[(c=test_cat, a=test_attr_1, v=2)],
-	rcof=[(c=test_cat, r=test_rel, cf=test_cat_from, of=test_obj_2)],
-	arcof=[(c=test_cat, r=test_rel, cf=test_cat_from, of=test_obj_2, a=test_attr_3, v=3)],
+	co=[(c=:test_cat,)],
+	aco=[(c=:test_cat, a=:test_attr_1, v=2)],
+	rcof=[(c=:test_cat, r=:test_rel, cf=:test_cat_from, of=:test_obj_2)],
+	arcof=[(c=:test_cat, r=:test_rel, cf=:test_cat_from, of=:test_obj_2, a=:test_attr_3, v=3)],
 )
 
 # ╔═╡ d9548779-34ea-4d44-a4c6-f55df30f2d95
 @o! kb :test_obj_2 (
-	co=[(c=test_cat,)],
-	aco=[(c=test_cat, a=test_attr_3, v=5)],
-	rcot=[(c=test_cat, r=test_rel, ct=test_cat_to, ot=test_obj_3)],
-	arcot=[(c=test_cat, r=test_rel, ct=test_cat_to, ot=test_obj_3, a=test_attr_3, v=5)],
+	co=[(c=:test_cat,)],
+	aco=[(c=:test_cat, a=:test_attr_3, v=5)],
+	rcot=[(c=:test_cat, r=:test_rel, ct=:test_cat_to, ot=:test_obj_3)],
+	arcot=[(c=:test_cat, r=:test_rel, ct=:test_cat_to, ot=:test_obj_3, a=:test_attr_3, v=5)],
 )
 
 # ╔═╡ 8853c32a-c8eb-49a3-ac83-ee0ea18257aa
@@ -108,12 +111,45 @@ select(RCO, kb)
 # ╔═╡ 7ded8b87-acf3-4bb3-8b6b-e6398328f4aa
 select(ARCO, kb)
 
+# ╔═╡ 5fce67b4-8a5a-4836-8db7-b5199cb934e8
+(; zip((Symbol(k) for k in 1:5), (v for v in 6:10))...)
+
+# ╔═╡ 18cad4c0-cd18-4dc9-8fd3-091ce40a56a9
+macro c(kb, args...)
+	la = length(args)
+    kb = esc(kb)
+	if la == 1
+		c = args[1]
+    	quote 
+			vid = id($(kb), $c)
+			cid = id($(kb), C(vid))
+			c = value($(kb), cid)
+			ac = tuple([value($(kb), value($(kb), k.a).v).value for k in keys($(kb).aci) if k.c == cid]...)
+			co = tuple([value($(kb), value($(kb), k.o).v).value for k in keys($(kb).coi) if k.c == cid]...) 
+			(c=$c, ac=ac, co=co)
+		end
+	end
+end
+
+# ╔═╡ c3015ddb-ab22-415f-99c1-02227f6439e7
+@macroexpand @c kb :test_cat
+
+# ╔═╡ 3e9184de-363b-41c0-b240-a8e3a8bb8964
+@c kb :test_cat
+
+# ╔═╡ fbbdc53e-3a23-4d49-b748-530486b55366
+@c kb :test_cat_to
+
+# ╔═╡ a7fd58b0-87f1-4a5b-8459-cbf6c43d0ebe
+@c kb :test_cat_from
+
 # ╔═╡ Cell order:
 # ╠═d124b18a-97e7-11ed-09fe-5b5a75f90040
 # ╠═6e765c0d-0155-4a76-9d49-fcb7051b7ea8
 # ╠═0a2319d1-77cf-4bda-aaca-55f937a217ee
 # ╠═018cd9a9-f4e0-487b-a8cb-6405ed9eb16f
 # ╠═29e598ed-a09d-48dd-b819-5b40a1d35094
+# ╠═de4a474b-1c6d-4c9a-a489-7dde43dd3003
 # ╠═40363c39-3e86-4bcb-84f2-ac516fcc2ee9
 # ╠═fd74ec9b-af25-4025-b417-8be5cdfaf40e
 # ╠═700eb6e9-6a84-4601-8490-b7e0210699c2
@@ -131,3 +167,9 @@ select(ARCO, kb)
 # ╠═38bf46ef-1724-4cde-a95d-137fd23fcb9e
 # ╠═58bb0639-a6c7-4adb-9cc8-564f269ad1b1
 # ╠═7ded8b87-acf3-4bb3-8b6b-e6398328f4aa
+# ╠═5fce67b4-8a5a-4836-8db7-b5199cb934e8
+# ╠═18cad4c0-cd18-4dc9-8fd3-091ce40a56a9
+# ╠═c3015ddb-ab22-415f-99c1-02227f6439e7
+# ╠═3e9184de-363b-41c0-b240-a8e3a8bb8964
+# ╠═fbbdc53e-3a23-4d49-b748-530486b55366
+# ╠═a7fd58b0-87f1-4a5b-8459-cbf6c43d0ebe

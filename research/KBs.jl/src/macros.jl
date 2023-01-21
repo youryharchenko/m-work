@@ -2,7 +2,7 @@
 function _g(args, ind)
 	for a in args
 		if a.args[1] == ind 
-			return a.args[2]
+			return (a.args[2] isa QuoteNode) ? a.args[2].value : a.args[2]
 		end
 	end
 end
