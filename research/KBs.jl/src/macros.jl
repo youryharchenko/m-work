@@ -7,6 +7,11 @@ function _g(args, ind)
 	end
 end
 
+function _av(a, v)
+	#dump(t)
+	a => v
+end
+
 macro c!(kb, args...)
     la = length(args)
     kb = esc(kb)
@@ -76,6 +81,47 @@ macro c!(kb, args...)
 	end
 end
 
+macro c(kb, args...)
+	la = length(args)
+    kb = esc(kb)
+	if la == 1
+		c = args[1]
+    	quote 
+			vid = id($(kb), $c)
+			cid = id($(kb), C(vid))
+			c = value($(kb), cid)
+			ac = (;[_av((a=value($(kb), value($(kb), k.a).v).value,
+				v=value($(kb), value($(kb), id($(kb), k)).v).value,)...) 
+				for k in keys($(kb).aci) if k.c == cid]...)
+			#co = tuple([(o=value($(kb), value($(kb), k.o).v).value,) for k in keys($(kb).coi) if k.c == cid]...)
+			rct = tuple([(r=value($(kb), value($(kb), k.r).v).value, ct=value($(kb), value($(kb), k.ct).v).value) 
+				for k in keys($(kb).rci) if k.cf == cid]...)
+			rcf = tuple([(r=value($(kb), value($(kb), k.r).v).value, ct=value($(kb), value($(kb), k.cf).v).value) 
+				for k in keys($(kb).rci) if k.ct == cid]...) 
+			(c=$c, ac=ac, rct=rct, rcf=rcf)
+		end
+	end
+end
+
+macro co(kb, args...)
+	la = length(args)
+    kb = esc(kb)
+	if la == 1
+		c = args[1]
+    	quote 
+			vid = id($(kb), $c)
+			cid = id($(kb), C(vid))
+			c = value($(kb), cid)
+			co = tuple([(o=value($(kb), value($(kb), k.o).v).value,
+				aco = (; [_av((a=value($(kb), value($(kb), value($(kb), kco.ac).a).v).value,
+					v=value($(kb), value($(kb), id($(kb), kco)).v).value,)...) 
+					for kco in keys($(kb).acoi) if kco.co == id($(kb), CO(cid, k.o))]...),
+				) for k in keys($(kb).coi) if k.c == cid]...)
+			(c=$c, co=co)
+		end
+	end
+end
+
 macro r!(kb, args...)
     la = length(args)
     kb = esc(kb)
@@ -126,6 +172,27 @@ macro r!(kb, args...)
         error("must be 1 or 2 arguments")
 	end
 end
+
+macro r(kb, args...)
+	la = length(args)
+    kb = esc(kb)
+	if la == 1
+		r = args[1]
+    	quote 
+			vid = id($(kb), $r)
+			rid = id($(kb), R(vid))
+			r = value($(kb), rid)
+			ar = (;[_av((a=value($(kb), value($(kb), k.a).v).value,
+				v=value($(kb), value($(kb), id($(kb), k)).v).value,)...) 
+				for k in keys($(kb).ari) if k.r == rid]...)
+			rc = tuple([(cf=value($(kb), value($(kb), k.cf).v).value, 
+				ct=value($(kb), value($(kb), k.ct).v).value) 
+				for k in keys($(kb).rci) if k.r == rid]...)
+			(r=$r, ar=ar, rc=rc)
+		end
+	end
+end
+
 
 macro o!(kb, args...)
     la = length(args)

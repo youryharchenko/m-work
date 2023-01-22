@@ -62,7 +62,7 @@ select(AC, kb)
 
 # ╔═╡ aac04ff7-2ddf-4014-b7cb-4d6a83519e63
 @r! kb :test_rel (
-	ar=[(r=:test_attr_3, v=nothing)],
+	ar=[(a=:test_attr_3, v=nothing)],
 	rc=[(cf=:test_cat, ct=:test_cat_to)],
 	arc=[(cf=:test_cat, ct=:test_cat_to, a=:test_attr_3, v=1)],
 )
@@ -105,6 +105,9 @@ select(CO, kb)
 # ╔═╡ 38bf46ef-1724-4cde-a95d-137fd23fcb9e
 select(ACO, kb)
 
+# ╔═╡ 5e82b26d-a75b-4a4b-88b0-b45dff2f35d6
+select(AR, kb)
+
 # ╔═╡ 58bb0639-a6c7-4adb-9cc8-564f269ad1b1
 select(RCO, kb)
 
@@ -114,34 +117,32 @@ select(ARCO, kb)
 # ╔═╡ 5fce67b4-8a5a-4836-8db7-b5199cb934e8
 (; zip((Symbol(k) for k in 1:5), (v for v in 6:10))...)
 
-# ╔═╡ 18cad4c0-cd18-4dc9-8fd3-091ce40a56a9
-macro c(kb, args...)
-	la = length(args)
-    kb = esc(kb)
-	if la == 1
-		c = args[1]
-    	quote 
-			vid = id($(kb), $c)
-			cid = id($(kb), C(vid))
-			c = value($(kb), cid)
-			ac = tuple([value($(kb), value($(kb), k.a).v).value for k in keys($(kb).aci) if k.c == cid]...)
-			co = tuple([value($(kb), value($(kb), k.o).v).value for k in keys($(kb).coi) if k.c == cid]...) 
-			(c=$c, ac=ac, co=co)
-		end
-	end
-end
-
 # ╔═╡ c3015ddb-ab22-415f-99c1-02227f6439e7
 @macroexpand @c kb :test_cat
 
 # ╔═╡ 3e9184de-363b-41c0-b240-a8e3a8bb8964
 @c kb :test_cat
 
+# ╔═╡ 7e951a1c-5cce-43ef-a078-5ffb5faeb6da
+co1 = @co kb :test_cat
+
+# ╔═╡ e5a527a6-5aba-46a1-b640-ec9e9c635bdf
+co1[:co][2][:aco][:test_attr_3]
+
 # ╔═╡ fbbdc53e-3a23-4d49-b748-530486b55366
 @c kb :test_cat_to
 
+# ╔═╡ e8479679-9720-4075-8599-14ac6bc6fca3
+@co kb :test_cat_to
+
 # ╔═╡ a7fd58b0-87f1-4a5b-8459-cbf6c43d0ebe
 @c kb :test_cat_from
+
+# ╔═╡ f8a14309-1a02-43f3-8427-50651da29f6f
+@co kb :test_cat_from
+
+# ╔═╡ e92bc0fa-2966-4d0f-ba78-185f8282b30c
+@r kb :test_rel
 
 # ╔═╡ Cell order:
 # ╠═d124b18a-97e7-11ed-09fe-5b5a75f90040
@@ -165,11 +166,16 @@ end
 # ╠═8853c32a-c8eb-49a3-ac83-ee0ea18257aa
 # ╠═ef85cb6f-1631-4815-bb1f-62ef5f6eb72b
 # ╠═38bf46ef-1724-4cde-a95d-137fd23fcb9e
+# ╠═5e82b26d-a75b-4a4b-88b0-b45dff2f35d6
 # ╠═58bb0639-a6c7-4adb-9cc8-564f269ad1b1
 # ╠═7ded8b87-acf3-4bb3-8b6b-e6398328f4aa
 # ╠═5fce67b4-8a5a-4836-8db7-b5199cb934e8
-# ╠═18cad4c0-cd18-4dc9-8fd3-091ce40a56a9
 # ╠═c3015ddb-ab22-415f-99c1-02227f6439e7
 # ╠═3e9184de-363b-41c0-b240-a8e3a8bb8964
+# ╠═7e951a1c-5cce-43ef-a078-5ffb5faeb6da
+# ╠═e5a527a6-5aba-46a1-b640-ec9e9c635bdf
 # ╠═fbbdc53e-3a23-4d49-b748-530486b55366
+# ╠═e8479679-9720-4075-8599-14ac6bc6fca3
 # ╠═a7fd58b0-87f1-4a5b-8459-cbf6c43d0ebe
+# ╠═f8a14309-1a02-43f3-8427-50651da29f6f
+# ╠═e92bc0fa-2966-4d0f-ba78-185f8282b30c
