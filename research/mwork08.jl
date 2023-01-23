@@ -57,11 +57,25 @@ select(A, kb)
 # ╔═╡ 0d74dc79-3228-4db6-b39e-7b7941be1f28
 select(AC, kb)
 
+# ╔═╡ 7d7d5bd4-6f62-4c79-bb33-c02ff082acee
+r_name = :test_rel
+
 # ╔═╡ f834746e-9934-4b82-bbad-5a4d69c8f51e
 @r! kb :test_rel
 
+# ╔═╡ 55418504-c4ac-4be1-a92d-9995bdd73d94
+@r! kb r_name
+
 # ╔═╡ aac04ff7-2ddf-4014-b7cb-4d6a83519e63
 @r! kb :test_rel (
+	ar=[(a=:test_attr_3, v=nothing)],
+	rc=[(cf=:test_cat, ct=:test_cat_to)],
+	arc=[(cf=:test_cat, ct=:test_cat_to, a=:test_attr_3, v=1)],
+)
+
+
+# ╔═╡ 90c3bc86-5d47-4e52-a713-f9c0205f2544
+@r! kb r_name (
 	ar=[(a=:test_attr_3, v=nothing)],
 	rc=[(cf=:test_cat, ct=:test_cat_to)],
 	arc=[(cf=:test_cat, ct=:test_cat_to, a=:test_attr_3, v=1)],
@@ -80,8 +94,19 @@ select(RC, kb)
 # ╔═╡ 1604708b-ef81-4046-95ff-d6867d4c875e
 select(ARC, kb)
 
+# ╔═╡ 4e60e7ba-c195-4169-b823-c972d48d94f2
+o_name_1 = :test_obj_1
+
 # ╔═╡ a4f4c1f5-9563-4d3e-8f1e-14338705b107
 @o! kb :test_obj_1 (
+	co=[(c=:test_cat,)],
+	aco=[(c=:test_cat, a=:test_attr_1, v=2)],
+	rcof=[(c=:test_cat, r=:test_rel, cf=:test_cat_from, of=:test_obj_2)],
+	arcof=[(c=:test_cat, r=:test_rel, cf=:test_cat_from, of=:test_obj_2, a=:test_attr_3, v=3)],
+)
+
+# ╔═╡ 369e34d2-b37d-449a-b70e-5d61e197e425
+@o! kb o_name_1  (
 	co=[(c=:test_cat,)],
 	aco=[(c=:test_cat, a=:test_attr_1, v=2)],
 	rcof=[(c=:test_cat, r=:test_rel, cf=:test_cat_from, of=:test_obj_2)],
@@ -144,6 +169,24 @@ co1[:co][2][:aco][:test_attr_3]
 # ╔═╡ e92bc0fa-2966-4d0f-ba78-185f8282b30c
 @r kb :test_rel
 
+# ╔═╡ aa1d65b9-3054-435f-bd3d-748906abfa2b
+@r kb r_name
+
+# ╔═╡ 4a717c0a-243d-449f-b13f-83fe39a90a3c
+c_name = :test_cat
+
+# ╔═╡ 6c15e904-f91f-4063-984e-6e2fe2e18822
+@macroexpand @c! kb c_name
+
+# ╔═╡ f477601a-1e9d-4d62-ab8b-ee4643bf3107
+@c! kb c_name
+
+# ╔═╡ 547f489f-a025-42a0-b990-4efbefd6fe6c
+@c kb c_name
+
+# ╔═╡ 91e7a42c-fef7-4133-a7be-4127899c5526
+@co kb c_name
+
 # ╔═╡ Cell order:
 # ╠═d124b18a-97e7-11ed-09fe-5b5a75f90040
 # ╠═6e765c0d-0155-4a76-9d49-fcb7051b7ea8
@@ -155,13 +198,18 @@ co1[:co][2][:aco][:test_attr_3]
 # ╠═fd74ec9b-af25-4025-b417-8be5cdfaf40e
 # ╠═700eb6e9-6a84-4601-8490-b7e0210699c2
 # ╠═0d74dc79-3228-4db6-b39e-7b7941be1f28
+# ╠═7d7d5bd4-6f62-4c79-bb33-c02ff082acee
 # ╠═f834746e-9934-4b82-bbad-5a4d69c8f51e
+# ╠═55418504-c4ac-4be1-a92d-9995bdd73d94
 # ╠═aac04ff7-2ddf-4014-b7cb-4d6a83519e63
+# ╠═90c3bc86-5d47-4e52-a713-f9c0205f2544
 # ╠═2bcd188e-06e9-40b9-b808-eabef665226f
 # ╠═04ecc61d-0fed-4cb2-b88e-3eab335ab547
 # ╠═1c73068d-685f-443e-a8d5-4880cb8c66b5
 # ╠═1604708b-ef81-4046-95ff-d6867d4c875e
+# ╠═4e60e7ba-c195-4169-b823-c972d48d94f2
 # ╠═a4f4c1f5-9563-4d3e-8f1e-14338705b107
+# ╠═369e34d2-b37d-449a-b70e-5d61e197e425
 # ╠═d9548779-34ea-4d44-a4c6-f55df30f2d95
 # ╠═8853c32a-c8eb-49a3-ac83-ee0ea18257aa
 # ╠═ef85cb6f-1631-4815-bb1f-62ef5f6eb72b
@@ -179,3 +227,9 @@ co1[:co][2][:aco][:test_attr_3]
 # ╠═a7fd58b0-87f1-4a5b-8459-cbf6c43d0ebe
 # ╠═f8a14309-1a02-43f3-8427-50651da29f6f
 # ╠═e92bc0fa-2966-4d0f-ba78-185f8282b30c
+# ╠═aa1d65b9-3054-435f-bd3d-748906abfa2b
+# ╠═4a717c0a-243d-449f-b13f-83fe39a90a3c
+# ╠═6c15e904-f91f-4063-984e-6e2fe2e18822
+# ╠═f477601a-1e9d-4d62-ab8b-ee4643bf3107
+# ╠═547f489f-a025-42a0-b990-4efbefd6fe6c
+# ╠═91e7a42c-fef7-4133-a7be-4127899c5526

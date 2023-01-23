@@ -12,14 +12,27 @@ function _av(a, v)
 	a => v
 end
 
+function _arg1(a)
+	if a isa Symbol
+		esc(a)
+	else
+		a
+	end
+end
+
 macro c!(kb, args...)
     la = length(args)
     kb = esc(kb)
+	#dump(args[1])
 	if la == 1
-		c = args[1]
+		#c = args[1]
+		c = _arg1(args[1])
+		#dump(c)
     	:(make!(C, $(kb), $c))
 	elseif la == 2
-		c = args[1]
+		#c = args[1]
+		c = _arg1(args[1])
+		#dump(c)
 		#dump(args[2])
 		ks = [arg.args[1] for arg in args[2].args]
 		#dump(ks)
@@ -77,7 +90,7 @@ macro c!(kb, args...)
             cid
 		end
     else
-        error("must be 1 or 2 arguments")
+        error("must be 2 or 3 arguments")
 	end
 end
 
@@ -85,7 +98,9 @@ macro c(kb, args...)
 	la = length(args)
     kb = esc(kb)
 	if la == 1
-		c = args[1]
+		#c = args[1]
+		c = _arg1(args[1])
+		#dump(c)
     	quote 
 			vid = id($(kb), $c)
 			cid = id($(kb), C(vid))
@@ -100,6 +115,8 @@ macro c(kb, args...)
 				for k in keys($(kb).rci) if k.ct == cid]...) 
 			(c=$c, ac=ac, rct=rct, rcf=rcf)
 		end
+	else
+        error("must be 2 arguments")
 	end
 end
 
@@ -107,7 +124,8 @@ macro co(kb, args...)
 	la = length(args)
     kb = esc(kb)
 	if la == 1
-		c = args[1]
+		#c = args[1]
+		c = _arg1(args[1])
     	quote 
 			vid = id($(kb), $c)
 			cid = id($(kb), C(vid))
@@ -119,6 +137,8 @@ macro co(kb, args...)
 				) for k in keys($(kb).coi) if k.c == cid]...)
 			(c=$c, co=co)
 		end
+	else
+        error("must be 2 arguments")
 	end
 end
 
@@ -126,10 +146,12 @@ macro r!(kb, args...)
     la = length(args)
     kb = esc(kb)
 	if la == 1
-		r = args[1]
+		#r = args[1]
+		r = _arg1(args[1])
     	:(make!(R, $(kb), $r))
 	elseif la == 2
-		r = args[1]
+		#r = args[1]
+		r = _arg1(args[1])
 		#dump(args[2])
 		ks = [arg.args[1] for arg in args[2].args]
 		#dump(ks)
@@ -169,7 +191,7 @@ macro r!(kb, args...)
             rid
 		end
     else
-        error("must be 1 or 2 arguments")
+        error("must be 2 or 3 arguments")
 	end
 end
 
@@ -177,7 +199,8 @@ macro r(kb, args...)
 	la = length(args)
     kb = esc(kb)
 	if la == 1
-		r = args[1]
+		#r = args[1]
+		r = _arg1(args[1])
     	quote 
 			vid = id($(kb), $r)
 			rid = id($(kb), R(vid))
@@ -190,6 +213,8 @@ macro r(kb, args...)
 				for k in keys($(kb).rci) if k.r == rid]...)
 			(r=$r, ar=ar, rc=rc)
 		end
+	else
+        error("must be 2 arguments")
 	end
 end
 
@@ -198,10 +223,12 @@ macro o!(kb, args...)
     la = length(args)
     kb = esc(kb)
 	if la == 1
-		o = args[1]
+		#o = args[1]
+		o = _arg1(args[1])
     	:(make!(O, $(kb), $o))
 	elseif la == 2
-		o = args[1]
+		#o = args[1]
+		o = _arg1(args[1])
 		#dump(args[2])
 		ks = [arg.args[1] for arg in args[2].args]
 		#dump(ks)
@@ -289,7 +316,7 @@ macro o!(kb, args...)
             oid
 		end
     else
-        error("must be 1 or 2 arguments")
+        error("must be 2 or 3 arguments")
 	end
 end
 
