@@ -111,7 +111,7 @@ macro c(kb, args...)
 			#co = tuple([(o=value($(kb), value($(kb), k.o).v).value,) for k in keys($(kb).coi) if k.c == cid]...)
 			rct = tuple([(r=value($(kb), value($(kb), k.r).v).value, ct=value($(kb), value($(kb), k.ct).v).value) 
 				for k in keys($(kb).rci) if k.cf == cid]...)
-			rcf = tuple([(r=value($(kb), value($(kb), k.r).v).value, ct=value($(kb), value($(kb), k.cf).v).value) 
+			rcf = tuple([(r=value($(kb), value($(kb), k.r).v).value, cf=value($(kb), value($(kb), k.cf).v).value) 
 				for k in keys($(kb).rci) if k.ct == cid]...) 
 			(c=$c, ac=ac, rct=rct, rcf=rcf)
 		end
@@ -319,6 +319,45 @@ macro o!(kb, args...)
         error("must be 2 or 3 arguments")
 	end
 end
+
+macro o(kb, args...)
+	la = length(args)
+    kb = esc(kb)
+	if la == 1
+		#c = args[1]
+		o = _arg1(args[1])
+    	quote 
+			vid = id($(kb), $o)
+			oid = id($(kb), O(vid))
+			#c = value($(kb), oid)
+			co = tuple([(c=value($(kb), value($(kb), k.c).v).value,
+				aco = (; [_av((a=value($(kb), value($(kb), value($(kb), kco.ac).a).v).value,
+					v=value($(kb), value($(kb), id($(kb), kco)).v).value,)...) 
+					for kco in keys($(kb).acoi) if kco.co == id($(kb), CO(k.c, oid))]...),
+				) for k in keys($(kb).coi) if k.o == oid]...)
+			rcot = tuple([(r=value($(kb), value($(kb), value($(kb), k.rc).r).v).value, 
+				co=(c=value($(kb), value($(kb), value($(kb), k.cot).c).v).value,
+					o=value($(kb), value($(kb), value($(kb), k.cot).o).v).value,
+					arco = (; [_av((a=value($(kb), value($(kb), value($(kb), value($(kb), krco.arc).ar).a).v).value,
+						v=value($(kb), value($(kb), id($(kb), krco)).v).value,)...) 
+						for krco in keys($(kb).arcoi) if krco.rco == id($(kb), RCO(k.rc, k.cof, k.cot))]...),
+					)) 
+				for k in keys($(kb).rcoi) if value($(kb), k.cof).o == oid]...)
+			rcof = tuple([(r=value($(kb), value($(kb), value($(kb), k.rc).r).v).value, 
+				co=(c=value($(kb), value($(kb), value($(kb), k.cof).c).v).value,
+					o=value($(kb), value($(kb), value($(kb), k.cof).o).v).value,
+					arco = (; [_av((a=value($(kb), value($(kb), value($(kb), value($(kb), krco.arc).ar).a).v).value,
+						v=value($(kb), value($(kb), id($(kb), krco)).v).value,)...) 
+						for krco in keys($(kb).arcoi) if krco.rco == id($(kb), RCO(k.rc, k.cof, k.cot))]...),
+					)) 
+				for k in keys($(kb).rcoi) if value($(kb), k.cot).o == oid]...) 
+			(o=$o, co=co, rcot=rcot, rcof=rcof)
+		end
+	else
+        error("must be 2 arguments")
+	end
+end
+
 
 @generated function id!(kb::KBase, n::T) where {T<:Union{ValueTypes, AbstractNode}}
     

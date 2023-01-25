@@ -187,6 +187,21 @@ c_name = :test_cat
 # ╔═╡ 91e7a42c-fef7-4133-a7be-4127899c5526
 @co kb c_name
 
+# ╔═╡ 1df97d16-dcef-4333-931e-e25e9b0ad17d
+@o kb :test_obj_1
+
+# ╔═╡ afffd2ac-c170-4461-8e09-a959cdf4dfda
+@o kb :test_obj_2
+
+# ╔═╡ 6188797b-3f81-4720-96ed-1908fbc96048
+@o kb :test_obj_3
+
+# ╔═╡ 166f6d5a-08c4-41cc-b5db-ef5152e47236
+o_name = :test_obj_2
+
+# ╔═╡ d360c90e-f343-4b85-a2e8-e0089907d248
+@o kb o_name
+
 # ╔═╡ Cell order:
 # ╠═d124b18a-97e7-11ed-09fe-5b5a75f90040
 # ╠═6e765c0d-0155-4a76-9d49-fcb7051b7ea8
@@ -233,3 +248,8 @@ c_name = :test_cat
 # ╠═f477601a-1e9d-4d62-ab8b-ee4643bf3107
 # ╠═547f489f-a025-42a0-b990-4efbefd6fe6c
 # ╠═91e7a42c-fef7-4133-a7be-4127899c5526
+# ╠═1df97d16-dcef-4333-931e-e25e9b0ad17d
+# ╠═afffd2ac-c170-4461-8e09-a959cdf4dfda
+# ╠═6188797b-3f81-4720-96ed-1908fbc96048
+# ╠═166f6d5a-08c4-41cc-b5db-ef5152e47236
+# ╠═d360c90e-f343-4b85-a2e8-e0089907d248
