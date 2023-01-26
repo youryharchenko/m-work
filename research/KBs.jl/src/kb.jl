@@ -1,4 +1,4 @@
-using UUIDs, Dates, Parameters, DataFrames, Serialization
+using UUIDs, Dates, Parameters, DataFrames, Serialization, JuliaDB
 
 include("document.jl")
 
@@ -18,6 +18,8 @@ end
 struct V <: AbstractNode
     value :: ValueTypes
 end
+
+Base.isless(v1::AbstractID, v2::AbstractID) = isless(v1.i.value, v2.i.value)
 
 
 # C
@@ -311,6 +313,65 @@ function save(kb::KBase, dir::String)
 
     nothing
 end
+
+function load_as_juliadb(dir::String)
+    (
+        v=table((i=deserialize(joinpath(dir, "v-i.serialized")),
+            value=deserialize(joinpath(dir, "v-value.serialized"))
+            ); pkey=[:i]),
+        c=table((i=deserialize(joinpath(dir, "c-i.serialized")),
+            v=deserialize(joinpath(dir, "c-v.serialized"))
+            ); pkey=[:i]),
+        o=table((i=deserialize(joinpath(dir, "o-i.serialized")),
+            v=deserialize(joinpath(dir, "o-v.serialized"))
+            ); pkey=[:i]),
+        co=table((i=deserialize(joinpath(dir, "co-i.serialized")),
+            c=deserialize(joinpath(dir, "co-c.serialized")),
+            o=deserialize(joinpath(dir, "co-o.serialized"))
+            ); pkey=[:i]),
+        r=table((i=deserialize(joinpath(dir, "r-i.serialized")),
+            v=deserialize(joinpath(dir, "r-v.serialized"))
+            ); pkey=[:i]),
+        rc=table((i=deserialize(joinpath(dir, "rc-i.serialized")),
+            r=deserialize(joinpath(dir, "rc-r.serialized")),
+            cf=deserialize(joinpath(dir, "rc-cf.serialized")),
+            ct=deserialize(joinpath(dir, "rc-ct.serialized"))
+            ); pkey=[:i]),
+        rco=table((i=deserialize(joinpath(dir, "rco-i.serialized")),
+            rc=deserialize(joinpath(dir, "rco-rc.serialized")),
+            cof=deserialize(joinpath(dir, "rco-cof.serialized")),
+            cot=deserialize(joinpath(dir, "rco-cot.serialized"))
+            ); pkey=[:i]),
+        a=table((i=deserialize(joinpath(dir, "a-i.serialized")),
+            v=deserialize(joinpath(dir, "a-v.serialized"))
+            ); pkey=[:i]),
+        ac=table((i=deserialize(joinpath(dir, "ac-i.serialized")),
+            c=deserialize(joinpath(dir, "ac-c.serialized")),
+            a=deserialize(joinpath(dir, "ac-a.serialized")),
+            v=deserialize(joinpath(dir, "ac-v.serialized")),
+            ); pkey=[:i]),
+        aco=table((i=deserialize(joinpath(dir, "aco-i.serialized")),
+            co=deserialize(joinpath(dir, "aco-co.serialized")),
+            ac=deserialize(joinpath(dir, "aco-ac.serialized")),
+            v=deserialize(joinpath(dir, "aco-v.serialized")),
+            ); pkey=[:i]),
+        ar=table((i=deserialize(joinpath(dir, "ar-i.serialized")),
+            r=deserialize(joinpath(dir, "ar-r.serialized")),
+            a=deserialize(joinpath(dir, "ar-a.serialized")),
+            v=deserialize(joinpath(dir, "ar-v.serialized")),
+            ); pkey=[:i]),
+        arc=table((i=deserialize(joinpath(dir, "arc-i.serialized")),
+            rc=deserialize(joinpath(dir, "arc-rc.serialized")),
+            ar=deserialize(joinpath(dir, "arc-ar.serialized")),
+            v=deserialize(joinpath(dir, "arc-v.serialized")),
+            ); pkey=[:i]),
+        arco=table((i=deserialize(joinpath(dir, "arco-i.serialized")),
+            rco=deserialize(joinpath(dir, "arco-rco.serialized")),
+            arc=deserialize(joinpath(dir, "arco-arc.serialized")),
+            v=deserialize(joinpath(dir, "arco-v.serialized")),
+            ); pkey=[:i]),
+    )
+end 
 
 function load(dir::String)::KBase 
     
