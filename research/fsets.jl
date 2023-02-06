@@ -25,6 +25,8 @@ rules = @julog [
 	⊂(A, B) <<= forall(∈(E, A), ∈(E, B)),
 	eval(M, X, Y) <<= mor(M, A, B) & ob(A) & ob(B) & ∈(X, A) & ∈(Y, B) & call(M, X, Y),
 	eval(M, X, Z) <<= comp(F, G, M) & eval(F, X, Y) & eval(G, Y, Z),
+	eval(I, X, Y) <<= ident(I) & mor(I, A, A) & ob(A) & ∈(X, A) & ∈(Y, A) & unifies(X, Y),
+	eq(M1, M2) <<= forall(eval(M1, X1, Y1), and(eval(M2, X2, Y2), unifies(X1, X2),  unifies(Y1, Y2))) & forall(eval(M2, X2, Y2), and(eval(M1, X1, Y1), unifies(X1, X2), unifies(Y1, Y2))),
 ]
 
 # ╔═╡ e1baa397-3d34-44f6-9b5e-4048f9437d37
@@ -43,6 +45,10 @@ facts = @julog [
 	ob(b) <<= true,
 	mor(f, a, b) <<= true,
 	mor(g, b, a) <<= true,
+	mor(ia, a, a) <<= true,
+	ident(ia) <<= true,
+	mor(ib, b, b) <<= true,
+	ident(ib) <<= true,
 	f(e1, e4)  <<= true,
 	f(e2, e2)  <<= true,
 	f(e3, e5)  <<= true,
@@ -90,6 +96,45 @@ resolve(@julog([eval(k, e1, C)]), vcat(facts, rules))
 
 # ╔═╡ e53d3aef-d674-4965-936c-aa390475b5f2
 resolve(@julog([eval(l, e5, C)]), vcat(facts, rules))
+
+# ╔═╡ 49078507-e850-442b-88d1-d4985034a658
+resolve(@julog([eval(ia, e1, C)]), vcat(facts, rules))
+
+# ╔═╡ ba68f3d9-4017-4300-86af-b2ce8c179fc9
+resolve(@julog([eval(ia, e2, C)]), vcat(facts, rules))
+
+# ╔═╡ 92e23dfa-9d07-4bfa-b288-d349542e3635
+resolve(@julog([eval(ia, e3, C)]), vcat(facts, rules))
+
+# ╔═╡ 4950b1f5-1ccb-43f0-becf-e9806c7d6a53
+resolve(@julog([eval(ib, e4, C)]), vcat(facts, rules))
+
+# ╔═╡ 72da0b85-c824-478a-93b3-cf3449a3fd37
+resolve(@julog([eval(ib, e5, C)]), vcat(facts, rules))
+
+# ╔═╡ 53e0c9a0-e2a0-4694-bda6-dd961b4e71aa
+resolve(@julog([eq(ia, ia)]), vcat(facts, rules))
+
+# ╔═╡ 2b4b74a2-de6b-446e-a960-936f8811d9e0
+resolve(@julog([eq(f, f)]), vcat(facts, rules))
+
+# ╔═╡ 825c2cef-b99f-4920-98ff-d09369127c75
+resolve(@julog([eq(f, g)]), vcat(facts, rules))
+
+# ╔═╡ aedc5980-9d6c-45d9-80f7-4cf0af3089b2
+resolve(@julog([eq(g, g)]), vcat(facts, rules))
+
+# ╔═╡ 14e54cf3-2cb0-4587-8243-5e16f9c01435
+resolve(@julog([eq(ia, h)]), vcat(facts, rules))
+
+# ╔═╡ 5dc26ceb-ddd9-44e5-9ff4-13186b88750e
+resolve(@julog([eq(j, ib)]), vcat(facts, rules))
+
+# ╔═╡ 03b0018e-d932-4a35-8062-8f64350b1566
+resolve(@julog([eval(ia, X, Y)]), vcat(facts, rules))
+
+# ╔═╡ 073a3d75-b5f2-44aa-aa14-a6294b608435
+resolve(@julog([eval(i, X, Y)]), vcat(facts, rules))
 
 # ╔═╡ 5a408eeb-b636-4e90-b0f7-4cfa428baf6f
 resolve(@julog([∈(e1, a)]), vcat(facts, rules))
@@ -198,6 +243,19 @@ version = "0.1.15"
 # ╠═0bbac5b8-6388-48b7-853d-8b9e5da1b5f4
 # ╠═4fc1035c-c4a4-4050-a1c6-b262529b48ce
 # ╠═e53d3aef-d674-4965-936c-aa390475b5f2
+# ╠═49078507-e850-442b-88d1-d4985034a658
+# ╠═ba68f3d9-4017-4300-86af-b2ce8c179fc9
+# ╠═92e23dfa-9d07-4bfa-b288-d349542e3635
+# ╠═4950b1f5-1ccb-43f0-becf-e9806c7d6a53
+# ╠═72da0b85-c824-478a-93b3-cf3449a3fd37
+# ╠═53e0c9a0-e2a0-4694-bda6-dd961b4e71aa
+# ╠═2b4b74a2-de6b-446e-a960-936f8811d9e0
+# ╠═825c2cef-b99f-4920-98ff-d09369127c75
+# ╠═aedc5980-9d6c-45d9-80f7-4cf0af3089b2
+# ╠═14e54cf3-2cb0-4587-8243-5e16f9c01435
+# ╠═5dc26ceb-ddd9-44e5-9ff4-13186b88750e
+# ╠═03b0018e-d932-4a35-8062-8f64350b1566
+# ╠═073a3d75-b5f2-44aa-aa14-a6294b608435
 # ╠═5a408eeb-b636-4e90-b0f7-4cfa428baf6f
 # ╠═005bf7d6-d79c-4684-a983-7a3191b103a7
 # ╠═4c61150c-5936-4c42-b52a-250684e0d5b6
