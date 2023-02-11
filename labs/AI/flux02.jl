@@ -5,7 +5,10 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 2a5f362e-a6c2-11ed-3ad4-09819cbf44ab
-using Flux, Plots, Statistics
+using Plots, Statistics, Flux
+
+# ╔═╡ 551fef37-2833-46e1-8bd1-24956e675404
+
 
 # ╔═╡ c885647c-ce35-4f4d-8ebd-a63673cee43f
 actual(x) = 4x + 2
@@ -42,17 +45,14 @@ y_pred_test = model(x_test)
 
 # ╔═╡ 8b85b1f4-481f-4d77-8aa9-d101daf71cbb
 begin
-	plot(x_train[1, :], y_train[1, :], label="train")
-	plot!(x_test[1, :], y_test[1, :], label="test")
+	scatter(x_train[1, :], y_train[1, :], label="train")
+	scatter!(x_test[1, :], y_test[1, :], label="test")
 	scatter!(x_train[1, :], y_pred_train[1, :], label="predict train")
 	scatter!(x_test[1, :], y_pred_test[1, :], label="predict test")
 end
 
 # ╔═╡ f0e70d88-362b-474a-bede-f51c27f9903c
 loss(model, x, y) = mean(abs2.(model(x) .- y))
-
-# ╔═╡ e407074f-d796-4051-8ca7-9bf3a319dcd2
-opt = Descent()
 
 # ╔═╡ 81fd005b-3c01-4c21-be86-7f463449e2f6
 data = [(x_train, y_train)]
@@ -76,9 +76,10 @@ function my_train!(loss, model, data, opt)
 end
 
 # ╔═╡ 164075ad-fa21-4459-a559-2a8cbf8f5101
-begin
-	predict = Dense(1 => 1)
-	n_epoch = 100
+function probe(model, opt, n_epoch)
+	opt = opt
+	predict = model
+	n_epoch = n_epoch
 	losses = Vector{Float64}(undef, n_epoch)
 	biases = Vector{Float64}(undef, n_epoch)
 	weights = Vector{Float64}(undef, n_epoch)
@@ -91,22 +92,38 @@ begin
 		weights[i] = predict.weight[1]
 	end
 	
-	plot(x_train[1, :], y_train[1, :], label="train")
-	plot!(x_test[1, :], y_test[1, :], label="test")
+	p = scatter(x_train[1, :], y_train[1, :], label="train")
+	scatter!(x_test[1, :], y_test[1, :], label="test")
 	scatter!(x_train[1, :], predict(x_train)[1, :], label="predict train")
 	scatter!(x_test[1, :], predict(x_test)[1, :], label="predict test")
-
+	
+	(n=n_epoch, p=p, l=losses, b=biases, w=weights)
 	
 end
 
+# ╔═╡ 6407d8b6-bda1-44fc-a422-1d7b5d6e970c
+r1 = probe(Dense(1=>1), Descent(), 100);
+
+# ╔═╡ 67955eb0-8a61-46a1-99cd-7685503ca5d7
+r1.p
+
 # ╔═╡ 81322418-ab8c-4c0b-acd4-d2d4f1eb8a35
-plot(1:n_epoch, losses, label="losses" )
+plot(1:r1.n, r1.l, label="losses" )
 
 # ╔═╡ 1505f1ec-6768-4aa3-a090-5a9ba383b335
-plot(1:n_epoch, biases, label="biases" )
+plot(1:r1.n, r1.b, label="biases" )
 
 # ╔═╡ a6cc8d73-e8a0-4464-b960-63021b355ac6
-plot(1:n_epoch, weights, label="weights" )
+plot(1:r1.n, r1.w, label="weights" )
+
+# ╔═╡ 5a8600d8-1269-4781-a572-95119b9baf16
+r2 = probe(Dense(1=>1), Flux.Optimise.AdaGrad(), 100);
+
+# ╔═╡ 3499c43a-672e-4ad8-9369-b6fbf9944e70
+r2.p
+
+# ╔═╡ eac8240a-5437-40b9-8780-a37c2a4aef8d
+plot(1:r2.n, r2.l, label="losses" )
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -285,10 +302,10 @@ uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
 version = "0.3.0"
 
 [[deps.Compat]]
-deps = ["Dates", "LinearAlgebra", "UUIDs"]
-git-tree-sha1 = "61fdd77467a5c3ad071ef8277ac6bd6af7dd4c04"
+deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
+git-tree-sha1 = "78bee250c6826e1cf805a88b7f1e86025275d208"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.6.0"
+version = "3.46.0"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -757,10 +774,10 @@ uuid = "d8e11817-5142-5d16-987a-aa16d5891078"
 version = "0.4.16"
 
 [[deps.MLUtils]]
-deps = ["ChainRulesCore", "Compat", "DataAPI", "DelimitedFiles", "FLoops", "FoldsThreads", "NNlib", "Random", "ShowCases", "SimpleTraits", "Statistics", "StatsBase", "Tables", "Transducers"]
-git-tree-sha1 = "266c67f773feb756474c2c4a7424ea5363290300"
+deps = ["ChainRulesCore", "DataAPI", "DelimitedFiles", "FLoops", "FoldsThreads", "NNlib", "Random", "ShowCases", "SimpleTraits", "Statistics", "StatsBase", "Tables", "Transducers"]
+git-tree-sha1 = "82c1104919d664ab1024663ad851701415300c5f"
 uuid = "f1d291b0-491e-4a28-83b9-f70985020b54"
-version = "0.4.0"
+version = "0.3.1"
 
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
@@ -842,10 +859,10 @@ uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
 version = "1.3.5+1"
 
 [[deps.OneHotArrays]]
-deps = ["Adapt", "ChainRulesCore", "Compat", "GPUArraysCore", "LinearAlgebra", "NNlib"]
-git-tree-sha1 = "f511fca956ed9e70b80cd3417bb8c2dde4b68644"
+deps = ["Adapt", "ChainRulesCore", "GPUArraysCore", "LinearAlgebra", "MLUtils", "NNlib"]
+git-tree-sha1 = "aee0130122fa7c1f3d394231376f07869f1e097c"
 uuid = "0b1bfda6-eb8a-41d2-88d8-f5af5cad476f"
-version = "0.2.3"
+version = "0.2.0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -1037,6 +1054,10 @@ deps = ["ConstructionBase", "Future", "MacroTools", "StaticArraysCore"]
 git-tree-sha1 = "e2cc6d8c88613c05e1defb55170bf5ff211fbeac"
 uuid = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 version = "1.1.1"
+
+[[deps.SharedArrays]]
+deps = ["Distributed", "Mmap", "Random", "Serialization"]
+uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [[deps.ShowCases]]
 git-tree-sha1 = "7f534ad62ab2bd48591bdeac81994ea8c445e4a5"
@@ -1448,6 +1469,7 @@ version = "1.4.1+0"
 
 # ╔═╡ Cell order:
 # ╠═2a5f362e-a6c2-11ed-3ad4-09819cbf44ab
+# ╠═551fef37-2833-46e1-8bd1-24956e675404
 # ╠═c885647c-ce35-4f4d-8ebd-a63673cee43f
 # ╠═3030acc9-2d96-4e6c-a3ec-f284f47e859b
 # ╠═025a7813-1ee0-4c6b-a652-d283bdc0d4ab
@@ -1462,13 +1484,17 @@ version = "1.4.1+0"
 # ╠═f0e70d88-362b-474a-bede-f51c27f9903c
 # ╠═a95bfba7-afd6-42e3-b7f4-d315aa8ae576
 # ╠═e38dacc5-e4f5-4b45-90e5-285abe64e3e5
-# ╠═e407074f-d796-4051-8ca7-9bf3a319dcd2
 # ╠═81fd005b-3c01-4c21-be86-7f463449e2f6
 # ╠═eb28df8e-4f66-427a-8026-f0a6da39e88c
 # ╠═3ac60a22-9d3b-424f-a871-674510f5f558
 # ╠═164075ad-fa21-4459-a559-2a8cbf8f5101
+# ╠═6407d8b6-bda1-44fc-a422-1d7b5d6e970c
+# ╠═67955eb0-8a61-46a1-99cd-7685503ca5d7
 # ╠═81322418-ab8c-4c0b-acd4-d2d4f1eb8a35
 # ╠═1505f1ec-6768-4aa3-a090-5a9ba383b335
 # ╠═a6cc8d73-e8a0-4464-b960-63021b355ac6
+# ╠═5a8600d8-1269-4781-a572-95119b9baf16
+# ╠═3499c43a-672e-4ad8-9369-b6fbf9944e70
+# ╠═eac8240a-5437-40b9-8780-a37c2a4aef8d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
