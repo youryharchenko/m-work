@@ -24,8 +24,8 @@ y_train, y_test = actual.(x_train), actual.(x_test)
 
 # ╔═╡ e65925b0-cc37-49f6-b3e9-56faf948f615
 begin
-	plot(x_train[1, :], y_train[1, :], label="train")
-	plot!(x_test[1, :], y_test[1, :], label="test")
+	scatter(x_train[1, :], y_train[1, :], label="train")
+	scatter!(x_test[1, :], y_test[1, :], label="test")
 end
 
 # ╔═╡ 1de72df9-c457-4e8f-ba6c-5c7ca9829071
@@ -124,6 +124,27 @@ r2.p
 
 # ╔═╡ eac8240a-5437-40b9-8780-a37c2a4aef8d
 plot(1:r2.n, r2.l, label="losses" )
+
+# ╔═╡ 175ab830-09e9-4800-b494-f94e687b09fe
+plot(1:r2.n, r2.b, label="biases" )
+
+# ╔═╡ c66728f4-b989-4c20-93cf-34f6e5fc7d3a
+plot(1:r2.n, r2.w, label="weights" )
+
+# ╔═╡ dbdd7dd6-da88-40c6-a8c0-69b2c4ed26d6
+r3 = probe(Dense(1=>1), Flux.Optimise.Momentum(), 100);
+
+# ╔═╡ d5535185-06ce-4aa5-827d-95de15a23c37
+r3.p
+
+# ╔═╡ 8997963b-958d-4235-9583-6a7dc7b6c345
+plot(1:r3.n, r3.l, label="losses" )
+
+# ╔═╡ 9710d3f9-6d24-4392-ad49-a15c736c8d01
+plot(1:r3.n, r3.b, label="biases" )
+
+# ╔═╡ 897266aa-92a5-4959-b040-65a970c5023b
+plot(1:r3.n, r3.w, label="weights" )
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1496,5 +1517,12 @@ version = "1.4.1+0"
 # ╠═5a8600d8-1269-4781-a572-95119b9baf16
 # ╠═3499c43a-672e-4ad8-9369-b6fbf9944e70
 # ╠═eac8240a-5437-40b9-8780-a37c2a4aef8d
+# ╠═175ab830-09e9-4800-b494-f94e687b09fe
+# ╠═c66728f4-b989-4c20-93cf-34f6e5fc7d3a
+# ╠═dbdd7dd6-da88-40c6-a8c0-69b2c4ed26d6
+# ╠═d5535185-06ce-4aa5-827d-95de15a23c37
+# ╠═8997963b-958d-4235-9583-6a7dc7b6c345
+# ╠═9710d3f9-6d24-4392-ad49-a15c736c8d01
+# ╠═897266aa-92a5-4959-b040-65a970c5023b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

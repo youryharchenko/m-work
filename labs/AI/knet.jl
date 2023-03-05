@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.16
+# v0.19.22
 
 using Markdown
 using InteractiveUtils
@@ -17,7 +17,7 @@ using FileIO
 using JSON
 
 # ╔═╡ 1e2145af-1716-4f51-a29c-c9290789bbb8
-using PyCall, JLD2
+using PyCall, JLD2, CUDA
 
 # ╔═╡ 81340365-32ad-4f81-a646-203b3c0cca5d
 using Knet: Knet, AutoGrad, RNN, param, dropout, minibatch, nll, accuracy, progress!, adam, gc
@@ -148,7 +148,10 @@ function trainresults(file, maker, scratch=true ; o...)
 end
 
 # ╔═╡ 04a96dc1-de47-4328-a86c-7269a846b0ea
-model = trainresults("imdbmodel149.jld2", maker, false)
+begin
+	CUDA.allowscalar(true)
+	model = trainresults("imdbmodel149.jld2", maker, true)
+end
 
 # ╔═╡ c886c41c-73d4-4e7e-a779-946e39228bad
 predictstring(x) = "\nPrediction: " * ("Negative","Positive")[argmax(Array(vec(model([x]))))]
@@ -160,7 +163,10 @@ dtst = minibatch(xtst, ytst, BATCHSIZE)
 str2ids(s::String) = [(i=get(imdbdict, w, UNK); i >= UNK ? UNK : i) for w in split(lowercase(s))]
 
 # ╔═╡ 4a1fee6c-767f-42a8-bb94-fb3be510cedd
-predictstring(str2ids("i will not see"))
+predictstring(str2ids("very good"))
+
+# ╔═╡ e7b0fa31-a952-4167-874e-e169345bd6a5
+predictstring(str2ids("very bad"))
 
 # ╔═╡ 138bf5a3-fe1e-41df-97a8-c73e340e6fb6
 let
@@ -177,6 +183,7 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 IterTools = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
@@ -186,6 +193,7 @@ PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
+CUDA = "~3.13.1"
 FileIO = "~1.16.0"
 IterTools = "~1.4.0"
 JLD2 = "~0.4.30"
@@ -198,9 +206,9 @@ PyCall = "~1.95.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.3"
+julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "5535de13bff6b434e6c1c59830d090d5187b296e"
+project_hash = "5fcc7ff33371fb4a84f041aa5a668e76e0bf0c71"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -286,7 +294,7 @@ version = "4.6.0"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "0.5.2+0"
+version = "1.0.1+0"
 
 [[deps.Conda]]
 deps = ["Downloads", "JSON", "VersionParsing"]
@@ -772,6 +780,7 @@ version = "17.4.0+0"
 # ╠═82025e4d-7f0f-44b4-9ac4-a23641c140c5
 # ╠═138bf5a3-fe1e-41df-97a8-c73e340e6fb6
 # ╠═4a1fee6c-767f-42a8-bb94-fb3be510cedd
+# ╠═e7b0fa31-a952-4167-874e-e169345bd6a5
 # ╠═9e82f073-baa8-4b2c-95ea-c74d35b71c61
 # ╠═214a7ef3-ef2f-4120-9247-00a442db541b
 # ╠═8a61f3ac-978c-4f5f-b5db-e2fd1882e692

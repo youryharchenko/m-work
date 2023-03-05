@@ -39,3 +39,5 @@ text.txt
 research/Helbig Knowledge Representation and the Semantics of Natural Language.txt
 *.serialized
 imdb*
+cmd/agnet
+20_newsgroups

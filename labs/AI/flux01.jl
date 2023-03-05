@@ -48,7 +48,7 @@ hardσ(x) = max(0, min(1, (x + 3) / 6))
 begin
 	plot(hardsigmoid, -5, 5, height=7, xticks=([0], [0]), yticks=([0], [0]), label="hardσ")
 	plot!(sigmoid, -5, 5, height=7, xticks=([0], [0]), yticks=([0], [0]), label="sigmoid")
-	plot!(sigmoid_fast, -5, 5, height=7, xticks=([0], [0]), yticks=([0], [0]), label="sigmoid_fast")
+	#plot!(sigmoid_fast, -5, 5, height=7, xticks=([0], [0]), yticks=([0], [0]), label="sigmoid_fast")
 end
 
 # ╔═╡ c90557fe-2244-42fa-ba9c-dd7713d25368
@@ -62,7 +62,7 @@ hardtanh(x) = max(-1, min(1, x))
 begin
 	plot(hardtanh, -2, 2, height=7, xticks=([0], [0]), yticks=([0], [0]), label="hardtanh")
 	plot!(tanh, -2, 2, height=7, xticks=([0], [0]), yticks=([0], [0]), label="tanh")
-	plot!(tanh_fast, -2, 2, height=7, xticks=([0], [0]), yticks=([0], [0]), label="tanh_fast")
+	#plot!(tanh_fast, -2, 2, height=7, xticks=([0], [0]), yticks=([0], [0]), label="tanh_fast")
 end
 
 # ╔═╡ 28393c63-c65d-400a-844c-7e1c51670b02
