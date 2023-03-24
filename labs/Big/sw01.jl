@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.16
+# v0.19.22
 
 using Markdown
 using InteractiveUtils
@@ -206,7 +206,10 @@ cm"""
 """
 
 # ╔═╡ a4c02814-4f91-40e9-92e9-28db74fc4c08
-header=["ip","f1","f2","ts","met","ret","nb","f4","br"]
+header=["ip","ts","met","ret","br"]
+
+# ╔═╡ 874317f0-cd73-4169-94ea-bdbf43877435
+header1=["ip","f1","f2","ts","met","ret","nb","f4","br"]
 
 # ╔═╡ 3ea6e214-b36e-46a2-bff0-6c13d8009749
 cm"""
@@ -232,7 +235,10 @@ log = let
 	end
 	
 	types=[String,String,String,DateTime,String,Int,Int,String,String]
-	CSV.File(IOBuffer.(records); header=header, delim=' ',types=types, silencewarnings=true, dateformat="[d/u/yyyy:H:M:S +0000]") |> DataFrame
+	
+	df = CSV.File(IOBuffer.(records); header=header1, delim=' ',types=types, silencewarnings=true, dateformat="[d/u/yyyy:H:M:S +0000]") |> DataFrame
+
+	select(df, header)
 	
 end
 
@@ -387,12 +393,15 @@ function make_tree(list, pos, path=[])
 end
 
 # ╔═╡ 5e792cfd-ec34-4a6a-82b3-f3437766d8cd
+# ╠═╡ disabled = true
+#=╠═╡
 let
 	tree = make_tree(["ip", "br", "met", "ret"], 1)
 	open("tree.json","w") do f
   		JSON.print(f, tree)
 	end
 end
+  ╠═╡ =#
 
 # ╔═╡ ed829a74-d3ec-47f0-b1fe-f986026fa0bc
 cm"""
@@ -400,9 +409,12 @@ cm"""
 """
 
 # ╔═╡ bc5d1bd1-ebbc-4b9e-ae81-0eb586ade364
+# ╠═╡ disabled = true
+#=╠═╡
 Dist = let 
 	pairwise(Hamming(), Matrix(select(log, [work_set]...)), dims=1)
 end
+  ╠═╡ =#
 
 # ╔═╡ a18c9319-32ee-4739-85e0-4b6ee91abfa0
 cm"""
@@ -411,25 +423,40 @@ cm"""
 """
 
 # ╔═╡ 832a6f15-d14e-4009-b33d-a7db9895b0d5
+# ╠═╡ disabled = true
+#=╠═╡
 clu_i = cutree(hclust(Dist); k = 20 )
+  ╠═╡ =#
 
 # ╔═╡ 45443e51-1e94-4068-a5ce-aac31cf09403
+#=╠═╡
 combine(groupby(DataFrame(c = clu_i), [:c]),nrow=>:count)
+  ╠═╡ =#
 
 # ╔═╡ 5b8f394a-4faa-48d3-a23c-0343b1b4be7a
+#=╠═╡
 log[findall(==(1), clu_i), work_set]
+  ╠═╡ =#
 
 # ╔═╡ f3a230e4-7076-47ea-b44b-0afa14b2a6b9
+#=╠═╡
 log[findall(==(2), clu_i), work_set]
+  ╠═╡ =#
 
 # ╔═╡ 06da1c83-e709-48fb-bde6-a655f4228bad
+#=╠═╡
 log[findall(==(3), clu_i), work_set]
+  ╠═╡ =#
 
 # ╔═╡ f285a58b-070b-4393-ad8d-1f4c590c73ff
+#=╠═╡
 log[findall(==(8), clu_i), work_set]
+  ╠═╡ =#
 
 # ╔═╡ 351c6dc1-5b2b-42de-a4b6-78cf5629ff72
+#=╠═╡
 log[findall(==(19), clu_i), work_set]
+  ╠═╡ =#
 
 # ╔═╡ 6dd2f255-52da-4786-9b04-9e8b37da205d
 cm"""
@@ -438,34 +465,53 @@ cm"""
 """
 
 # ╔═╡ fd4e30f6-6cc7-45ab-a9c1-1a6eed3eec25
+# ╠═╡ disabled = true
+#=╠═╡
 clu_k =  kmedoids(Dist, 20)
+  ╠═╡ =#
 
 # ╔═╡ e3d6c87a-9f4b-400e-b1be-dcc3528ea3b3
+#=╠═╡
 clu_k.assignments
+  ╠═╡ =#
 
 # ╔═╡ d84338fd-2cf4-4be0-afd8-e97375bc0016
+#=╠═╡
 log[findall(==(1), clu_k.assignments), work_set]
+  ╠═╡ =#
 
 # ╔═╡ 3f80a2ba-ffd2-4cfc-8411-6823565db7e2
+#=╠═╡
 log[findall(==(2), clu_k.assignments), work_set]
+  ╠═╡ =#
 
 # ╔═╡ a121c100-932d-4d30-923c-5178bc4b97f6
+#=╠═╡
 log[findall(==(3), clu_k.assignments), work_set]
+  ╠═╡ =#
 
 # ╔═╡ e4ea5b08-e26a-4873-a173-1488e20fbb42
+#=╠═╡
 log[findall(==(4), clu_k.assignments), work_set]
+  ╠═╡ =#
 
 # ╔═╡ e7617b23-0ad3-4ced-adfd-1b1cec4c3919
+#=╠═╡
 log[findall(==(5), clu_k.assignments), work_set]
+  ╠═╡ =#
 
 # ╔═╡ 3d3de2c6-5ba5-4075-aa2c-8d173237a387
+#=╠═╡
 log[findall(==(8), clu_k.assignments), work_set]
+  ╠═╡ =#
 
 # ╔═╡ 6c30a66b-f780-4546-bd71-09cb2eef8f3c
 
 
 # ╔═╡ d4f06e0a-0ad7-495a-aa8f-3256413485dc
+#=╠═╡
 log[findall(==(15), clu_k.assignments), work_set]
+  ╠═╡ =#
 
 # ╔═╡ a31ccb7f-885d-4b98-bf05-ea78195d9fb0
 cm"""
@@ -505,7 +551,7 @@ PlutoUI = "~0.7.48"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.3"
+julia_version = "1.8.5"
 manifest_format = "2.0"
 project_hash = "592403d4cd09948b94ea0488751363fb7bb6a5f8"
 
@@ -576,7 +622,7 @@ version = "4.3.0"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "0.5.2+0"
+version = "1.0.1+0"
 
 [[deps.Crayons]]
 git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
@@ -1001,6 +1047,7 @@ version = "17.4.0+0"
 # ╟─6b0a0f4f-98d9-4094-ad94-ffef7d86f345
 # ╟─79fd8aa5-456b-4eca-a069-ccca4686fbef
 # ╠═a4c02814-4f91-40e9-92e9-28db74fc4c08
+# ╠═874317f0-cd73-4169-94ea-bdbf43877435
 # ╟─3ea6e214-b36e-46a2-bff0-6c13d8009749
 # ╠═1b7a082b-eb24-44b7-9976-4bcf91734c1c
 # ╟─f785ad21-4a37-44b0-b2cc-8e6cfc70b41f
