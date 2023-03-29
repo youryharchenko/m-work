@@ -46,4 +46,4 @@ log_*
 news_*
 text8*
 .ipynb_*
-
+*.arff

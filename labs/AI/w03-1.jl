@@ -157,7 +157,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "39cba1d5db74a6b6164b4b2eacfd18268a5ff196"
+project_hash = "46bc954cff2a4176b1beb0a47e41b051f50d40ea"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
