@@ -4,13 +4,13 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 299cfe1e-ce23-11ed-3c20-f55e4ee5485c
+# ╔═╡ 640ce00e-cece-11ed-3091-c9ab6ee7f151
 using CommonMark
 
-# ╔═╡ 491118ba-4b19-43ed-a30c-2d34b2a2c63b
-using ARFFFiles, DataFrames, DecisionTree, Clustering
+# ╔═╡ 7a8ecac5-5572-4eb6-8dbb-c077a3a96a94
+using ARFFFiles, DataFrames, NearestNeighbors
 
-# ╔═╡ 28256a42-8c6e-47ee-b896-23003deaa1d0
+# ╔═╡ ac4771ca-f366-4bf0-8f08-e3398c65e2c1
 cm"""
 ---
 <div align="center">
@@ -25,7 +25,7 @@ cm"""
 
 Технології Data Mining
 
-Лабораторна робота 2
+Лабораторна робота 3
 
 
 </div>
@@ -53,117 +53,96 @@ cm"""
 ---
 """
 
-# ╔═╡ c8b11a41-ab89-4947-adcb-de921cbb231a
+# ╔═╡ dea50430-553d-4386-8459-f1980427bd38
 md"""
 
 #### В роботі використано мову Julia та її пакети
 
 """
 
-# ╔═╡ 403b34c1-f7ad-4f19-8b77-80e32fae6baf
+# ╔═╡ 83d5aa79-dcee-4a2f-8ca1-7859cfe9ae35
 md"""
-#### Спочатку виконаємо тестовий приклад по DecisionTree
+#### Завантажемо дані bmw-training.arff
 """
 
-# ╔═╡ ccd36018-89fa-4659-b022-28c84011919d
-f1, l1 = load_data("iris")
-
-# ╔═╡ cf06269f-7777-4534-a278-21b4d82685c1
-features1 = float.(f1)
-
-# ╔═╡ abf8b21b-5fcf-4e58-8027-40e0136e7acc
-labels1   = string.(l1)
-
-# ╔═╡ 0eca1435-dafb-425d-8bce-41e1a5aae09d
-model1 = build_tree(labels1, features1)
-
-# ╔═╡ 95f018ed-f3e1-4f55-8987-c296b2044d03
-print_tree(model1, 5)
-
-# ╔═╡ 392e7ff6-6a6a-421f-9554-b62c09f3cda6
-apply_tree(model1, [5.9,3.0,5.1,1.9])
-
-# ╔═╡ 62f8dac7-cd4c-457b-94c5-8997b3b2c838
-preds1 = apply_tree(model1, features1)
-
-# ╔═╡ 2bd7b403-d203-4f39-be87-7692d4f5f54b
-DecisionTree.confusion_matrix(labels1, preds1)
-
-# ╔═╡ 7240312a-e493-4402-a9e7-a533a3ac7dfa
-apply_tree_proba(model1, [5.9,3.0,5.1,1.9], ["Iris-setosa", "Iris-versicolor", "Iris-virginica"])
-
-# ╔═╡ cc85d5ea-3bba-4447-807b-d55105e028cb
-nfoldCV_tree(labels1, features1, 2)
-
-# ╔═╡ 2e136692-ede0-48c6-b5f2-e6d734eb3b4c
-md"""
-#### Тепер завантажемо дані bmw-training.arff та виконаємо аналіз DecisionTree
-"""
-
-# ╔═╡ b948fdff-1946-42eb-8b44-905a1c5631f4
+# ╔═╡ c277fdae-7659-41d0-a6db-6f05e56de2f5
 df_train = ARFFFiles.load(DataFrame, "bmw-training.arff")
 
-# ╔═╡ 6594e400-7940-45e6-9878-b612a21376cb
-parse_int = (x)->parse(Int, x)
+# ╔═╡ 49646efe-9594-47f0-9404-a0009fa64cf4
+parse_float = (x)->parse(Float64, x)
 
-# ╔═╡ 67142319-c160-4827-a702-21a802087527
-f2 = select(df_train, :IncomeBracket=>(x->parse_int.((String.(x))))=>:IncomeBracket, :FirstPurchase, :LastPurchase)
-
-# ╔═╡ 676f0f83-d36a-4280-a0a9-ac1dd8587a1c
-l2 = select(df_train, :responded)
-
-# ╔═╡ 351e294e-cc1d-4c4f-bc56-1bce2637aa20
-features2 = Matrix(f2)
-
-# ╔═╡ 81c392af-4412-4e93-b0cc-867996561ac5
-labels2 = String.(l2[!, 1])
-
-# ╔═╡ 2db3ccf7-2aca-4a7e-a9ab-3c7a3ce90494
-model2 = build_tree(labels2, features2)
-
-# ╔═╡ c2e2d0f1-ea63-492d-924c-4db5b844470d
-print_tree(model2, 10)
-
-# ╔═╡ 92761162-62d0-4337-89fd-9209470062a6
-preds2 = apply_tree(model2, features2)
-
-# ╔═╡ 62c2f097-2863-4cc1-8b45-87f8aa86b71c
-DecisionTree.confusion_matrix(labels2, preds2)
-
-# ╔═╡ 514a9713-d417-41e1-a36b-a0073f51490d
+# ╔═╡ dac8cf64-500b-486f-80f3-153fd412aef0
 md"""
-#### Завантажемо дані bmw-browsers.arff та зробимо кластерний аналіз 
+#### Перетворимо вхідний масив до виду придатного для аналізу
 """
 
-# ╔═╡ 5e636dbe-4ae9-4f64-9575-8d9f1d47b787
-df_br = ARFFFiles.load(DataFrame, "bmw-browsers.arff")
+# ╔═╡ 1910c0d8-8ab3-411f-869e-285291d7c757
+f1 = select(df_train, :IncomeBracket=>(x->parse_float.((String.(x))))=>:IncomeBracket, :FirstPurchase, :LastPurchase, :responded=>(x->parse_float.((String.(x))))=>:responded)
 
-# ╔═╡ b1529173-e5ac-4213-848b-bbd69c22b050
-X = Matrix(df_br)'
+# ╔═╡ 30da8b98-8f26-464a-81d7-ac0cdc77ade5
+data = Matrix(f1)'
 
-# ╔═╡ b6b8e681-00a3-4e9e-8752-d42027dd78c7
-kmeans(X, 5, maxiter=500)
-
-# ╔═╡ 742b6fa0-60dd-411b-a21a-31a8a507cb85
+# ╔═╡ ff48987f-0445-4dfb-abf2-a01a69499109
 md"""
-#### Висновки: пакет Julia DecisionTree реалізує алгоритми класифікації, а пакет Clustering - кластерного аналізу. Пакет ARFFFiles дозволяє працювати з данними в форматі arff.
+#### Створимо дерево для ефективного пощуку сусідів в масиві
+"""
+
+# ╔═╡ 2f8dd664-ff2e-49c0-8dfe-00207a77604c
+kdtree = KDTree(data)
+
+# ╔═╡ 2d25ebb6-2352-4bb2-a1cf-13f41951156b
+md"""
+#### Напишемо функцію для тестування успішності класифікації
+"""
+
+# ╔═╡ 7a2fe9c7-19a8-4b77-a203-e946d10d3c02
+function test(tree, i, k)
+	idxs, dists = knn(tree, data[:, i], k)
+	data[:, i], data[:, idxs[1:end-1]]
+end
+
+# ╔═╡ dac227ad-6a08-46f3-9748-a95f22d48e3f
+md"""
+#### факт: 0.0, сусіди: 0.0, 0.0 - 100%
+"""
+
+# ╔═╡ 702864a1-25bf-45d9-9d22-adb990730a4e
+test(kdtree, 1, 3)
+
+# ╔═╡ 4bdd72c9-fab1-4245-9815-478b38280ce4
+md"""
+#### факт: 1.0, сусіди: 1.0, 0.0 - 50%
+"""
+
+# ╔═╡ 6639913f-47e8-4cab-a6dd-7202d6a2cfc8
+test(kdtree, 2, 3)
+
+# ╔═╡ b23d10c8-672f-4b3e-bbd6-91c915b213ba
+md"""
+#### факт: 1.0, сусіди: 1.0, 1.0 - 100%
+"""
+
+# ╔═╡ 57cc169f-13d2-413c-88b6-3fb0c4d9b66d
+test(kdtree, 5, 3)
+
+# ╔═╡ b222c811-b223-4472-9514-631786fcfd3a
+md"""
+#### Висновки: пакет Julia NearestNeighbors реалізує алгоритми класифікації шляхом пошуку найближчих сусідів за певною метрикою. Пакет ARFFFiles дозволяє працювати з данними в форматі arff.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 ARFFFiles = "da404889-ca92-49ff-9e8b-0aa6b4d38dc8"
-Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
+NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 
 [compat]
 ARFFFiles = "~1.4.1"
-Clustering = "~0.15.1"
 CommonMark = "~0.8.10"
 DataFrames = "~1.5.0"
-DecisionTree = "~0.12.3"
+NearestNeighbors = "~0.4.13"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -172,18 +151,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "844e9f484ab241cb1b9189a47d6c2bf42b03be3e"
+project_hash = "b5ba1b5d91d62cc4f204f82e6ea5c0742100a7fa"
 
 [[deps.ARFFFiles]]
 deps = ["CategoricalArrays", "Dates", "Parsers", "Tables"]
 git-tree-sha1 = "e8c8e0a2be6eb4f56b1672e46004463033daa409"
 uuid = "da404889-ca92-49ff-9e8b-0aa6b4d38dc8"
 version = "1.4.1"
-
-[[deps.AbstractTrees]]
-git-tree-sha1 = "faa260e4cb5aba097a73fab382dd4b5819d8ec8c"
-uuid = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
-version = "0.4.4"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -196,24 +170,6 @@ deps = ["DataAPI", "Future", "Missings", "Printf", "Requires", "Statistics", "Un
 git-tree-sha1 = "5084cc1a28976dd1642c9f337b28a3cb03e0f7d2"
 uuid = "324d7699-5711-5eae-9e2f-1d82baa6b597"
 version = "0.10.7"
-
-[[deps.ChainRulesCore]]
-deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "c6d890a52d2c4d55d326439580c3b8d0875a77d9"
-uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.15.7"
-
-[[deps.ChangesOfVariables]]
-deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
-git-tree-sha1 = "485193efd2176b88e6622a39a246f8c5b600e74e"
-uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
-version = "0.1.6"
-
-[[deps.Clustering]]
-deps = ["Distances", "LinearAlgebra", "NearestNeighbors", "Printf", "Random", "SparseArrays", "Statistics", "StatsBase"]
-git-tree-sha1 = "a3213fa9d35edf589d0c6303f95850f7641fe2dc"
-uuid = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
-version = "0.15.1"
 
 [[deps.CommonMark]]
 deps = ["Crayons", "JSON", "SnoopPrecompile", "URIs"]
@@ -263,27 +219,11 @@ version = "1.0.0"
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
-[[deps.DecisionTree]]
-deps = ["AbstractTrees", "DelimitedFiles", "LinearAlgebra", "Random", "ScikitLearnBase", "Statistics"]
-git-tree-sha1 = "c6475a3ccad06cb1c2ebc0740c1bb4fe5a0731b7"
-uuid = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
-version = "0.12.3"
-
-[[deps.DelimitedFiles]]
-deps = ["Mmap"]
-uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
-
 [[deps.Distances]]
 deps = ["LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI"]
 git-tree-sha1 = "49eba9ad9f7ead780bfb7ee319f962c811c6d3b2"
 uuid = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 version = "0.10.8"
-
-[[deps.DocStringExtensions]]
-deps = ["LibGit2"]
-git-tree-sha1 = "2fb1e02f2b635d0845df5d7c167fec4dd739b00d"
-uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.9.3"
 
 [[deps.Formatting]]
 deps = ["Printf"]
@@ -305,21 +245,10 @@ version = "1.4.0"
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
-[[deps.InverseFunctions]]
-deps = ["Test"]
-git-tree-sha1 = "49510dfcb407e572524ba94aeae2fced1f3feb0f"
-uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.8"
-
 [[deps.InvertedIndices]]
 git-tree-sha1 = "0dc7b50b8d436461be01300fd8cd45aa0274b038"
 uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
 version = "1.3.0"
-
-[[deps.IrrationalConstants]]
-git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
-uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
-version = "0.2.2"
 
 [[deps.IteratorInterfaceExtensions]]
 git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
@@ -337,22 +266,12 @@ git-tree-sha1 = "f2355693d6778a178ade15952b7ac47a4ff97996"
 uuid = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 version = "1.3.0"
 
-[[deps.LibGit2]]
-deps = ["Base64", "NetworkOptions", "Printf", "SHA"]
-uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"
-
 [[deps.Libdl]]
 uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-
-[[deps.LogExpFunctions]]
-deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
-git-tree-sha1 = "0a1b7c2863e44523180fdb3146534e265a91870b"
-uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.3.23"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -375,10 +294,6 @@ deps = ["Distances", "StaticArrays"]
 git-tree-sha1 = "2c3726ceb3388917602169bed973dbc97f1b51a8"
 uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 version = "0.4.13"
-
-[[deps.NetworkOptions]]
-uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
-version = "1.2.0"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -441,12 +356,6 @@ version = "1.3.0"
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
 
-[[deps.ScikitLearnBase]]
-deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "7877e55c1523a4b336b433da39c8e8c08d2f221f"
-uuid = "6e75b9c4-186b-50bd-896f-2d2496a4843e"
-version = "0.5.0"
-
 [[deps.SentinelArrays]]
 deps = ["Dates", "Random"]
 git-tree-sha1 = "77d3c4726515dca71f6d80fbb5e251088defe305"
@@ -496,12 +405,6 @@ git-tree-sha1 = "45a7769a04a3cf80da1c1c7c60caf932e6f4c9f7"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
 version = "1.6.0"
 
-[[deps.StatsBase]]
-deps = ["DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "d1bf48bfcc554a3761a133fe3a9bb01488e06916"
-uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.33.21"
-
 [[deps.StringManipulation]]
 git-tree-sha1 = "46da2434b41f41ac3594ee9816ce5541c6096123"
 uuid = "892a3eda-7b42-436c-8928-eab12a02cf0e"
@@ -547,36 +450,26 @@ version = "5.1.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─299cfe1e-ce23-11ed-3c20-f55e4ee5485c
-# ╟─28256a42-8c6e-47ee-b896-23003deaa1d0
-# ╟─c8b11a41-ab89-4947-adcb-de921cbb231a
-# ╠═491118ba-4b19-43ed-a30c-2d34b2a2c63b
-# ╟─403b34c1-f7ad-4f19-8b77-80e32fae6baf
-# ╠═ccd36018-89fa-4659-b022-28c84011919d
-# ╠═cf06269f-7777-4534-a278-21b4d82685c1
-# ╠═abf8b21b-5fcf-4e58-8027-40e0136e7acc
-# ╠═0eca1435-dafb-425d-8bce-41e1a5aae09d
-# ╠═95f018ed-f3e1-4f55-8987-c296b2044d03
-# ╠═392e7ff6-6a6a-421f-9554-b62c09f3cda6
-# ╠═62f8dac7-cd4c-457b-94c5-8997b3b2c838
-# ╠═2bd7b403-d203-4f39-be87-7692d4f5f54b
-# ╠═7240312a-e493-4402-a9e7-a533a3ac7dfa
-# ╠═cc85d5ea-3bba-4447-807b-d55105e028cb
-# ╟─2e136692-ede0-48c6-b5f2-e6d734eb3b4c
-# ╠═b948fdff-1946-42eb-8b44-905a1c5631f4
-# ╠═6594e400-7940-45e6-9878-b612a21376cb
-# ╠═67142319-c160-4827-a702-21a802087527
-# ╠═676f0f83-d36a-4280-a0a9-ac1dd8587a1c
-# ╠═351e294e-cc1d-4c4f-bc56-1bce2637aa20
-# ╠═81c392af-4412-4e93-b0cc-867996561ac5
-# ╠═2db3ccf7-2aca-4a7e-a9ab-3c7a3ce90494
-# ╠═c2e2d0f1-ea63-492d-924c-4db5b844470d
-# ╠═92761162-62d0-4337-89fd-9209470062a6
-# ╠═62c2f097-2863-4cc1-8b45-87f8aa86b71c
-# ╟─514a9713-d417-41e1-a36b-a0073f51490d
-# ╠═5e636dbe-4ae9-4f64-9575-8d9f1d47b787
-# ╠═b1529173-e5ac-4213-848b-bbd69c22b050
-# ╠═b6b8e681-00a3-4e9e-8752-d42027dd78c7
-# ╟─742b6fa0-60dd-411b-a21a-31a8a507cb85
+# ╟─640ce00e-cece-11ed-3091-c9ab6ee7f151
+# ╟─ac4771ca-f366-4bf0-8f08-e3398c65e2c1
+# ╟─dea50430-553d-4386-8459-f1980427bd38
+# ╠═7a8ecac5-5572-4eb6-8dbb-c077a3a96a94
+# ╟─83d5aa79-dcee-4a2f-8ca1-7859cfe9ae35
+# ╠═c277fdae-7659-41d0-a6db-6f05e56de2f5
+# ╠═49646efe-9594-47f0-9404-a0009fa64cf4
+# ╟─dac8cf64-500b-486f-80f3-153fd412aef0
+# ╠═1910c0d8-8ab3-411f-869e-285291d7c757
+# ╠═30da8b98-8f26-464a-81d7-ac0cdc77ade5
+# ╟─ff48987f-0445-4dfb-abf2-a01a69499109
+# ╠═2f8dd664-ff2e-49c0-8dfe-00207a77604c
+# ╟─2d25ebb6-2352-4bb2-a1cf-13f41951156b
+# ╠═7a2fe9c7-19a8-4b77-a203-e946d10d3c02
+# ╟─dac227ad-6a08-46f3-9748-a95f22d48e3f
+# ╠═702864a1-25bf-45d9-9d22-adb990730a4e
+# ╟─4bdd72c9-fab1-4245-9815-478b38280ce4
+# ╠═6639913f-47e8-4cab-a6dd-7202d6a2cfc8
+# ╟─b23d10c8-672f-4b3e-bbd6-91c915b213ba
+# ╠═57cc169f-13d2-413c-88b6-3fb0c4d9b66d
+# ╟─b222c811-b223-4472-9514-631786fcfd3a
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
