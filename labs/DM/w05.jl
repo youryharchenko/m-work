@@ -4,13 +4,13 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ ebaf8bdc-ca12-11ed-27fc-3ba6ca4b800d
+# ╔═╡ bc19b4f4-3fac-4473-a86c-bfa324b14215
 using CommonMark
 
-# ╔═╡ c7aa79d9-34a2-42ce-9496-bf9da395a775
-using DataFrames, Plots, Statistics, Distributions, GLM, StatsModels
+# ╔═╡ b4cb98bc-d2c2-11ed-220b-1fbbfebb34ab
+using FuzzyLogic, Plots
 
-# ╔═╡ 7d886d47-df7e-4f37-aed3-c7255352a41f
+# ╔═╡ c5754c6d-a27c-4176-9f16-50010ac93002
 cm"""
 ---
 <div align="center">
@@ -25,7 +25,7 @@ cm"""
 
 Технології Data Mining
 
-Лабораторна робота 1
+Лабораторна робота 5
 
 
 </div>
@@ -53,109 +53,163 @@ cm"""
 ---
 """
 
-# ╔═╡ 140547f1-497f-4178-aa73-1de16347f253
+# ╔═╡ f96cdd1a-0402-4d50-988a-1750b6ddb3fc
 md"""
-
 #### В роботі використано мову Julia та її пакети
-
 """
 
-# ╔═╡ de1beb7d-ec2d-4b4d-a3b9-e1e04d0f5c17
+# ╔═╡ 6bcc06e1-3593-4d21-a447-d3a2355ce9ce
 md"""
-#### Матриця вхідних даних
+### Система виведення Mamdani
 """
 
-# ╔═╡ 36546b71-49bb-4777-b589-0d50292b884e
-house_mx = [
-	3529 9191  6 0 0 205000
-	3247 10061 5 1 1 224900
-	4032 10150 5 0 1 197900
-	2397 14156 4 1 0 189900
-	2200 9600  4 0 1 195000
-	3536 19994 6 1 1 325000
-	2983 9365  5 0 1 230000
-]
+# ╔═╡ 2d9f1153-b20d-4d68-9172-9336757a94ee
+fis1 = @mamfis function tipper(service, food)::tip
 
-# ╔═╡ 089575cf-47af-420e-8772-0c3c49d96b98
+	# Основні властивості системи, зокрема
+    #	* назва функції tipper буде назвою системи;
+    # 	* вхідні аргументи service, food представляють вхідні змінні системи;
+    # 	* анотація типу виводу ::tip представляє вихідну змінну системи. 
+	# Якщо система має кілька виходів, їх потрібно взяти у дужки, тобто ::{tip1, tip2}
+
+	# Блок специфікацій змінних, ідентифікований оператором :=. 
+	# Цей блок використовується для визначення домену та функцій належності змінної
+	
+    service := begin
+        domain = 0:10
+        poor = GaussianMF(0.0, 1.5)
+        good = GaussianMF(5.0, 1.5)
+        excellent = GaussianMF(10.0, 1.5)
+    end
+
+    food := begin
+        domain = 0:10
+        rancid = TrapezoidalMF(-2, 0, 1, 3)
+        delicious = TrapezoidalMF(7, 9, 10, 12)
+    end
+
+	tip := begin
+        domain = 0:30
+        cheap = TriangularMF(0, 5, 10)
+        average = TriangularMF(10, 15, 20)
+        generous = TriangularMF(20, 25, 30)
+    end
+
+	# Для системи логічного висновку Mamdani доступні такі налаштування
+
+    # and: алгоритм для оцінки &&. Має бути один із доступних методів сполучення. MinAnd за замовчуванням.
+    # or: алгоритм для оцінки ||. Має бути один із доступних методів диз’юнкції. Типове значення MaxOr
+    # implication: алгоритм для оцінки -->. Має бути один із доступних методів наслідків. Мінімальні наслідки за замовчуванням.
+    # aggregato: алгоритм для виконання агрегації виходів. Має бути один із доступних методів агрегації. MaxAggregator за замовчуванням.
+    # defuzzifier: алгоритм виконання дефазифікації. Має бути один із доступних методів дефазифікації. CentroidDefuzzifier за замовчуванням.
+
+	and = ProdAnd
+    or = ProbSumOr
+    implication = ProdImplication
+
+	aggregator = ProbSumAggregator
+    defuzzifier = CentroidDefuzzifier
+
+	# Блоки правил. 
+	# Нечітке відношення, таке як service is poor, описується оператором ==, наприклад service == poor. 
+	# Передумовою, тобто лівою частиною правила, може бути будь-яке логічне твердження, що з’єднує нечіткі відносини з && (І) та || (OR) операторами. 
+	# Наслідком, тобто правою частиною правила, є нечітке відношення для вихідної змінної. Передумова і наслідок пов'язані оператором -->.
+
+    service == poor || food == rancid --> tip == cheap
+    service == good --> tip == average
+    service == excellent || food == delicious --> tip == generous
+
+    
+end
+
+# ╔═╡ 99600a16-33c1-4938-97be-533f80c672d8
 md"""
-#### Матриця кореляції факторів
+#### Візуалаізація моделі
 """
 
-# ╔═╡ 9b3783dc-8fb7-4843-988d-39e255276816
-cor(house_mx)
+# ╔═╡ 6220fa8f-88d3-4983-972d-ebf9a06485fa
+plot(fis1, :service)
 
-# ╔═╡ cb42658d-14b1-493a-8410-47c2c0c2c755
+# ╔═╡ 43187e27-3c45-4fec-b2e4-ab4d0b08f406
+plot(fis1, :food)
+
+# ╔═╡ 03127414-dc85-4bc5-9cf6-12d9c5233e89
+plot(fis1, :tip)
+
+# ╔═╡ 407ee1b5-ac9d-4613-a8a6-bd8980302825
+plot(fis1)
+
+# ╔═╡ 2989c432-8a4f-4fcd-ae0a-e9644e188098
 md"""
-#### Перетворюємо матрицю в DataFrame
+#### Виведення результату по вхідним параметрам
 """
 
-# ╔═╡ 3b343a5a-79e3-4f76-995a-00119110a88d
-house_df = DataFrame(house_mx, 
-	[:houseSize, :lotSize, :bedrooms, :granite, :bathroom, :sellingPrice])
+# ╔═╡ 06dc71e8-0359-47c9-a58e-0551a3ba00e0
+res1 = fis1(service = 2, food = 3)
 
-# ╔═╡ a2336daa-20e0-4583-803d-c39469847ec5
+# ╔═╡ 4a1dec85-e64d-4784-b967-79136d269cea
+res1[:tip]
+
+# ╔═╡ 06c5ff26-1ad1-4ffa-84ec-360b088de2f5
 md"""
-#### Будуємо лінійну багатофакторну модель за створеним DataFrame
-##### Фррмула: sellingPrice~1+houseSize+lotSize+bedrooms+bathroom
+### Система виведення Sugeno
 """
 
-# ╔═╡ 784f930e-a292-4f0c-b950-facedcedd9b5
-model1 = lm(
-	@formula(
-		sellingPrice~1+houseSize+lotSize+bedrooms+bathroom),
-	house_df )
+# ╔═╡ 59a98a8d-b472-401e-a1e7-b841eb7cff8e
+fis2 = @sugfis function tipper(service, food)::tip
+    service := begin
+        domain = 0:10
+        poor = GaussianMF(0.0, 1.5)
+        good = GaussianMF(5.0, 1.5)
+        excellent = GaussianMF(10.0, 1.5)
+    end
 
-# ╔═╡ bdc5d9b8-3fcb-4a1c-9a4d-ae327ee224c6
+    food := begin
+        domain = 0:10
+        rancid = TrapezoidalMF(-2, 0, 1, 3)
+        delicious = TrapezoidalMF(7, 9, 10, 12)
+    end
+
+    tip := begin
+        domain = 0:30
+        cheap = 5.002
+        average = 15
+        generous = 2service, 0.5food, 5.0
+    end
+
+    service == poor || food == rancid --> tip == cheap
+    service == good --> tip == average
+    service == excellent || food == delicious --> tip == generous
+end
+
+# ╔═╡ 23758752-7940-493d-a197-c035f8b4b439
+plot(fis2, :tip)
+
+# ╔═╡ 630cee82-a003-4f14-a27b-64a79e8172b6
+plot(fis2)
+
+# ╔═╡ ae424550-dbff-45d0-ac39-196271dda916
+res2 = fis2(service = 2, food = 3)
+
+# ╔═╡ 46591ac1-2700-4e05-a1fb-c1db96a2f8bb
+res2[:tip]
+
+# ╔═╡ 3dfe5225-97f9-4e5d-8169-141356438076
 md"""
-#### Порахуємо прогноз вартості тестового будинку
-"""
-
-# ╔═╡ 7bcd4ab9-b042-4e17-a096-28ebf2bb45a5
-predict(model1, DataFrame(houseSize=3198, lotSize=9669, bedrooms=5, bathroom=1))
-
-# ╔═╡ b06e2429-ad59-4e0f-9f1a-a96536253269
-md"""
-#### Будуємо лінійну багатофакторну модель за створеним DataFrame без houseSize
-##### Фррмула: sellingPrice~1+lotSize+bedrooms+bathroom
-"""
-
-# ╔═╡ 97cce87b-bb9a-4837-84f6-dbdcbbd9a72c
-model2 = lm(
-	@formula(
-		sellingPrice~1+lotSize+bedrooms+bathroom),
-	house_df )
-
-# ╔═╡ 0222d213-e5c5-4706-b444-0ffd8f0788d5
-md"""
-#### Порахуємо прогноз вартості тестового будинку за моделлю без houseSize
-"""
-
-# ╔═╡ e6739bb8-9e31-4908-bacb-3a849dc5d11b
-predict(model2, DataFrame(lotSize=9669, bedrooms=5, bathroom=1))
-
-# ╔═╡ b9b5be8e-87fb-466f-b98c-6e9318bf7fac
-md"""
-#### Висновок: прогнозована вартість тестового будинку за моделлю без houseSize, менша ніж з врахуванням розміру будинку.
+### Висновок: пакет FuzzyLogic мови Julia дозволяє створювати системи нечіткої логіки з алгоритмами виведення Mamdani та Sugeno. В прикладі визначається залежність розміру чайових від якості обслугувовуання та їжі. Обидві системи показують близькі результати.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-GLM = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
+FuzzyLogic = "271df9f8-4390-4196-9d4f-bdd0b67035b3"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-StatsModels = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
 
 [compat]
 CommonMark = "~0.8.10"
-DataFrames = "~1.5.0"
-Distributions = "~0.25.86"
-GLM = "~1.8.2"
+FuzzyLogic = "~0.1.2"
 Plots = "~1.38.8"
-StatsModels = "~0.7.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -164,7 +218,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "a2ab137cb42ab8c8104972485a66de5757c4d997"
+project_hash = "61398275b887376494726442a595cf0b5274b089"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -192,12 +246,6 @@ deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jl
 git-tree-sha1 = "4b859a208b2397a7a623a03449e4636bdb17bcf2"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.1+1"
-
-[[deps.Calculus]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
-uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
-version = "0.5.1"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
@@ -273,22 +321,11 @@ git-tree-sha1 = "e8119c1a33d267e16108be441a287a6981ba1630"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.14.0"
 
-[[deps.DataFrames]]
-deps = ["Compat", "DataAPI", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrettyTables", "Printf", "REPL", "Random", "Reexport", "SentinelArrays", "SnoopPrecompile", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "aa51303df86f8626a962fccb878430cdb0a97eee"
-uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "1.5.0"
-
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
 git-tree-sha1 = "d1fff3a548102f48987a52a2e0d114fa97d730f0"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 version = "0.18.13"
-
-[[deps.DataValueInterfaces]]
-git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
-uuid = "e2d170a0-9d28-54be-80f0-106bbe20a464"
-version = "1.0.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -298,17 +335,11 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 deps = ["Mmap"]
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
-[[deps.DensityInterface]]
-deps = ["InverseFunctions", "Test"]
-git-tree-sha1 = "80c3e8639e3353e5d2912fb3a1916b8455e2494b"
-uuid = "b429d917-457f-4dbc-8f4c-0cc954292b1d"
-version = "0.4.0"
-
-[[deps.Distributions]]
-deps = ["ChainRulesCore", "DensityInterface", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
-git-tree-sha1 = "da9e1a9058f8d3eec3a8c9fe4faacfb89180066b"
-uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.86"
+[[deps.Dictionaries]]
+deps = ["Indexing", "Random", "Serialization"]
+git-tree-sha1 = "e82c3c97b5b4ec111f3c1b55228cebc7510525a2"
+uuid = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
+version = "0.3.25"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -320,12 +351,6 @@ version = "0.9.3"
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 version = "1.6.0"
-
-[[deps.DualNumbers]]
-deps = ["Calculus", "NaNMath", "SpecialFunctions"]
-git-tree-sha1 = "5837a837389fccf076445fce071c8ddaea35a566"
-uuid = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
-version = "0.6.8"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -347,12 +372,6 @@ version = "4.4.2+2"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
-
-[[deps.FillArrays]]
-deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
-git-tree-sha1 = "0ba171480d51567ba337e5eea4e68a8231b7a2c3"
-uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "0.13.10"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
@@ -384,21 +403,17 @@ git-tree-sha1 = "aa31987c2ba8704e23c6c8ba8a4f769d5d7e4f91"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
 version = "1.0.10+0"
 
-[[deps.Future]]
-deps = ["Random"]
-uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
+[[deps.FuzzyLogic]]
+deps = ["Dictionaries", "DocStringExtensions", "LightXML", "MacroTools", "PEG", "RecipesBase", "Reexport"]
+git-tree-sha1 = "aa3cf0111bfeaeb8f3795f4c9607f9acbd6189f2"
+uuid = "271df9f8-4390-4196-9d4f-bdd0b67035b3"
+version = "0.1.2"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Pkg", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll"]
 git-tree-sha1 = "d972031d28c8c8d9d7b41a536ad7bb0c2579caca"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.3.8+0"
-
-[[deps.GLM]]
-deps = ["Distributions", "LinearAlgebra", "Printf", "Reexport", "SparseArrays", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns", "StatsModels"]
-git-tree-sha1 = "cd3e314957dc11c4c905d54d1f5a65c979e4748a"
-uuid = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
-version = "1.8.2"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "UUIDs", "p7zip_jll"]
@@ -447,22 +462,15 @@ git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
 version = "2.8.1+1"
 
-[[deps.HypergeometricFunctions]]
-deps = ["DualNumbers", "LinearAlgebra", "OpenLibm_jll", "SpecialFunctions", "Test"]
-git-tree-sha1 = "709d864e3ed6e3545230601f94e11ebc65994641"
-uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
-version = "0.3.11"
+[[deps.Indexing]]
+git-tree-sha1 = "ce1566720fd6b19ff3411404d4b977acd4814f9f"
+uuid = "313cdc1a-70c2-5d6a-ae34-0150d3930a38"
+version = "1.1.1"
 
 [[deps.IniFile]]
 git-tree-sha1 = "f550e6e32074c939295eb5ea6de31849ac2c9625"
 uuid = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
 version = "0.5.1"
-
-[[deps.InlineStrings]]
-deps = ["Parsers"]
-git-tree-sha1 = "9cc2baf75c6d09f9da536ddf58eb2f29dedaf461"
-uuid = "842dd82b-1e85-43dc-bf29-5d0ee9dffc48"
-version = "1.4.0"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -474,20 +482,10 @@ git-tree-sha1 = "49510dfcb407e572524ba94aeae2fced1f3feb0f"
 uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
 version = "0.1.8"
 
-[[deps.InvertedIndices]]
-git-tree-sha1 = "0dc7b50b8d436461be01300fd8cd45aa0274b038"
-uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
-version = "1.3.0"
-
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.2"
-
-[[deps.IteratorInterfaceExtensions]]
-git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
-uuid = "82899510-4779-5014-852e-03e436cf321d"
-version = "1.0.0"
 
 [[deps.JLFzf]]
 deps = ["Pipe", "REPL", "Random", "fzf_jll"]
@@ -612,6 +610,12 @@ git-tree-sha1 = "7f3efec06033682db852f8b3bc3c1d2b0a0ab066"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.36.0+0"
 
+[[deps.LightXML]]
+deps = ["Libdl", "XML2_jll"]
+git-tree-sha1 = "e129d9391168c677cd4800f5c0abb1ed8cb3794f"
+uuid = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
+version = "0.9.0"
+
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -721,20 +725,20 @@ uuid = "91d4177d-7536-5919-b921-800302f37372"
 version = "1.3.2+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "85f8e6578bf1f9ee0d11e7bb1b1456435479d47c"
+git-tree-sha1 = "d321bf2de576bf25ec4d3e4360faca399afca282"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.4.1"
+version = "1.6.0"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
 version = "10.40.0+0"
 
-[[deps.PDMats]]
-deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "67eae2738d63117a196f497d7db789821bce61d1"
-uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.11.17"
+[[deps.PEG]]
+deps = ["Test"]
+git-tree-sha1 = "c62b3f15184a24960131cf7e1b63dfbc6beb8040"
+uuid = "12d937ae-5f68-53be-93c9-3a6f997a20a8"
+version = "1.0.0"
 
 [[deps.Parsers]]
 deps = ["Dates", "SnoopPrecompile"]
@@ -776,23 +780,11 @@ git-tree-sha1 = "f49a45a239e13333b8b936120fe6d793fe58a972"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 version = "1.38.8"
 
-[[deps.PooledArrays]]
-deps = ["DataAPI", "Future"]
-git-tree-sha1 = "a6062fe4063cdafe78f4a0a81cfffb89721b30e7"
-uuid = "2dfb63ee-cc39-5dd5-95bd-886bf059d720"
-version = "1.4.2"
-
 [[deps.Preferences]]
 deps = ["TOML"]
 git-tree-sha1 = "47e5f437cc0e7ef2ce8406ce1e7e24d44915f88d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
 version = "1.3.0"
-
-[[deps.PrettyTables]]
-deps = ["Crayons", "Formatting", "LaTeXStrings", "Markdown", "Reexport", "StringManipulation", "Tables"]
-git-tree-sha1 = "548793c7859e28ef026dba514752275ee871169f"
-uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "2.2.3"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -803,12 +795,6 @@ deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll
 git-tree-sha1 = "0c03844e2231e12fda4d0086fd7cbe4098ee8dc5"
 uuid = "ea2cea3b-5b76-57ae-a6ef-0a8af62496e1"
 version = "5.15.3+2"
-
-[[deps.QuadGK]]
-deps = ["DataStructures", "LinearAlgebra"]
-git-tree-sha1 = "6ec7ac8412e83d57e313393220879ede1740f9ee"
-uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-version = "2.8.2"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
@@ -847,18 +833,6 @@ git-tree-sha1 = "838a3a4188e2ded87a4f9f184b4b0d78a1e91cb7"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.0"
 
-[[deps.Rmath]]
-deps = ["Random", "Rmath_jll"]
-git-tree-sha1 = "f65dcb5fa46aee0cf9ed6274ccbd597adc49aa7b"
-uuid = "79098fc4-a85e-5d69-aa6a-4863f24498fa"
-version = "0.7.1"
-
-[[deps.Rmath_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "6ed52fdd3382cf21947b15e8870ac0ddbff736da"
-uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
-version = "0.4.0+0"
-
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
@@ -869,19 +843,8 @@ git-tree-sha1 = "30449ee12237627992a99d5e30ae63e4d78cd24a"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
 version = "1.2.0"
 
-[[deps.SentinelArrays]]
-deps = ["Dates", "Random"]
-git-tree-sha1 = "77d3c4726515dca71f6d80fbb5e251088defe305"
-uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
-version = "1.3.18"
-
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
-
-[[deps.ShiftedArrays]]
-git-tree-sha1 = "503688b59397b3307443af35cd953a13e8005c16"
-uuid = "1277b4bf-5013-50f5-be3d-901d8477a67a"
-version = "2.0.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -925,9 +888,9 @@ uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "f9af7f195fb13589dd2e2d57fdb401717d2eb1f6"
+git-tree-sha1 = "45a7769a04a3cf80da1c1c7c60caf932e6f4c9f7"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.5.0"
+version = "1.6.0"
 
 [[deps.StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
@@ -935,43 +898,10 @@ git-tree-sha1 = "d1bf48bfcc554a3761a133fe3a9bb01488e06916"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.33.21"
 
-[[deps.StatsFuns]]
-deps = ["ChainRulesCore", "HypergeometricFunctions", "InverseFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
-git-tree-sha1 = "f625d686d5a88bcd2b15cd81f18f98186fdc0c9a"
-uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
-version = "1.3.0"
-
-[[deps.StatsModels]]
-deps = ["DataAPI", "DataStructures", "LinearAlgebra", "Printf", "REPL", "ShiftedArrays", "SparseArrays", "StatsBase", "StatsFuns", "Tables"]
-git-tree-sha1 = "06a230063087c11910e9bbd17ccbf5af792a27a4"
-uuid = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
-version = "0.7.0"
-
-[[deps.StringManipulation]]
-git-tree-sha1 = "46da2434b41f41ac3594ee9816ce5541c6096123"
-uuid = "892a3eda-7b42-436c-8928-eab12a02cf0e"
-version = "0.3.0"
-
-[[deps.SuiteSparse]]
-deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
-uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
-
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.0"
-
-[[deps.TableTraits]]
-deps = ["IteratorInterfaceExtensions"]
-git-tree-sha1 = "c06b2f539df1c6efa794486abfb6ed2022561a39"
-uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
-version = "1.0.1"
-
-[[deps.Tables]]
-deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "LinearAlgebra", "OrderedCollections", "TableTraits", "Test"]
-git-tree-sha1 = "1544b926975372da01227b382066ab70e574a3ec"
-uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "1.10.1"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -1249,24 +1179,26 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─ebaf8bdc-ca12-11ed-27fc-3ba6ca4b800d
-# ╟─7d886d47-df7e-4f37-aed3-c7255352a41f
-# ╟─140547f1-497f-4178-aa73-1de16347f253
-# ╠═c7aa79d9-34a2-42ce-9496-bf9da395a775
-# ╟─de1beb7d-ec2d-4b4d-a3b9-e1e04d0f5c17
-# ╠═36546b71-49bb-4777-b589-0d50292b884e
-# ╟─089575cf-47af-420e-8772-0c3c49d96b98
-# ╠═9b3783dc-8fb7-4843-988d-39e255276816
-# ╟─cb42658d-14b1-493a-8410-47c2c0c2c755
-# ╠═3b343a5a-79e3-4f76-995a-00119110a88d
-# ╟─a2336daa-20e0-4583-803d-c39469847ec5
-# ╠═784f930e-a292-4f0c-b950-facedcedd9b5
-# ╟─bdc5d9b8-3fcb-4a1c-9a4d-ae327ee224c6
-# ╠═7bcd4ab9-b042-4e17-a096-28ebf2bb45a5
-# ╟─b06e2429-ad59-4e0f-9f1a-a96536253269
-# ╠═97cce87b-bb9a-4837-84f6-dbdcbbd9a72c
-# ╟─0222d213-e5c5-4706-b444-0ffd8f0788d5
-# ╠═e6739bb8-9e31-4908-bacb-3a849dc5d11b
-# ╟─b9b5be8e-87fb-466f-b98c-6e9318bf7fac
+# ╟─bc19b4f4-3fac-4473-a86c-bfa324b14215
+# ╟─c5754c6d-a27c-4176-9f16-50010ac93002
+# ╟─f96cdd1a-0402-4d50-988a-1750b6ddb3fc
+# ╠═b4cb98bc-d2c2-11ed-220b-1fbbfebb34ab
+# ╟─6bcc06e1-3593-4d21-a447-d3a2355ce9ce
+# ╠═2d9f1153-b20d-4d68-9172-9336757a94ee
+# ╠═99600a16-33c1-4938-97be-533f80c672d8
+# ╠═6220fa8f-88d3-4983-972d-ebf9a06485fa
+# ╠═43187e27-3c45-4fec-b2e4-ab4d0b08f406
+# ╠═03127414-dc85-4bc5-9cf6-12d9c5233e89
+# ╠═407ee1b5-ac9d-4613-a8a6-bd8980302825
+# ╟─2989c432-8a4f-4fcd-ae0a-e9644e188098
+# ╠═06dc71e8-0359-47c9-a58e-0551a3ba00e0
+# ╠═4a1dec85-e64d-4784-b967-79136d269cea
+# ╟─06c5ff26-1ad1-4ffa-84ec-360b088de2f5
+# ╠═59a98a8d-b472-401e-a1e7-b841eb7cff8e
+# ╠═23758752-7940-493d-a197-c035f8b4b439
+# ╠═630cee82-a003-4f14-a27b-64a79e8172b6
+# ╠═ae424550-dbff-45d0-ac39-196271dda916
+# ╠═46591ac1-2700-4e05-a1fb-c1db96a2f8bb
+# ╟─3dfe5225-97f9-4e5d-8169-141356438076
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

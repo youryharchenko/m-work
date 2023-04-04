@@ -1,0 +1,40 @@
+---
+title: "Word2vec"
+author: "Youry"
+date: "2023-03-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(word2vec)
+```
+
+```{r}
+model <- word2vec(x = "news.txt", type = "skip-gram", dim = 200, iter = 30, min_count=3, threads=3)
+```
+
+```{r}
+vocab <- data.frame(wv = summary(model, type = "vocabulary"))
+```
+
+
+```{r}
+predict(model, c("angeles"))
+```
+
+
+```{r}
+predict(model, c("oil"))
+```
+```{r}
+predict(model, c("human"))
+```
+
+
+

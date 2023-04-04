@@ -47,3 +47,4 @@ news_*
 text8*
 .ipynb_*
 *.arff
+.Rproj.user
