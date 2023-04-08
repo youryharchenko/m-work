@@ -27,6 +27,7 @@ Manifest.toml
 *.log
 *.log*
 *.db
+data.csv
 *.sqlite
 *.png
 *.duckdb.*

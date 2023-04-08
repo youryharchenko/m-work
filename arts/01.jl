@@ -11,7 +11,7 @@ using CSV, DataFrames, Dates, Clustering, Statistics, Plots, Random
 types=[DateTime,Int,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64]
 
 # ╔═╡ 4f0705d9-daf0-407e-bfcf-9c90eae2472f
-df = CSV.read("дані.csv", DataFrame)
+df = CSV.read("data.csv", DataFrame)
 
 # ╔═╡ 9d9134b0-5894-4ae5-b4d7-c11b53d93a12
 ts = let d::Date
@@ -139,7 +139,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "fd0bc2bc29f01f5e89f5a744e35e0b7806584362"
+project_hash = "ac9cef1c6f08c513a48729d3a434316843b53ee6"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
