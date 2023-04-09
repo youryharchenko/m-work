@@ -41,10 +41,10 @@ KBs.init_run(kb)
 begin
 	c_log = @c! kb :Log (
 		rct=[
-			(r=:HAS, ct=:Record),
+			(r=:HAS, ct=:RecordInst),
 		],
 		arct=[
-			(r=:HAS, ct=:Record, a=:number, v=0),
+			(r=:HAS, ct=:RecordInst, a=:number, v=0),
 		],
 	)
 
@@ -88,28 +88,21 @@ begin
 		count = 0
 		header=["ip","f1","f2","ts","met","ret","nb","f4","br"]
 		logs_dir = joinpath("logs", "nginx")
-		#files = []
-		#records = String[]
-		#log = []
-		
+				
 		r_has = KBs.make!(R, kb, :HAS)
-		rc_log_has_record = KBs.make!(RC, kb, r_has, c_log, c_record)
+		rc_log_has_record_inst = KBs.make!(RC, kb, r_has, c_log, c_record_inst)
 		r_is = KBs.make!(R, kb, :IS)
 		rc_inst_is_record = KBs.make!(RC, kb, r_is, c_record_inst, c_record)
 		a_number = KBs.make!(A, kb, :number)
 		ar_has_number = KBs.make!(AR, kb, r_has, a_number, 0)
 		arc_log_has_record_number = KBs.make!(ARC, kb, 
-			rc_log_has_record, ar_has_number, 0)
+			rc_log_has_record_inst, ar_has_number, 0)
 		
 		for file in filter(x -> occursin("access", x) && occursin("gz", x), 	readdir(logs_dir, join=true))
-			#push!(files, file)
-
+			
 			o_file = KBs.make!(O, kb, file)
 			co_log_file = KBs.make!(CO, kb, c_log, o_file)
 			
-			#fh = GZip.open(file)
-			#append!(records, readlines(fh))
-
 			GZip.open(file) do io
 				i = 1
            		while !eof(io)
@@ -121,19 +114,11 @@ begin
 					co_record_inst = KBs.make!(CO, kb, c_record_inst, o_record_inst)
 					rco_inst_is_record = KBs.make!(RCO, kb, 
 						rc_inst_is_record, co_record_inst, co_record)
-					rco_log_has_record = KBs.make!(RCO, kb, 
-						rc_log_has_record, co_log_file, co_record)
+					rco_log_has_record_inst = KBs.make!(RCO, kb, 
+						rc_log_has_record_inst, co_log_file, co_record_inst)
 					arco_log_has_record_number =  KBs.make!(ARCO, kb,
-						rco_log_has_record, arc_log_has_record_number, i)
-						
-
-					#@o! kb record (
-					#	co=[(c=:Record,)],
-					#	rcof=[(c=:Record, r=:HAS, cf=:Log, of=file)],
-					#	arcof=[(c=:Record, r=:HAS, cf=:Log, of=file, a=:number, v=i)],
-					#)
-		
-
+						rco_log_has_record_inst, arc_log_has_record_number, i)
+	
 					i+=1
 					count+=1
            		end
@@ -141,13 +126,10 @@ begin
 		end
 	
 		for file in filter(x -> occursin("access", x) && !occursin("gz", x), readdir(logs_dir, join=true))
-			#push!(files, file)
-
+	
 			o_file = KBs.make!(O, kb, file)
 			co_log_file = KBs.make!(CO, kb, c_log, o_file)
 			
-			#fh = open(file)
-			#append!(records, readlines(fh))
 			open(file) do io
 				i = 1
            		while !eof(io)
@@ -159,16 +141,10 @@ begin
 					co_record_inst = KBs.make!(CO, kb, c_record_inst, o_record_inst)
 					rco_inst_is_record = KBs.make!(RCO, kb, 
 						rc_inst_is_record, co_record_inst, co_record)
-					rco_log_has_record = KBs.make!(RCO, kb, 
-						rc_log_has_record, co_log_file, co_record)
+					rco_log_has_record_inst = KBs.make!(RCO, kb, 
+						rc_log_has_record_inst, co_log_file, co_record_inst)
 					arco_log_has_record_number =  KBs.make!(ARCO, kb,
-						rco_log_has_record, arc_log_has_record_number, i)
-
-					#@o! kb record (
-					#	co=[(c=:Record,)],
-					#	rcof=[(c=:Record, r=:HAS, cf=:Log, of=file)],
-					#	arcof=[(c=:Record, r=:HAS, cf=:Log, of=file, a=:number, v=i)],
-					#)
+						rco_log_has_record_inst, arc_log_has_record_number, i)
 
 					i+=1
 					count+=1
@@ -176,17 +152,11 @@ begin
        		end
 			
 		end
-		count
-
-		KBs.save(kb, "log-02")
-		#records
 		
-		#types=[String,String,String,DateTime,String,Int,Int,String,String]
-	
-		#df = CSV.File(IOBuffer.(records); header=header, delim=' ',types=types, silencewarnings=true, dateformat="[d/u/yyyy:H:M:S +0000]") |> DataFrame
-
-		#DataFrames.select(df, header)
-	
+		KBs.save(kb, "log-02")
+		
+		count
+			
 	end
 	
 end
