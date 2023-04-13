@@ -47,7 +47,7 @@ get_records = @julog([
 ],)
 
 # ╔═╡ ad45aa0f-19ab-420a-84c0-67d3f4583799
-function xsplit(s, delim=" ", quot=[("\"","\""), ("[", "]")])
+function xsplit(s; delim=" ", quot=[("\"","\""), ("[", "]")])
 	qo = [x[1] for x in quot]
 	qc = [x[2] for x in quot]
 	qi = nothing
@@ -111,6 +111,7 @@ df[3128, :Record]
 # ╔═╡ 75547835-d9c3-444c-af17-b2de8ca184f4
 rec = let
 	r_has = KBs.make!(R, kb, :HAS)
+	r_is = KBs.make!(R, kb, :IS)
 	
 	c_record = KBs.make!(C, kb, :Record)
 
@@ -119,6 +120,12 @@ rec = let
 	c_request = KBs.make!(C, kb, :Request)
 	c_return = KBs.make!(C, kb, :Return)
 	c_agent = KBs.make!(C, kb, :Agent)
+
+	c_word = KBs.make!(C, kb, :Word)
+	c_wordinst = KBs.make!(C, kb, :WordInst)
+
+	c_method = KBs.make!(C, kb, :Method)
+	c_path = KBs.make!(C, kb, :Path)
 	
 	rc_has_record_time = KBs.make!(RC, kb, r_has, c_record, c_time)
 	rc_has_record_host = KBs.make!(RC, kb, r_has, c_record, c_host)
@@ -126,8 +133,17 @@ rec = let
 	rc_has_record_return = KBs.make!(RC, kb, r_has, c_record, c_return)
 	rc_has_record_agent = KBs.make!(RC, kb, r_has, c_record, c_agent)
 
+	rc_has_agent_wordinst = KBs.make!(RC, kb, r_has, c_agent, c_wordinst)
+	rc_is_wordinst_word = KBs.make!(RC, kb, r_is, c_wordinst, c_word)
+
+	rc_has_request_method = KBs.make!(RC, kb, r_has, c_request, c_method)
+	rc_has_request_path = KBs.make!(RC, kb, r_has, c_request, c_path)
+
 	rec = ""
 	arec = []
+	ar_agent  = []
+	ar_request  = []
+	wi_cnt = 0
 	count = 0
 	
 	for r in eachrow(df)
@@ -159,6 +175,21 @@ rec = let
 		co_request = KBs.make!(CO, kb, c_request, o_request)
 		KBs.make!(RCO, kb, rc_has_record_request, co_record, co_request)
 
+		ar_request = xsplit(string(request))
+		if length(ar_request) > 0
+			meth = ar_request[1]
+			o_method = KBs.make!(O, kb, string(meth))
+			co_method = KBs.make!(CO, kb, c_method, o_method)
+			KBs.make!(RCO, kb, rc_has_request_method, co_request, co_method)	
+		end
+		if length(ar_request) > 1
+			path = ar_request[2]
+			o_path = KBs.make!(O, kb, string(path))
+			co_path = KBs.make!(CO, kb, c_path, o_path)
+			KBs.make!(RCO, kb, rc_has_request_path, co_request, co_path)	
+		end
+
+
 		return_ = arec[6]
 		o_return = KBs.make!(O, kb, string(return_))
 		co_return = KBs.make!(CO, kb, c_return, o_return)
@@ -168,10 +199,27 @@ rec = let
 		o_agent = KBs.make!(O, kb, string(agent))
 		co_agent = KBs.make!(CO, kb, c_agent, o_agent)
 		KBs.make!(RCO, kb, rc_has_record_agent, co_record, co_agent)
+
+		ar_agent = xsplit(string(agent), delim=" ", quot=[("\"","\""), ("[", "]"), ("(", ")")])
+
+		j = 0
+		for w in ar_agent
+			wi_cnt +=1
+			j += 1
+			o_word = KBs.make!(O, kb, string(w))
+			co_word = KBs.make!(CO, kb, c_word, o_word)
+			o_wordinst = KBs.make!(O, kb, wi_cnt)
+			co_wordinst = KBs.make!(CO, kb, c_wordinst, o_wordinst)
+			KBs.make!(RCO, kb, rc_is_wordinst_word, co_wordinst, co_word)
+			
+			KBs.make!(RCO, kb, rc_has_agent_wordinst, co_agent, co_wordinst)
+			
+		end
 		
 		
 	end
-	count, arec 
+	KBs.save(kb, "log-03")
+	count, ar_request
 end
 
 # ╔═╡ 68692df6-1191-4f13-afbd-6a04e5b9e8b0
@@ -195,6 +243,18 @@ request(@julog([cat!obj(_, Cat, Obj), Cat == $(:Time)]), [:Cat, :Obj])
 # ╔═╡ f53f0575-4f2f-4f1f-bc29-eca4451eb803
 request(@julog([cat!obj(_, Cat, Obj), Cat == $(:Agent)]), [:Cat, :Obj])
 
+# ╔═╡ 9c3d40af-683b-4e05-9f3e-e2065950801a
+request(@julog([cat!obj(_, Cat, Obj), Cat == $(:Word)]), [:Cat, :Obj])
+
+# ╔═╡ 34791fd8-4fbe-44d3-8b72-539efe5ea709
+request(@julog([cat!obj(_, Cat, Obj), Cat == $(:WordInst)]), [:Cat, :Obj])
+
+# ╔═╡ aa73d49b-abfb-465d-9c46-4f3b13922b51
+request(@julog([cat!obj(_, Cat, Obj), Cat == $(:Method)]), [:Cat, :Obj])
+
+# ╔═╡ ecb0fb5b-d535-4ba4-a40a-21603c5ed8ff
+request(@julog([cat!obj(_, Cat, Obj), Cat == $(:Path)]), [:Cat, :Obj])
+
 # ╔═╡ b9d11e9b-35f9-474b-b86f-e01b1271e16b
 request(@julog([cat!obj(_, Cat, Obj), Cat == $(:Record)]), [:Cat, :Obj])
 
@@ -217,5 +277,9 @@ request(@julog([cat!obj(_, Cat, Obj), Cat == $(:Record)]), [:Cat, :Obj])
 # ╠═76efdda5-8185-4fd0-a658-920f5b5d63ec
 # ╠═f6724235-9bd0-4e1e-b45d-26133bc4a36e
 # ╠═f53f0575-4f2f-4f1f-bc29-eca4451eb803
+# ╠═9c3d40af-683b-4e05-9f3e-e2065950801a
+# ╠═34791fd8-4fbe-44d3-8b72-539efe5ea709
+# ╠═aa73d49b-abfb-465d-9c46-4f3b13922b51
+# ╠═ecb0fb5b-d535-4ba4-a40a-21603c5ed8ff
 # ╠═b9d11e9b-35f9-474b-b86f-e01b1271e16b
 # ╠═7eeebb15-57f3-4895-9182-a71422158fb8

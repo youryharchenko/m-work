@@ -5,7 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ cf5b282c-d2dc-11ed-06ef-ef2b9dfdbc27
-using CSV, DataFrames, Dates, Clustering, Statistics, Plots, Random
+using CSV, DataFrames, Dates, Clustering, Distances, Statistics, Plots, Random
 
 # ╔═╡ fbba7180-60a2-44b1-b109-b9f523be2a98
 types=[DateTime,Int,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64,Float64]
@@ -66,6 +66,85 @@ Matrix(dfm)
 # ╔═╡ 56346a68-67a1-41a2-b3d7-5d1eed3c31e3
 dfm2 = select(dfm, :te, :ti, :gas=> (x->x ./ 100.0) =>:gas )
 
+# ╔═╡ d8c5a3c9-ae5e-41d5-8671-086699fdd055
+D2 = pairwise(Euclidean(), Matrix(dfm2), dims=1)
+
+# ╔═╡ d7cf292c-590e-4996-b997-d9318f3bf78a
+res_kmed = kmedoids(D2, 10)
+
+# ╔═╡ 6d729019-1f9f-42f7-becf-0d42039131c3
+scatter(dfm2.te, dfm2.ti, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 5925b5d6-bf37-4c6e-a1f4-e8885dd04453
+scatter(dfm2.te, dfm2.gas, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 3c49aa79-eb55-4614-9cf3-c07227bbe8e7
+scatter(dfm2.ti, dfm2.gas, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ ccd2f3d2-9be2-40b2-82f0-2e00759b064c
+dfm3 = select(dfm, :m, :te, :ti, :gas=> (x->x ./ 100.0) =>:gas )
+
+# ╔═╡ b357595d-f669-451f-9c7d-202a32df7da4
+scatter(dfm3.m, dfm3.te, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ c0e9c3f8-3232-4245-a04d-c445877587f2
+scatter(dfm3.m, dfm3.ti, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 239d7532-46d2-4fc3-bf1e-37b42f28301d
+scatter(dfm3.m, dfm3.gas, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 0e53bde8-9cdc-4631-afca-ac7a838463ae
+scatter(dfm.h, dfm3.te, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ f426d5ac-2b48-4781-b1f2-dd3ffb9a7a93
+scatter(dfm.h, dfm3.ti, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 912eb779-8eb1-474d-86f1-930453642ebc
+scatter(dfm.h, dfm3.gas, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ cbdd8896-7d75-4a5e-89d0-6dd7ec911623
+scatter(dfm.h, dfm.m, marker_z=res_kmed.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 30f6ced3-e75f-44fc-9b44-a84106f3ca6d
+D3 = pairwise(Euclidean(), Matrix(dfm3), dims=1)
+
+# ╔═╡ c251c0c6-f81a-47b6-8664-9a91d4249666
+res_kmed3 = kmedoids(D3, 10)
+
+# ╔═╡ 41034841-a32a-414d-8042-f9b20c44183a
+scatter(dfm3.te, dfm3.ti, marker_z=res_kmed3.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ ebac60f6-7ba0-4360-86b6-09e9848f9507
+scatter(dfm3.te, dfm3.gas, marker_z=res_kmed3.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 093e2211-3cb2-45d2-b137-fd8ce321895d
+scatter(dfm3.ti, dfm3.gas, marker_z=res_kmed3.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 6eaddc18-98d6-45cd-84f9-d5d2542f8463
+scatter(dfm3.m, dfm3.te, marker_z=res_kmed3.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 718d3838-9c51-471a-ac41-eb6ddaca9b70
+scatter(dfm3.m, dfm3.ti, marker_z=res_kmed3.assignments,
+        color=:lightrainbow, legend=false)
+
+# ╔═╡ 39bcad21-eb6c-4994-a776-7c80de6b228b
+scatter(dfm3.m, dfm3.gas, marker_z=res_kmed3.assignments,
+        color=:lightrainbow, legend=false)
+
 # ╔═╡ 0e10af64-15ea-42b3-8c1e-19e250be5035
 Random.seed!(99999)
 
@@ -122,6 +201,7 @@ CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
@@ -130,6 +210,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 CSV = "~0.10.9"
 Clustering = "~0.15.1"
 DataFrames = "~1.5.0"
+Distances = "~0.10.8"
 Plots = "~1.38.8"
 """
 
@@ -139,7 +220,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "ac9cef1c6f08c513a48729d3a434316843b53ee6"
+project_hash = "c477e056c261762731b20b7fe7da7f2d9d1c2269"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -1194,6 +1275,27 @@ version = "1.4.1+0"
 # ╠═18f7ef2a-a670-46f4-9fcf-54dfcf0684ef
 # ╠═f6d95d59-1bf5-47b7-9f27-68cb99d29654
 # ╠═56346a68-67a1-41a2-b3d7-5d1eed3c31e3
+# ╠═d8c5a3c9-ae5e-41d5-8671-086699fdd055
+# ╠═d7cf292c-590e-4996-b997-d9318f3bf78a
+# ╠═6d729019-1f9f-42f7-becf-0d42039131c3
+# ╠═5925b5d6-bf37-4c6e-a1f4-e8885dd04453
+# ╠═3c49aa79-eb55-4614-9cf3-c07227bbe8e7
+# ╠═ccd2f3d2-9be2-40b2-82f0-2e00759b064c
+# ╠═b357595d-f669-451f-9c7d-202a32df7da4
+# ╠═c0e9c3f8-3232-4245-a04d-c445877587f2
+# ╠═239d7532-46d2-4fc3-bf1e-37b42f28301d
+# ╠═0e53bde8-9cdc-4631-afca-ac7a838463ae
+# ╠═f426d5ac-2b48-4781-b1f2-dd3ffb9a7a93
+# ╠═912eb779-8eb1-474d-86f1-930453642ebc
+# ╠═cbdd8896-7d75-4a5e-89d0-6dd7ec911623
+# ╠═30f6ced3-e75f-44fc-9b44-a84106f3ca6d
+# ╠═c251c0c6-f81a-47b6-8664-9a91d4249666
+# ╠═41034841-a32a-414d-8042-f9b20c44183a
+# ╠═ebac60f6-7ba0-4360-86b6-09e9848f9507
+# ╠═093e2211-3cb2-45d2-b137-fd8ce321895d
+# ╠═6eaddc18-98d6-45cd-84f9-d5d2542f8463
+# ╠═718d3838-9c51-471a-ac41-eb6ddaca9b70
+# ╠═39bcad21-eb6c-4994-a776-7c80de6b228b
 # ╠═0e10af64-15ea-42b3-8c1e-19e250be5035
 # ╠═c605cc53-a1d4-4e8c-a04d-f7264bcde58c
 # ╠═eb2bf1e7-8522-4ee7-b906-717003285b08
