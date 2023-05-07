@@ -4,212 +4,567 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ bc19b4f4-3fac-4473-a86c-bfa324b14215
-using CommonMark
+# ╔═╡ dc308b38-e38a-471f-a51c-986c26ed7d5d
+using DataFrames, Statistics, GLM, Plots, Dates, Clustering, Distances
 
-# ╔═╡ b4cb98bc-d2c2-11ed-220b-1fbbfebb34ab
-using FuzzyLogic, Plots
-
-# ╔═╡ c5754c6d-a27c-4176-9f16-50010ac93002
-cm"""
----
-<div align="center">
-
-Національний університет біоресурсів і природокористування України
-
-Факультет інформаційних технологій
-
-Кафедра комп'ютерних наук
-
-<br/><br/>
-
-Технології Data Mining
-
-Лабораторна робота 5
-
-
-</div>
-
-<br/><br/>
-
-<div align="right">
-
-Виконав
-
-Студент групи ІУСТ-22001м
-
-Харченко Юрій
-
-</div>
-
-<br/><br/>
-
-<div align="center">
-
-Київ – 2023
-
-</div>
-
----
-"""
-
-# ╔═╡ f96cdd1a-0402-4d50-988a-1750b6ddb3fc
+# ╔═╡ fed0082c-3fff-488d-a8f2-8bfa7efcfec9
 md"""
-#### В роботі використано мову Julia та її пакети
+### Екзаменаційний білет №1 (Data Mining)
+#### Харченко Ю.Б. ІУСТ-22001М
 """
 
-# ╔═╡ 6bcc06e1-3593-4d21-a447-d3a2355ce9ce
+# ╔═╡ 5f808524-e4fc-11ed-1feb-3b934e4645a6
+df = DataFrame(
+	y = Float64.([57,58,55,57,59,60,62,58,64,66,67,69,70,74,72,76,78,80,79,82]),
+	x1 = Float64.([32,37,35,37,38,40,42,44,46,47,48,50,49,51,51,53,52,55,56,58]),
+	x2 = Float64.([14,14,13,12,11,10,9.5,9.5,8.5,6.5,6,5.7,5.6,4.9,5.1,5.2,5.5,5,4.7,4]),
+	x3 = Float64.([15,14,12,13,13,13,11,12,9.5,9,8,7.5,6.5,5.5,6.2,3.9,5.5,5,4.6,4.7]),
+	x4 = Float64.([8,8.5,7,8.5,10,11,9.5,13,9.5,14,13,12,10,11,12,15,16,15,14,15]),
+)
+
+
+# ╔═╡ 9c59f728-d04d-43b5-9fa0-70e155abf274
+mx = Matrix(df)
+
+# ╔═╡ 30a92d5c-ccc0-418e-8354-b1fc4c6b02d0
 md"""
-### Система виведення Mamdani
+#### Побудувати однофакторну та багатофакторну регресійну модель
 """
 
-# ╔═╡ 2d9f1153-b20d-4d68-9172-9336757a94ee
-fis1 = @mamfis function tipper(service, food)::tip
+# ╔═╡ 9743f53a-a130-49d7-8034-5a5864b3e4fd
+md"""
+#### Матриця кореляції факторів
+"""
 
-	# Основні властивості системи, зокрема
-    #	* назва функції tipper буде назвою системи;
-    # 	* вхідні аргументи service, food представляють вхідні змінні системи;
-    # 	* анотація типу виводу ::tip представляє вихідну змінну системи. 
-	# Якщо система має кілька виходів, їх потрібно взяти у дужки, тобто ::{tip1, tip2}
+# ╔═╡ 33cbdf7a-4d2a-4fc8-a224-89a9a39d0052
+cor(Matrix(df))
 
-	# Блок специфікацій змінних, ідентифікований оператором :=. 
-	# Цей блок використовується для визначення домену та функцій належності змінної
-	
-    service := begin
-        domain = 0:10
-        poor = GaussianMF(0.0, 1.5)
-        good = GaussianMF(5.0, 1.5)
-        excellent = GaussianMF(10.0, 1.5)
+# ╔═╡ cf88eea4-c144-4025-8860-578c3b30dad0
+md"""
+Висока кореляція між незалежними факторами, для багатофакторної регресії дані не дуже підходять
+
+Візьмем x1 та x4
+"""
+
+# ╔═╡ 50c8d015-ea01-46fb-8d0b-bc79be11bf5d
+model1 = lm(
+	@formula(
+		y~1+x1+x4),
+	df )
+
+# ╔═╡ 50147585-d551-41f0-8bf8-6d93794ea53c
+md"""
+Вільний член: 16.2678 
+
+При збільшенні x1 на 1% y збільшується на 1.08% (при фіксованому x2)
+
+При збільшенні x2 на 1% y збільшується на 0.11% (при фіксованому x1)
+
+"""
+
+# ╔═╡ 4930a86c-aa3b-48f4-92fd-3a6be7413080
+md"""
+#### Однофакторні регресії
+"""
+
+# ╔═╡ b85574b7-18e5-4f4c-bffe-549d0750a308
+model2 = lm(
+	@formula(
+		y~1+x1),
+	df)
+
+# ╔═╡ c3137da8-75ba-4cae-aded-9d8b52fa17a2
+model3 = lm(
+	@formula(
+		y~1+x4),
+	df)
+
+# ╔═╡ bc24f399-7860-4d8d-82a6-ec61c9569ee6
+md"""
+Між незалежними факторами та залежною змінною існує тісний позитивний зв'язок
+"""
+
+# ╔═╡ b8791ba2-0d09-4310-8cb3-295b7a3921d4
+md"""
+#### Виділити періодичні складові у часовому ряді
+"""
+
+# ╔═╡ 392d161f-2c7d-49ea-be25-9b8d9a2c2074
+md"""
+У залежної змінної спостерігаються коливання з періодом 4
+"""
+
+# ╔═╡ a66f989a-1655-4ee0-9166-d193a1bd7503
+md"""
+#### Провести аналіз використовуючи метод класифікації та кластеризації. 
+"""
+
+# ╔═╡ 05dddc88-da49-460b-a906-ed0f8ef3e341
+md"""
+Матриця евклідових відстаней
+"""
+
+# ╔═╡ b3c2da74-5d21-4d9d-a045-76e1802ff5ca
+D = pairwise(Euclidean(), Matrix(df), dims=1)
+
+# ╔═╡ 7f81c6aa-1afb-4add-a716-8dd93e1d8d60
+md"""
+Зробимо класиіфкацію на 3 кластера
+"""
+
+# ╔═╡ e648d5a2-392f-430f-ab17-ac8d23510257
+model4 = kmedoids(D, 3; init=:kmcen )
+
+# ╔═╡ d699f869-9f8f-42e4-bacb-ef06b34d83f3
+md"""
+Відобразимо
+"""
+
+# ╔═╡ a36cca52-705f-4118-8893-dcff6833af43
+scatter(df.x1, df.y, marker_z=model4.assignments,
+        color=:lightrainbow, title="x: x1, y: y")
+
+# ╔═╡ f28b9ad9-411c-4052-b2c9-fb32c0fefa78
+scatter(df.x1, df.x4, marker_z=model4.assignments,
+        color=:lightrainbow, title="x: x1, y: x4")
+
+# ╔═╡ f1217a08-8330-4858-acae-60dc93c6b8c9
+scatter(df.x4, df.y, marker_z=model4.assignments,
+        color=:lightrainbow, title="x: x4, y: y")
+
+# ╔═╡ 60820b9b-b4ac-407b-8a75-98b5250a2257
+md"""
+Метод дозволяє розбивати спостереження на класи за близькістю до знайдених центрів кластеризації
+"""
+
+# ╔═╡ f3ce313f-22d6-40ca-b9bd-789fbabd35dc
+function nextodd(x::Real)::Integer
+    cx = Integer(ceil(x))
+    mod(cx,2)==0 ? cx+1 : cx
+end;
+
+# ╔═╡ 89fd9ff8-b704-4a44-b4e1-56c53e0dca9f
+function ghat(x::T;
+           A::AbstractMatrix{T},
+           b::AbstractVector{T},
+           d::Integer=2,
+           q::Integer,
+           rho::AbstractVector{T}) where T<:Real
+
+    xv = A[:,d]
+    yv = b
+
+    ## λ_q
+    n = length(xv)
+    q = min(q,n)
+    xvx = @. abs(xv-x)
+    qidx = sortperm(xvx)[1:q]
+    qdist = abs(xv[last(qidx)]-x)*max(1.0,q/n)
+
+    ## upsilon
+    w = zeros(n)
+    for wi in qidx
+        aq = abs(xv[wi]-x)/qdist
+        w[wi] = max((1-aq^3)^3,0.0)
     end
-
-    food := begin
-        domain = 0:10
-        rancid = TrapezoidalMF(-2, 0, 1, 3)
-        delicious = TrapezoidalMF(7, 9, 10, 12)
-    end
-
-	tip := begin
-        domain = 0:30
-        cheap = TriangularMF(0, 5, 10)
-        average = TriangularMF(10, 15, 20)
-        generous = TriangularMF(20, 25, 30)
-    end
-
-	# Для системи логічного висновку Mamdani доступні такі налаштування
-
-    # and: алгоритм для оцінки &&. Має бути один із доступних методів сполучення. MinAnd за замовчуванням.
-    # or: алгоритм для оцінки ||. Має бути один із доступних методів диз’юнкції. Типове значення MaxOr
-    # implication: алгоритм для оцінки -->. Має бути один із доступних методів наслідків. Мінімальні наслідки за замовчуванням.
-    # aggregato: алгоритм для виконання агрегації виходів. Має бути один із доступних методів агрегації. MaxAggregator за замовчуванням.
-    # defuzzifier: алгоритм виконання дефазифікації. Має бути один із доступних методів дефазифікації. CentroidDefuzzifier за замовчуванням.
-
-	and = ProdAnd
-    or = ProbSumOr
-    implication = ProdImplication
-
-	aggregator = ProbSumAggregator
-    defuzzifier = CentroidDefuzzifier
-
-	# Блоки правил. 
-	# Нечітке відношення, таке як service is poor, описується оператором ==, наприклад service == poor. 
-	# Передумовою, тобто лівою частиною правила, може бути будь-яке логічне твердження, що з’єднує нечіткі відносини з && (І) та || (OR) операторами. 
-	# Наслідком, тобто правою частиною правила, є нечітке відношення для вихідної змінної. Передумова і наслідок пов'язані оператором -->.
-
-    service == poor || food == rancid --> tip == cheap
-    service == good --> tip == average
-    service == excellent || food == delicious --> tip == generous
-
     
-end
+    A = @. A*(w*rho)
+    b = @. b*(w*rho)
+    
+    lsq_x = A\b
 
-# ╔═╡ 99600a16-33c1-4938-97be-533f80c672d8
-md"""
-#### Візуалаізація моделі
-"""
+    d == 1 ? [x,1.0]'*lsq_x : [x^2.0,x,1.0]'*lsq_x
 
-# ╔═╡ 6220fa8f-88d3-4983-972d-ebf9a06485fa
-plot(fis1, :service)
+end;
 
-# ╔═╡ 43187e27-3c45-4fec-b2e4-ab4d0b08f406
-plot(fis1, :food)
+# ╔═╡ 0578d9e0-87df-46aa-80d9-29011560dec3
+function loess(xv::AbstractVector{R},
+               yv::AbstractVector{<:Union{Missing,S}}; 
+               d::Integer=2,
+               q::Integer=Int64(round(3/4*length(xv))),
+               rho::AbstractVector{<:Union{Missing,T}}=fill(1.0,length(xv)),  
+               predict::AbstractVector{V} = xv) where {R<:Real, S<:Real, T<:Real, V<:Real}
 
-# ╔═╡ 03127414-dc85-4bc5-9cf6-12d9c5233e89
-plot(fis1, :tip)
+    @assert (d==1) | (d==2) "Linear Regression must be of degree 1 or 2"
+    @assert length(xv) == length(yv)
 
-# ╔═╡ 407ee1b5-ac9d-4613-a8a6-bd8980302825
-plot(fis1)
+    myi = findall(x -> !ismissing(x),yv)
+    xv = xv[myi]
+    yv = yv[myi]
+    rho = rho[myi]
 
-# ╔═╡ 2989c432-8a4f-4fcd-ae0a-e9644e188098
-md"""
-#### Виведення результату по вхідним параметрам
-"""
+    # Promote to same type
+    P = promote_type(R,S,T,V)
+    xv = R == P ? xv :  P.(xv)
+    yv =  P.(yv)
+    rho = P.(rho)
+    predict = V == P ? predict : P.(predict)
+    
+    res = Vector{P}(undef, length(predict))
 
-# ╔═╡ 06dc71e8-0359-47c9-a58e-0551a3ba00e0
-res1 = fis1(service = 2, food = 3)
+    ## Ax = b
+    A = hcat(xv,fill(P(1),length(xv)))
+    b = yv
+    d == 2 && (A = hcat(xv .^ 2, A))
 
-# ╔═╡ 4a1dec85-e64d-4784-b967-79136d269cea
-res1[:tip]
-
-# ╔═╡ 06c5ff26-1ad1-4ffa-84ec-360b088de2f5
-md"""
-### Система виведення Sugeno
-"""
-
-# ╔═╡ 59a98a8d-b472-401e-a1e7-b841eb7cff8e
-fis2 = @sugfis function tipper(service, food)::tip
-    service := begin
-        domain = 0:10
-        poor = GaussianMF(0.0, 1.5)
-        good = GaussianMF(5.0, 1.5)
-        excellent = GaussianMF(10.0, 1.5)
+    for (i,xi) in enumerate(predict)
+        res[i] = ghat(xi;A,b,d,q,rho)
     end
 
-    food := begin
-        domain = 0:10
-        rancid = TrapezoidalMF(-2, 0, 1, 3)
-        delicious = TrapezoidalMF(7, 9, 10, 12)
+    res
+end;
+
+# ╔═╡ 77fb54ac-b13c-4f8b-b7d7-3e4fa1305020
+function sma(x::AbstractVector{T}, n::Integer) where T<:Number
+
+    n == 1 && return x
+    N = length(x)
+    @assert 1 <= n <= N
+    
+    V = Base.promote_op(/, T, typeof(n))
+    res = Vector{V}(undef, N-n+1)
+    
+    # initial moving average value
+    res[1] = ma = sum(x[1:n])/n
+    for i in 1:N-n
+        res[1+i] = ma = ma + (x[n+i] - x[i]) / n
     end
 
-    tip := begin
-        domain = 0:30
-        cheap = 5.002
-        average = 15
-        generous = 2service, 0.5food, 5.0
+    res
+
+end;
+
+# ╔═╡ 3eb0f794-dbe9-4950-a28b-bda086bc3956
+function sma(x::AbstractVector{<:Union{Missing,T}},
+             n::Integer,
+             center::Bool) where T<:Number
+
+    n == 1 && return x
+    N = length(x)
+    @assert 1 <= n <= N
+
+    res = sma(collect(skipmissing(x)),n)
+
+    # Missing padding
+    ivp = repeat([missing],  findfirst(!ismissing, x)-1 + n÷2)
+    fvp = repeat([missing], N-findlast(!ismissing, x)-1 + n-n÷2)
+
+    center ? vcat(ivp,res,fvp) : vcat(res,ivp,fvp)
+        
+end;
+
+# ╔═╡ 339073ee-a633-407e-8dd9-7a78283a1cde
+function stl(Yv::DataFrame,np::Integer;
+             robust=false,
+             nl=nextodd(np),
+             ns=10*nrow(Yv)+1,
+             nt=nextodd(1.5*np/(1-1.5/ns)),
+             ni=robust ? 1 : 2,
+             no=0,
+             spm=false,
+             qsmp=max(div(np,7),2),
+             cth = 0.01,
+             timestamp = nothing,
+             verbose=false)
+    
+    x = Vector(Yv[:,eltype.(eachcol(Yv)) .<: Union{Missing,Real}][:,1])
+    timestamp = eltype(Yv[:,1]) == Date ? Yv[:,1] : timestamp
+        
+    stl(x,np;
+        robust=robust, nl=nl, ns=ns, nt=nt,
+        ni=ni, no=no, spm=spm, qsmp=qsmp, verbose=verbose, cth, timestamp)
+
+end;
+
+# ╔═╡ 85852187-0d08-4c8e-902d-0301bd36e64a
+mutable struct STL{T<:DataFrame}
+    decomposition::T  # A DataFrame with three time series from a fitted STL model
+    call::String      # method called
+end;
+
+# ╔═╡ 1af2ec08-a889-4629-ae61-6f80df73199b
+function stl(Yv,
+             np::Integer;
+             robust=false,
+             nl=nextodd(np),
+             ns=10*length(Yv)+1,
+             nt=nextodd(1.5*np/(1-1.5/ns)),
+             ni=robust ? 1 : 2,
+             no=0,
+             spm=false,
+             qsmp=max(div(np,7),2),
+             cth = 0.01,
+             timestamp = nothing,
+             verbose=false) #where T<:Union{Missing, Number}
+
+    @assert mod(ns,2)==1 & (ns>=7) "`ns` is chosen of the basis of knowledge of the time series and on the basis of diagnostic methods; must always be odd and at least 7"
+
+    function B(u)
+        (u < 1) & !ismissing(u) ? (1.0-u^2)^2 : 0.0
     end
 
-    service == poor || food == rancid --> tip == cheap
-    service == good --> tip == average
-    service == excellent || food == delicious --> tip == generous
-end
+    N = length(Yv)
+    # initial robustness weights
+    rhov = ones(N)
+    # intial trend
+    Tv = Tv0 = zeros(N)
+    Sv = Sv0 = zeros(N)
+    Rv = Array{Float64,1}(undef,N)
+    Cv = Array{Float64,1}(undef,N+2*np)
+    scnv = false # seasonal convergence flag
+    tcnv = false # trend convergence flag
+    #for o in 0:no
+    o = 0
+    while robust | (o <= no)
+        for k in 1:ni
+            # Updating sesonal and trend components
+            ## 1. Detrending (Yv = Tv + Sv)
+            Sv = Yv - Tv
 
-# ╔═╡ 23758752-7940-493d-a197-c035f8b4b439
-plot(fis2, :tip)
+            ### Seasonal convergence criterion
+            Md = maximum(abs.(skipmissing(Sv-Sv0)))
+            M0 = maximum(skipmissing(Sv0))
+            m0 = minimum(skipmissing(Sv0))
+            scnv = (Md/(M0-m0) < cth)
+            if verbose
+                println("Outer loop: " * string(o) * " - " * "Inner loop: " * string(k))
+                println("Seasonal Convergence: " * string(Md/(M0-m0)))
+            end
+            Sv0 = Sv
 
-# ╔═╡ 630cee82-a003-4f14-a27b-64a79e8172b6
-plot(fis2)
+            # Seasonal Smoothing 2,3,4
+            ## 2. Cycle-subseries Smoothing
+            for csi in 1:np
+                Cv[csi:np:N+2*np] = loess(csi:np:N,
+                                          Sv[csi:np:N];
+                                          q=ns,d=1,rho=rhov[csi:np:N],
+                                          predict=(1.0*csi-np):np:(N+np))
+            end
+            ## 3. Low-Pass Filtering of Smoothed Cycle-Subseries
+            ### centered support instead 1:N to balance out machine error
+            Lv = loess(1-ceil(N/2):N-ceil(N/2),
+                       sma(sma(sma(Cv,np),np),3),
+                       d=1,q=nl,rho=rhov)
+            ## 4. Detreending of Smoothed Cycle-Subseries
+            ### Lv is substracted to prevent low-frenquency power
+            ### from entering the seasonal component.
+            Sv = Cv[np+1:end-np] - Lv
 
-# ╔═╡ ae424550-dbff-45d0-ac39-196271dda916
-res2 = fis2(service = 2, food = 3)
+            ## 5. Deseasonalizing
+            Dv = Yv - Sv
 
-# ╔═╡ 46591ac1-2700-4e05-a1fb-c1db96a2f8bb
-res2[:tip]
+            # Trend Smoothing
+            ## 6. Trend Smoothing
+            ### centered support instead 1:N to balance out machine error
+            ### (floor isntead ceil like in Lv to balance out even lengths)
+            Tv = loess(1-floor(N/2):N-floor(N/2),Dv,q=nt,d=1,rho=rhov)
 
-# ╔═╡ 3dfe5225-97f9-4e5d-8169-141356438076
-md"""
-### Висновок: пакет FuzzyLogic мови Julia дозволяє створювати системи нечіткої логіки з алгоритмами виведення Mamdani та Sugeno. В прикладі визначається залежність розміру чайових від якості обслугувовуання та їжі. Обидві системи показують близькі результати.
-"""
+            ### Trend convergence criterion
+            Md = maximum(abs.(skipmissing(Tv-Tv0)))
+            M0 = maximum(skipmissing(Tv0))
+            m0 = minimum(skipmissing(Tv0))
+            tcnv = (Md/(M0-m0) < cth)
+            if verbose
+                println("Trend    Convergence: " * string(Md/(M0-m0)) * "\n")
+            end
+            Tv0 = Tv
+
+            scnv & tcnv ? break : nothing
+        end
+        # Computation of robustness weights
+        ## These new weights will reduce the influence of transient behaviour
+        ## on the trend and seasonal components.
+
+        # Tv and Sv defined everywhere but Rv is not defined
+        # where Yv has missing values
+
+        Rv = Yv - Tv - Sv
+
+        if scnv & tcnv
+            @info "Corvengence achieved (< " * string(cth) * "); Stopping computation..."    
+            break 
+        end
+        
+        if 0 < o <= no
+            smRv = skipmissing(Rv)
+            h = 6*median(abs.(smRv))
+            rhov = B.(abs.(Rv)/h)
+        end
+        o += 1
+    end
+
+    if spm
+        # Using div(np,7) as default to approximate
+        # the q=51 for a np=365 chosen in the original paper
+        Sv = loess(1-ceil(N/2):N-ceil(N/2),Sv,q=qsmp)
+        Rv = Yv - Tv - Sv
+    end
+    
+    if !scnv
+        @warn "Seasonal convergence not achieved (>= " * string(cth) * ")
+         Consider a robust estimation"
+    end
+
+    if !tcnv
+        @warn "Trend convergence not achieved (>= " * string(cth) * ")
+         Consider a robust estimation"
+    end
+
+    call = "stl(Yn, np="*string(np)*
+        "; nl="*string(nl)*
+        ", ns="*string(ns)*
+        ", nt="*string(nt)*
+        ", ni="*string(ni)*
+        ", no="*string(no)*
+        ", spm="*string(spm)*
+        ", qsmp="*string(qsmp)*")"
+
+    # Dates.datetime2unix(DateTime(1970,1,1,0,0,1)) = 1.0
+    if isnothing(timestamp)
+        timestamp = DateTime(1970,1,1,0,0,1):Second(1):DateTime(1970,1,1,0,0,1)+Second(N-1)
+    end
+    
+    STL(DataFrame([timestamp, Sv, Tv, Rv], [:Timestamp, :Seasonal, :Trend, :Remainder]), call)
+    
+end;
+
+# ╔═╡ f52bd936-5607-4499-a413-0fd984db2cd1
+stl_res = stl(df[!, :y], 4; robust=true, spm=true, timestamp=1:20)
+
+# ╔═╡ e03d7337-1020-4c67-817a-58ab9b77fb85
+stl_res.call
+
+# ╔═╡ ffea4e0b-088a-4cb8-8c85-024e1b69131a
+plot(stl_res)
+
+# ╔═╡ a750850e-1d13-4369-bc78-adcd7305267f
+function Base.show(io::IO, stlx::STL)
+    printstyled("STL Object:",bold=true,color=:underline)
+    print(" ", stlx.call)
+end;
+
+# ╔═╡ c47bce2f-392d-4e40-badc-66d3521c4ef8
+@recipe function f(fSTL::STL)
+
+    # subplots configuration
+    legend:= false
+    grid:= false
+    layout := @layout [Data
+                       Seasonal
+                       Trend
+                       Remainder]
+    
+    xtickfont:= font(3, "Courier")
+    ytickfont:= font(3, "Courier")
+    yguidefont:= font(5, "Courier")
+
+    # reference bar
+    a,b = extrema(skipmissing(values(fSTL.decomposition[!,:Seasonal].+
+                                     fSTL.decomposition[!,:Trend].+
+                                     fSTL.decomposition[!,:Remainder]))); hd = b-a
+    a,b = extrema(skipmissing(values(fSTL.decomposition[!,:Seasonal]))); hs = b-a
+    a,b = extrema(skipmissing(values(fSTL.decomposition[!,:Trend]))); ht = b-a
+    a,b = extrema(skipmissing(values(fSTL.decomposition[!,:Remainder]))); hr = b-a
+    mh = min(hd,hs,ht,hr)
+
+    inset_subplots := [(1, bbox(-0.012, 0, 0.01, 1.0, :left)),
+                       (2, bbox(-0.012, 0, 0.01, 1.0, :right)),
+                       (3, bbox(-0.012, 0, 0.01, 1.0, :left)),
+                       (4, bbox(-0.012, 0, 0.01, 1.0, :right))]
+
+    @series begin
+        subplot := 1
+        yguide := "Data"
+        xaxis := nothing
+        bottom_margin := -5Plots.mm    
+        fSTL.decomposition[!,:Seasonal] .+
+            fSTL.decomposition[!,:Trend] .+
+            fSTL.decomposition[!,:Remainder]
+    end
+
+    @series begin
+        subplot := 2
+        yguide := "Trend"
+        xaxis := nothing
+        ymirror:=true
+        guide_position:=:left
+        bottom_margin := -5Plots.mm    
+        fSTL.decomposition[!,:Trend]
+    end
+
+    @series begin
+        subplot := 3
+        yguide := "Seasonal"
+        xaxis := nothing
+        seriestype := :sticks
+        bottom_margin := -5Plots.mm    
+        fSTL.decomposition[!,:Seasonal]
+    end
+
+    @series begin
+        subplot := 4
+        yguide := "Remainder"
+        seriestype := :sticks
+        #bottom_margin:=0Plots.mm    
+        ymirror:=true
+        guide_position:=:left
+
+        fSTL.decomposition[!,:Timestamp], fSTL.decomposition[!,:Remainder]
+    end
+
+    @series begin
+        subplot := 5
+        background_color_inside := nothing
+        framestyle := :none
+        seriestype := :bar
+        ylims := (0,hd)
+        mh:mh
+    end
+
+    @series begin
+        subplot := 6
+        background_color_inside := nothing
+        framestyle := :none
+        seriestype := :bar
+        ylims := (0,ht)
+        mh:mh
+    end
+    
+    @series begin
+        subplot := 7
+        framestyle := :none
+        seriestype := :bar
+        ylims := (0,hs)
+        mh:mh
+    end
+
+    @series begin
+        subplot := 8
+        framestyle := :none
+        seriestype := :bar
+        ylims := (0,hr)
+        mh:mh
+    end
+
+end;
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
-FuzzyLogic = "271df9f8-4390-4196-9d4f-bdd0b67035b3"
+Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+GLM = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
-CommonMark = "~0.8.10"
-FuzzyLogic = "~0.1.2"
-Plots = "~1.38.8"
+Clustering = "~0.15.1"
+DataFrames = "~1.5.0"
+Distances = "~0.10.8"
+GLM = "~1.8.2"
+Plots = "~1.38.10"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -218,7 +573,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "e3a7fc4b2871e982a09ce752417b140ffc3818b4"
+project_hash = "b26da9bb718d52e58b951ac066a9c48c418186b4"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -247,6 +602,12 @@ git-tree-sha1 = "4b859a208b2397a7a623a03449e4636bdb17bcf2"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.1+1"
 
+[[deps.Calculus]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
+uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
+version = "0.5.1"
+
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
 git-tree-sha1 = "c6d890a52d2c4d55d326439580c3b8d0875a77d9"
@@ -259,6 +620,12 @@ git-tree-sha1 = "485193efd2176b88e6622a39a246f8c5b600e74e"
 uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
 version = "0.1.6"
 
+[[deps.Clustering]]
+deps = ["Distances", "LinearAlgebra", "NearestNeighbors", "Printf", "Random", "SparseArrays", "Statistics", "StatsBase"]
+git-tree-sha1 = "a3213fa9d35edf589d0c6303f95850f7641fe2dc"
+uuid = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
+version = "0.15.1"
+
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
 git-tree-sha1 = "9c209fb7536406834aa938fb149964b985de6c83"
@@ -266,10 +633,10 @@ uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
 version = "0.7.1"
 
 [[deps.ColorSchemes]]
-deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "Random", "SnoopPrecompile"]
-git-tree-sha1 = "aa3edc8f8dea6cbfa176ee12f7c2fc82f0608ed3"
+deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "PrecompileTools", "Random"]
+git-tree-sha1 = "be6ab11021cd29f0344d5c4357b163af05a48cba"
 uuid = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
-version = "3.20.0"
+version = "3.21.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -288,12 +655,6 @@ deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "fc08e5930ee9a4e03f84bfb5211cb54e7769758a"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.10"
-
-[[deps.CommonMark]]
-deps = ["Crayons", "JSON", "SnoopPrecompile", "URIs"]
-git-tree-sha1 = "e2f4627b0d3f2c1876360e0b242a7c23923b469d"
-uuid = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
-version = "0.8.10"
 
 [[deps.Compat]]
 deps = ["Dates", "LinearAlgebra", "UUIDs"]
@@ -321,11 +682,22 @@ git-tree-sha1 = "e8119c1a33d267e16108be441a287a6981ba1630"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.14.0"
 
+[[deps.DataFrames]]
+deps = ["Compat", "DataAPI", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrettyTables", "Printf", "REPL", "Random", "Reexport", "SentinelArrays", "SnoopPrecompile", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
+git-tree-sha1 = "aa51303df86f8626a962fccb878430cdb0a97eee"
+uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+version = "1.5.0"
+
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
 git-tree-sha1 = "d1fff3a548102f48987a52a2e0d114fa97d730f0"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 version = "0.18.13"
+
+[[deps.DataValueInterfaces]]
+git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
+uuid = "e2d170a0-9d28-54be-80f0-106bbe20a464"
+version = "1.0.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -335,11 +707,23 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 deps = ["Mmap"]
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
-[[deps.Dictionaries]]
-deps = ["Indexing", "Random", "Serialization"]
-git-tree-sha1 = "e82c3c97b5b4ec111f3c1b55228cebc7510525a2"
-uuid = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
-version = "0.3.25"
+[[deps.DensityInterface]]
+deps = ["InverseFunctions", "Test"]
+git-tree-sha1 = "80c3e8639e3353e5d2912fb3a1916b8455e2494b"
+uuid = "b429d917-457f-4dbc-8f4c-0cc954292b1d"
+version = "0.4.0"
+
+[[deps.Distances]]
+deps = ["LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI"]
+git-tree-sha1 = "49eba9ad9f7ead780bfb7ee319f962c811c6d3b2"
+uuid = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+version = "0.10.8"
+
+[[deps.Distributions]]
+deps = ["ChainRulesCore", "DensityInterface", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
+git-tree-sha1 = "13027f188d26206b9e7b863036f87d2f2e7d013a"
+uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
+version = "0.25.87"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -351,6 +735,12 @@ version = "0.9.3"
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 version = "1.6.0"
+
+[[deps.DualNumbers]]
+deps = ["Calculus", "NaNMath", "SpecialFunctions"]
+git-tree-sha1 = "5837a837389fccf076445fce071c8ddaea35a566"
+uuid = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
+version = "0.6.8"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -372,6 +762,12 @@ version = "4.4.2+2"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
+
+[[deps.FillArrays]]
+deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
+git-tree-sha1 = "fc86b4fd3eff76c3ce4f5e96e2fdfa6282722885"
+uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
+version = "1.0.0"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
@@ -403,11 +799,9 @@ git-tree-sha1 = "aa31987c2ba8704e23c6c8ba8a4f769d5d7e4f91"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
 version = "1.0.10+0"
 
-[[deps.FuzzyLogic]]
-deps = ["Dictionaries", "DocStringExtensions", "LightXML", "MacroTools", "PEG", "RecipesBase", "Reexport"]
-git-tree-sha1 = "aa3cf0111bfeaeb8f3795f4c9607f9acbd6189f2"
-uuid = "271df9f8-4390-4196-9d4f-bdd0b67035b3"
-version = "0.1.2"
+[[deps.Future]]
+deps = ["Random"]
+uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Pkg", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll"]
@@ -415,17 +809,23 @@ git-tree-sha1 = "d972031d28c8c8d9d7b41a536ad7bb0c2579caca"
 uuid = "0656b61e-2033-5cc2-a64a-77c0f6c09b89"
 version = "3.3.8+0"
 
+[[deps.GLM]]
+deps = ["Distributions", "LinearAlgebra", "Printf", "Reexport", "SparseArrays", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns", "StatsModels"]
+git-tree-sha1 = "cd3e314957dc11c4c905d54d1f5a65c979e4748a"
+uuid = "38e38edf-8417-5370-95a0-9cbb8c7f171a"
+version = "1.8.2"
+
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "UUIDs", "p7zip_jll"]
-git-tree-sha1 = "4423d87dc2d3201f3f1768a29e807ddc8cc867ef"
+git-tree-sha1 = "db730189e3d250d97515a91886de7e33aa8833e6"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.71.8"
+version = "0.72.2"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt5Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "3657eb348d44575cc5560c80d7e55b812ff6ffe1"
+git-tree-sha1 = "47a2efe07729dd508a032e2f56c46c517481052a"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.71.8+0"
+version = "0.72.2+0"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -462,15 +862,22 @@ git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
 version = "2.8.1+1"
 
-[[deps.Indexing]]
-git-tree-sha1 = "ce1566720fd6b19ff3411404d4b977acd4814f9f"
-uuid = "313cdc1a-70c2-5d6a-ae34-0150d3930a38"
-version = "1.1.1"
+[[deps.HypergeometricFunctions]]
+deps = ["DualNumbers", "LinearAlgebra", "OpenLibm_jll", "SpecialFunctions"]
+git-tree-sha1 = "432b5b03176f8182bd6841fbfc42c718506a2d5f"
+uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
+version = "0.3.15"
 
 [[deps.IniFile]]
 git-tree-sha1 = "f550e6e32074c939295eb5ea6de31849ac2c9625"
 uuid = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
 version = "0.5.1"
+
+[[deps.InlineStrings]]
+deps = ["Parsers"]
+git-tree-sha1 = "9cc2baf75c6d09f9da536ddf58eb2f29dedaf461"
+uuid = "842dd82b-1e85-43dc-bf29-5d0ee9dffc48"
+version = "1.4.0"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -482,10 +889,20 @@ git-tree-sha1 = "49510dfcb407e572524ba94aeae2fced1f3feb0f"
 uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
 version = "0.1.8"
 
+[[deps.InvertedIndices]]
+git-tree-sha1 = "0dc7b50b8d436461be01300fd8cd45aa0274b038"
+uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
+version = "1.3.0"
+
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.2"
+
+[[deps.IteratorInterfaceExtensions]]
+git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
+uuid = "82899510-4779-5014-852e-03e436cf321d"
+version = "1.0.0"
 
 [[deps.JLFzf]]
 deps = ["Pipe", "REPL", "Random", "fzf_jll"]
@@ -501,9 +918,9 @@ version = "1.4.1"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
-git-tree-sha1 = "3c837543ddb02250ef42f4738347454f95079d4e"
+git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-version = "0.21.3"
+version = "0.21.4"
 
 [[deps.JpegTurbo_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -536,9 +953,9 @@ version = "1.3.0"
 
 [[deps.Latexify]]
 deps = ["Formatting", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Printf", "Requires"]
-git-tree-sha1 = "2422f47b34d4b127720a18f86fa7b1aa2e141f29"
+git-tree-sha1 = "98dc144f1e0b299d49e8d23e56ad68d3e4f340a5"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.15.18"
+version = "0.15.20"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -610,12 +1027,6 @@ git-tree-sha1 = "7f3efec06033682db852f8b3bc3c1d2b0a0ab066"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.36.0+0"
 
-[[deps.LightXML]]
-deps = ["Libdl", "XML2_jll"]
-git-tree-sha1 = "e129d9391168c677cd4800f5c0abb1ed8cb3794f"
-uuid = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
-version = "0.9.0"
-
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -680,6 +1091,12 @@ git-tree-sha1 = "0877504529a3e5c3343c6f8b4c0381e57e4387e4"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "1.0.2"
 
+[[deps.NearestNeighbors]]
+deps = ["Distances", "StaticArrays"]
+git-tree-sha1 = "2c3726ceb3388917602169bed973dbc97f1b51a8"
+uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
+version = "0.4.13"
+
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
@@ -702,9 +1119,9 @@ version = "0.8.1+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
-git-tree-sha1 = "6503b77492fd7fcb9379bf73cd31035670e3c509"
+git-tree-sha1 = "7fb975217aea8f1bb360cf1dde70bad2530622d2"
 uuid = "4d8831e6-92b7-49fb-bdf8-b643e874388c"
-version = "1.3.3"
+version = "1.4.0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -734,11 +1151,11 @@ deps = ["Artifacts", "Libdl"]
 uuid = "efcefdf7-47ab-520b-bdef-62a2eaa19f15"
 version = "10.40.0+0"
 
-[[deps.PEG]]
-deps = ["Test"]
-git-tree-sha1 = "c62b3f15184a24960131cf7e1b63dfbc6beb8040"
-uuid = "12d937ae-5f68-53be-93c9-3a6f997a20a8"
-version = "1.0.0"
+[[deps.PDMats]]
+deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
+git-tree-sha1 = "67eae2738d63117a196f497d7db789821bce61d1"
+uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
+version = "0.11.17"
 
 [[deps.Parsers]]
 deps = ["Dates", "SnoopPrecompile"]
@@ -769,22 +1186,40 @@ uuid = "ccf2f8ad-2431-5c83-bf29-c5338b663b6a"
 version = "3.1.0"
 
 [[deps.PlotUtils]]
-deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "SnoopPrecompile", "Statistics"]
-git-tree-sha1 = "c95373e73290cf50a8a22c3375e4625ded5c5280"
+deps = ["ColorSchemes", "Colors", "Dates", "PrecompileTools", "Printf", "Random", "Reexport", "Statistics"]
+git-tree-sha1 = "f92e1315dadf8c46561fb9396e525f7200cdc227"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
-version = "1.3.4"
+version = "1.3.5"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Preferences", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SnoopPrecompile", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "Unzip"]
-git-tree-sha1 = "f49a45a239e13333b8b936120fe6d793fe58a972"
+git-tree-sha1 = "5434b0ee344eaf2854de251f326df8720f6a7b55"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.38.8"
+version = "1.38.10"
+
+[[deps.PooledArrays]]
+deps = ["DataAPI", "Future"]
+git-tree-sha1 = "a6062fe4063cdafe78f4a0a81cfffb89721b30e7"
+uuid = "2dfb63ee-cc39-5dd5-95bd-886bf059d720"
+version = "1.4.2"
+
+[[deps.PrecompileTools]]
+deps = ["Preferences"]
+git-tree-sha1 = "bc2bda41d798c2e66e7c44a11007bb329b15941b"
+uuid = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+version = "1.0.1"
 
 [[deps.Preferences]]
 deps = ["TOML"]
 git-tree-sha1 = "47e5f437cc0e7ef2ce8406ce1e7e24d44915f88d"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
 version = "1.3.0"
+
+[[deps.PrettyTables]]
+deps = ["Crayons", "Formatting", "LaTeXStrings", "Markdown", "Reexport", "StringManipulation", "Tables"]
+git-tree-sha1 = "548793c7859e28ef026dba514752275ee871169f"
+uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
+version = "2.2.3"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -795,6 +1230,12 @@ deps = ["Artifacts", "CompilerSupportLibraries_jll", "Fontconfig_jll", "Glib_jll
 git-tree-sha1 = "0c03844e2231e12fda4d0086fd7cbe4098ee8dc5"
 uuid = "ea2cea3b-5b76-57ae-a6ef-0a8af62496e1"
 version = "5.15.3+2"
+
+[[deps.QuadGK]]
+deps = ["DataStructures", "LinearAlgebra"]
+git-tree-sha1 = "6ec7ac8412e83d57e313393220879ede1740f9ee"
+uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
+version = "2.8.2"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
@@ -833,6 +1274,18 @@ git-tree-sha1 = "838a3a4188e2ded87a4f9f184b4b0d78a1e91cb7"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.0"
 
+[[deps.Rmath]]
+deps = ["Random", "Rmath_jll"]
+git-tree-sha1 = "f65dcb5fa46aee0cf9ed6274ccbd597adc49aa7b"
+uuid = "79098fc4-a85e-5d69-aa6a-4863f24498fa"
+version = "0.7.1"
+
+[[deps.Rmath_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "6ed52fdd3382cf21947b15e8870ac0ddbff736da"
+uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
+version = "0.4.0+0"
+
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
@@ -843,8 +1296,19 @@ git-tree-sha1 = "30449ee12237627992a99d5e30ae63e4d78cd24a"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
 version = "1.2.0"
 
+[[deps.SentinelArrays]]
+deps = ["Dates", "Random"]
+git-tree-sha1 = "77d3c4726515dca71f6d80fbb5e251088defe305"
+uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
+version = "1.3.18"
+
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+
+[[deps.ShiftedArrays]]
+git-tree-sha1 = "503688b59397b3307443af35cd953a13e8005c16"
+uuid = "1277b4bf-5013-50f5-be3d-901d8477a67a"
+version = "2.0.0"
 
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
@@ -882,6 +1346,17 @@ git-tree-sha1 = "ef28127915f4229c971eb43f3fc075dd3fe91880"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
 version = "2.2.0"
 
+[[deps.StaticArrays]]
+deps = ["LinearAlgebra", "Random", "StaticArraysCore", "Statistics"]
+git-tree-sha1 = "63e84b7fdf5021026d0f17f76af7c57772313d99"
+uuid = "90137ffa-7385-5640-81b9-e52037218182"
+version = "1.5.21"
+
+[[deps.StaticArraysCore]]
+git-tree-sha1 = "6b7ba252635a5eff6a0b0664a41ee140a1c9e72a"
+uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
+version = "1.4.0"
+
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
@@ -898,10 +1373,43 @@ git-tree-sha1 = "d1bf48bfcc554a3761a133fe3a9bb01488e06916"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.33.21"
 
+[[deps.StatsFuns]]
+deps = ["ChainRulesCore", "HypergeometricFunctions", "InverseFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
+git-tree-sha1 = "f625d686d5a88bcd2b15cd81f18f98186fdc0c9a"
+uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
+version = "1.3.0"
+
+[[deps.StatsModels]]
+deps = ["DataAPI", "DataStructures", "LinearAlgebra", "Printf", "REPL", "ShiftedArrays", "SparseArrays", "StatsBase", "StatsFuns", "Tables"]
+git-tree-sha1 = "51cdf1afd9d78552e7a08536930d7abc3b288a5c"
+uuid = "3eaba693-59b7-5ba5-a881-562e759f1c8d"
+version = "0.7.1"
+
+[[deps.StringManipulation]]
+git-tree-sha1 = "46da2434b41f41ac3594ee9816ce5541c6096123"
+uuid = "892a3eda-7b42-436c-8928-eab12a02cf0e"
+version = "0.3.0"
+
+[[deps.SuiteSparse]]
+deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
+uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
+
 [[deps.TOML]]
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.0"
+
+[[deps.TableTraits]]
+deps = ["IteratorInterfaceExtensions"]
+git-tree-sha1 = "c06b2f539df1c6efa794486abfb6ed2022561a39"
+uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
+version = "1.0.1"
+
+[[deps.Tables]]
+deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "LinearAlgebra", "OrderedCollections", "TableTraits", "Test"]
+git-tree-sha1 = "1544b926975372da01227b382066ab70e574a3ec"
+uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
+version = "1.10.1"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -920,9 +1428,9 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TranscodingStreams]]
 deps = ["Random", "Test"]
-git-tree-sha1 = "94f38103c984f89cf77c402f2a68dbd870f8165f"
+git-tree-sha1 = "0b829474fed270a4b0ab07117dce9b9a2fa7581a"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.9.11"
+version = "0.9.12"
 
 [[deps.URIs]]
 git-tree-sha1 = "074f993b0ca030848b897beff716d93aca60f06a"
@@ -1104,9 +1612,9 @@ version = "1.2.12+3"
 
 [[deps.Zstd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "c6edfe154ad7b313c01aceca188c05c835c67360"
+git-tree-sha1 = "49ce682769cd5de6c72dcf1b94ed7790cd08974c"
 uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
-version = "1.5.4+0"
+version = "1.5.5+0"
 
 [[deps.fzf_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1179,26 +1687,44 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─bc19b4f4-3fac-4473-a86c-bfa324b14215
-# ╟─c5754c6d-a27c-4176-9f16-50010ac93002
-# ╟─f96cdd1a-0402-4d50-988a-1750b6ddb3fc
-# ╠═b4cb98bc-d2c2-11ed-220b-1fbbfebb34ab
-# ╟─6bcc06e1-3593-4d21-a447-d3a2355ce9ce
-# ╠═2d9f1153-b20d-4d68-9172-9336757a94ee
-# ╠═99600a16-33c1-4938-97be-533f80c672d8
-# ╠═6220fa8f-88d3-4983-972d-ebf9a06485fa
-# ╠═43187e27-3c45-4fec-b2e4-ab4d0b08f406
-# ╠═03127414-dc85-4bc5-9cf6-12d9c5233e89
-# ╠═407ee1b5-ac9d-4613-a8a6-bd8980302825
-# ╟─2989c432-8a4f-4fcd-ae0a-e9644e188098
-# ╠═06dc71e8-0359-47c9-a58e-0551a3ba00e0
-# ╠═4a1dec85-e64d-4784-b967-79136d269cea
-# ╟─06c5ff26-1ad1-4ffa-84ec-360b088de2f5
-# ╠═59a98a8d-b472-401e-a1e7-b841eb7cff8e
-# ╠═23758752-7940-493d-a197-c035f8b4b439
-# ╠═630cee82-a003-4f14-a27b-64a79e8172b6
-# ╠═ae424550-dbff-45d0-ac39-196271dda916
-# ╠═46591ac1-2700-4e05-a1fb-c1db96a2f8bb
-# ╟─3dfe5225-97f9-4e5d-8169-141356438076
+# ╟─fed0082c-3fff-488d-a8f2-8bfa7efcfec9
+# ╠═dc308b38-e38a-471f-a51c-986c26ed7d5d
+# ╠═5f808524-e4fc-11ed-1feb-3b934e4645a6
+# ╠═9c59f728-d04d-43b5-9fa0-70e155abf274
+# ╟─30a92d5c-ccc0-418e-8354-b1fc4c6b02d0
+# ╟─9743f53a-a130-49d7-8034-5a5864b3e4fd
+# ╠═33cbdf7a-4d2a-4fc8-a224-89a9a39d0052
+# ╟─cf88eea4-c144-4025-8860-578c3b30dad0
+# ╠═50c8d015-ea01-46fb-8d0b-bc79be11bf5d
+# ╟─50147585-d551-41f0-8bf8-6d93794ea53c
+# ╟─4930a86c-aa3b-48f4-92fd-3a6be7413080
+# ╠═b85574b7-18e5-4f4c-bffe-549d0750a308
+# ╠═c3137da8-75ba-4cae-aded-9d8b52fa17a2
+# ╟─bc24f399-7860-4d8d-82a6-ec61c9569ee6
+# ╟─b8791ba2-0d09-4310-8cb3-295b7a3921d4
+# ╠═f52bd936-5607-4499-a413-0fd984db2cd1
+# ╠═e03d7337-1020-4c67-817a-58ab9b77fb85
+# ╠═ffea4e0b-088a-4cb8-8c85-024e1b69131a
+# ╟─392d161f-2c7d-49ea-be25-9b8d9a2c2074
+# ╟─a66f989a-1655-4ee0-9166-d193a1bd7503
+# ╟─05dddc88-da49-460b-a906-ed0f8ef3e341
+# ╠═b3c2da74-5d21-4d9d-a045-76e1802ff5ca
+# ╟─7f81c6aa-1afb-4add-a716-8dd93e1d8d60
+# ╠═e648d5a2-392f-430f-ab17-ac8d23510257
+# ╟─d699f869-9f8f-42e4-bacb-ef06b34d83f3
+# ╠═a36cca52-705f-4118-8893-dcff6833af43
+# ╠═f28b9ad9-411c-4052-b2c9-fb32c0fefa78
+# ╠═f1217a08-8330-4858-acae-60dc93c6b8c9
+# ╟─60820b9b-b4ac-407b-8a75-98b5250a2257
+# ╟─f3ce313f-22d6-40ca-b9bd-789fbabd35dc
+# ╟─89fd9ff8-b704-4a44-b4e1-56c53e0dca9f
+# ╟─0578d9e0-87df-46aa-80d9-29011560dec3
+# ╟─77fb54ac-b13c-4f8b-b7d7-3e4fa1305020
+# ╟─3eb0f794-dbe9-4950-a28b-bda086bc3956
+# ╟─339073ee-a633-407e-8dd9-7a78283a1cde
+# ╟─1af2ec08-a889-4629-ae61-6f80df73199b
+# ╟─85852187-0d08-4c8e-902d-0301bd36e64a
+# ╟─a750850e-1d13-4369-bc78-adcd7305267f
+# ╟─c47bce2f-392d-4e40-badc-66d3521c4ef8
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
