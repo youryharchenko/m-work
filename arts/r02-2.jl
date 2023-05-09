@@ -41,7 +41,7 @@ md"""
 
 # ╔═╡ f497ffed-420c-4ac8-8261-4d813e418850
 m = let 
-	l = 2
+	l = 24
 	nr = nrow(df)
 	nc = ncol(df)
 	ni = Int(nr / l)
