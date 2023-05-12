@@ -12,12 +12,13 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class App {
 
     UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
 
-    JFrame frame = new JFrame("My First GUI");
+    JFrame frame = new JFrame("Програмування систем штучного інтелекту");
 
     JMenuBar mb = new JMenuBar();
 
@@ -35,11 +36,11 @@ public class App {
     DefaultMutableTreeNode rootNode =
             new DefaultMutableTreeNode("Programming of artificial intelligence systems");
     DefaultMutableTreeNode w01Node =
-            new DefaultMutableTreeNode("Work01");
+            new DefaultMutableTreeNode("Work01 - BreadFirstSearch");
     DefaultMutableTreeNode w02Node =
-            new DefaultMutableTreeNode("Work02");
+            new DefaultMutableTreeNode("Work02_1 - DepthFirstSearchIter");
     DefaultMutableTreeNode w03Node =
-            new DefaultMutableTreeNode("Work03");
+            new DefaultMutableTreeNode("Work02-2 - DepthFirstSearchRec");
 
     JTree tree = new JTree(rootNode);
     JScrollPane treeScrollPane = new JScrollPane(tree);
@@ -51,13 +52,20 @@ public class App {
 
     JPanel statPanel = new JPanel(); 
 
-    JLabel label = new JLabel("Enter Text");
-    JTextField tf = new JTextField(10); 
+    //JLabel label = new JLabel("Enter Text");
+    //JTextField tf = new JTextField(10); 
 
-    JButton send = new JButton("Send");
-    JButton reset = new JButton("Reset");
+    //JButton send = new JButton("Send");
+    //JButton reset = new JButton("Reset");
+
+
 
     //JTextArea ta = new JTextArea();
+
+    Font logFont = new Font("Serif", Font.PLAIN, 14);
+
+    ArrayList<Work> works = new ArrayList<Work>(10);
+
 
     void setupMenu() {
         mb.add(m1);
@@ -100,10 +108,22 @@ public class App {
 
 
 
-        statPanel.add(label); // Components Added using Flow Layout
-        statPanel.add(tf);
-        statPanel.add(send);
-        statPanel.add(reset);
+        //statPanel.add(label); // Components Added using Flow Layout
+        //statPanel.add(tf);
+        //statPanel.add(send);
+        //statPanel.add(reset);
+    }
+    
+    void setupWorks() {
+        works.add(new Work01());
+        works.add(new Work());
+        works.add(new Work());
+        works.add(new Work());
+        works.add(new Work());
+        works.add(new Work());
+        works.add(new Work());
+        works.add(new Work());
+        works.add(new Work());
     }
 
     void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
@@ -112,6 +132,7 @@ public class App {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1024, 720);
 
+        setupWorks();
         setupMenu();
         setupTreeNodes();
         setupContent();
@@ -144,14 +165,33 @@ public class App {
             System.out.println(String.format("%d %s", node.getLevel(), nodeInfo));
 
             if (node.isLeaf()) {
+                TextArea log;
                 int ind = tabs.indexOfTab(nodeInfo);
+                
                 if (ind == -1) {
+                    log = new TextArea("");
+                    log.setEditable(false);
+                    log.setFont(logFont);
+
                     System.out.println(String.format("Open tab <%s> index %d", nodeInfo, ind));
-                    tabs.setSelectedComponent(tabs.add(nodeInfo, new TextArea()));
+                    log.setText(log.getText() + String.format("Open tab <%s>\n", nodeInfo));
+
+                    tabs.setSelectedComponent(tabs.add(nodeInfo, log));
+
+                    ind = tabs.indexOfTab(nodeInfo);
                 } else {
                     System.out.println(String.format("Focus tab <%s> index %d", nodeInfo, ind));
+                    
                     tabs.setSelectedIndex(ind);
+
+                    log = (TextArea)tabs.getSelectedComponent();
+                    log.setText(log.getText() + String.format("Focus tab <%s>\n", nodeInfo));
+
                 }
+
+                Work work = works.get(ind);
+                work.run(log);
+
             }
         }
     }
