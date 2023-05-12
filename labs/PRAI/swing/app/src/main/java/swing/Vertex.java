@@ -35,4 +35,8 @@ public class Vertex {
         this.adjacencyList.add(vertex);
     }
 
+    public List<Vertex> getNeighbors() {
+        return adjacencyList;
+    }
+
 }

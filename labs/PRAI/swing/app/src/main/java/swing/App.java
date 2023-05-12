@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class App {
 
@@ -37,10 +38,14 @@ public class App {
             new DefaultMutableTreeNode("Programming of artificial intelligence systems");
     DefaultMutableTreeNode w01Node =
             new DefaultMutableTreeNode("Work01 - BreadFirstSearch");
-    DefaultMutableTreeNode w02Node =
-            new DefaultMutableTreeNode("Work02_1 - DepthFirstSearchIter");
-    DefaultMutableTreeNode w03Node =
-            new DefaultMutableTreeNode("Work02-2 - DepthFirstSearchRec");
+    DefaultMutableTreeNode w02_1_1Node =
+            new DefaultMutableTreeNode("Work02_1 - DepthFirstSearchIter-1");
+    DefaultMutableTreeNode w02_1_2Node =
+            new DefaultMutableTreeNode("Work02_1 - DepthFirstSearchIter-2");
+    DefaultMutableTreeNode w02_2_1Node =
+            new DefaultMutableTreeNode("Work02-2 - DepthFirstSearchRec-1");
+    DefaultMutableTreeNode w02_2_2Node =
+            new DefaultMutableTreeNode("Work02-2 - DepthFirstSearchRec-2");
 
     JTree tree = new JTree(rootNode);
     JScrollPane treeScrollPane = new JScrollPane(tree);
@@ -64,7 +69,7 @@ public class App {
 
     Font logFont = new Font("Serif", Font.PLAIN, 14);
 
-    ArrayList<Work> works = new ArrayList<Work>(10);
+    Hashtable<String, Work> works = new Hashtable<String, Work>();
 
 
     void setupMenu() {
@@ -88,8 +93,10 @@ public class App {
 
     void setupTreeNodes() {
         rootNode.add(w01Node);
-        rootNode.add(w02Node);
-        rootNode.add(w03Node);
+        rootNode.add(w02_1_1Node);
+        rootNode.add(w02_1_2Node);
+        rootNode.add(w02_2_1Node);
+        rootNode.add(w02_2_2Node);
     }
 
     void setupContent() {
@@ -115,15 +122,11 @@ public class App {
     }
     
     void setupWorks() {
-        works.add(new Work01());
-        works.add(new Work());
-        works.add(new Work());
-        works.add(new Work());
-        works.add(new Work());
-        works.add(new Work());
-        works.add(new Work());
-        works.add(new Work());
-        works.add(new Work());
+        works.put((String)w01Node.getUserObject(), new Work01());
+        works.put((String)w02_1_1Node.getUserObject(), new Work02_1_1());
+        works.put((String)w02_1_2Node.getUserObject(), new Work02_1_2());
+        works.put((String)w02_2_1Node.getUserObject(), new Work02_2_1());
+        works.put((String)w02_2_2Node.getUserObject(), new Work02_2_2());
     }
 
     void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
@@ -136,7 +139,8 @@ public class App {
         setupMenu();
         setupTreeNodes();
         setupContent();
-        
+
+                
         frame.getContentPane().add(BorderLayout.SOUTH, statPanel);
         frame.getContentPane().add(BorderLayout.NORTH, mb);
         frame.getContentPane().add(BorderLayout.CENTER, cenPane);
@@ -178,7 +182,7 @@ public class App {
 
                     tabs.setSelectedComponent(tabs.add(nodeInfo, log));
 
-                    ind = tabs.indexOfTab(nodeInfo);
+                    //ind = tabs.indexOfTab(nodeInfo);
                 } else {
                     System.out.println(String.format("Focus tab <%s> index %d", nodeInfo, ind));
                     
@@ -189,7 +193,7 @@ public class App {
 
                 }
 
-                Work work = works.get(ind);
+                Work work = works.get(nodeInfo);
                 work.run(log);
 
             }
