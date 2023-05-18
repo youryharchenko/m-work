@@ -2,16 +2,16 @@ package swing;
 
 import java.awt.TextArea;
 import java.util.List;
-import java.util.Stack;
+//import java.util.Stack;
 
 public class DepthFirstSearchRec {
     TextArea log;
 
-    private Stack<Vertex> stack;
+    //private Stack<Vertex> stack;
 
     DepthFirstSearchRec(TextArea log) {
         this.log = log;
-        stack = new Stack<Vertex>();
+        //stack = new Stack<Vertex>();
     }
 
     public void dfs(List<Vertex> vertexList) {
