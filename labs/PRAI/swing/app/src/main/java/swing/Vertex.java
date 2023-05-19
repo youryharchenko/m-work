@@ -19,12 +19,26 @@ public class Vertex {
         return "V:" + this.name;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     public boolean isVisited() {
         return visited;
     }
 
     public void setVisited(boolean visited) {
         this.visited = visited;
+    }
+
+    private int depthLevel = 0;
+
+    public int getDepthLevel() {
+        return depthLevel;
+    }
+
+    public void setDepthLevel(int depthLevel) {
+        this.depthLevel = depthLevel;
     }
 
     public List<Vertex> getAdjacencyList() {

@@ -12,7 +12,7 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class App {
@@ -48,6 +48,8 @@ public class App {
             new DefaultMutableTreeNode("Work02-2 - DepthFirstSearchRec-2");
     DefaultMutableTreeNode w03Node =
             new DefaultMutableTreeNode("Work03 - MazeSolver");
+    DefaultMutableTreeNode w04Node =
+            new DefaultMutableTreeNode("Work04 - IDDFS");
 
     JTree tree = new JTree(rootNode);
     JScrollPane treeScrollPane = new JScrollPane(tree);
@@ -100,6 +102,7 @@ public class App {
         rootNode.add(w02_2_1Node);
         rootNode.add(w02_2_2Node);
         rootNode.add(w03Node);
+        rootNode.add(w04Node);
     }
 
     void setupContent() {
@@ -131,6 +134,7 @@ public class App {
         works.put((String)w02_2_1Node.getUserObject(), new Work02_2_1());
         works.put((String)w02_2_2Node.getUserObject(), new Work02_2_2());
         works.put((String)w03Node.getUserObject(), new Work03());
+        works.put((String)w04Node.getUserObject(), new Work04());
     }
 
     void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
