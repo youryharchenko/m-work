@@ -9,8 +9,6 @@ public class Work04 extends Work {
     @Override
     public void run(TextArea log) {
 
-        DepthFirstSearchIter dfs = new DepthFirstSearchIter(log);
-
         Vertex a = new Vertex("A");
         Vertex b = new Vertex("B");
         Vertex c = new Vertex("C");
