@@ -7,7 +7,7 @@ import java.util.List;
 public class Work02_1_2 extends Work {
     
     @Override
-    public void run(TextArea log) {
+    public void run() {
 
         DepthFirstSearchIter dfs = new DepthFirstSearchIter(log);
 

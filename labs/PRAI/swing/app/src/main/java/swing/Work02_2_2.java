@@ -7,7 +7,7 @@ import java.util.List;
 public class Work02_2_2 extends Work {
     
     @Override
-    public void run(TextArea log) {
+    public void run() {
 
         DepthFirstSearchRec dfs = new DepthFirstSearchRec(log);
 

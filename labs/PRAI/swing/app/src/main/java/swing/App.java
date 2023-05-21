@@ -52,6 +52,8 @@ public class App {
             new DefaultMutableTreeNode("Work04 - IDDFS");
     DefaultMutableTreeNode w05Node =
             new DefaultMutableTreeNode("Work05 - AStarSearch");
+    DefaultMutableTreeNode w06_1Node =
+            new DefaultMutableTreeNode("Work06-1 - BruteForce");
 
     JTree tree = new JTree(rootNode);
     JScrollPane treeScrollPane = new JScrollPane(tree);
@@ -73,7 +75,7 @@ public class App {
 
     //JTextArea ta = new JTextArea();
 
-    Font logFont = new Font("Serif", Font.PLAIN, 14);
+    //Font logFont = new Font("Serif", Font.PLAIN, 14);
 
     Hashtable<String, Work> works = new Hashtable<String, Work>();
 
@@ -106,6 +108,7 @@ public class App {
         rootNode.add(w03Node);
         rootNode.add(w04Node);
         rootNode.add(w05Node);
+        rootNode.add(w06_1Node);
     }
 
     void setupContent() {
@@ -139,6 +142,7 @@ public class App {
         works.put((String)w03Node.getUserObject(), new Work03());
         works.put((String)w04Node.getUserObject(), new Work04());
         works.put((String)w05Node.getUserObject(), new Work05());
+        works.put((String)w06_1Node.getUserObject(), new Work06_1());
     }
 
     void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
@@ -181,32 +185,38 @@ public class App {
             System.out.println(String.format("%d %s", node.getLevel(), nodeInfo));
 
             if (node.isLeaf()) {
-                TextArea log;
+                //TextArea log;
                 int ind = tabs.indexOfTab(nodeInfo);
+
+                Work work = works.get(nodeInfo);
                 
                 if (ind == -1) {
-                    log = new TextArea("");
-                    log.setEditable(false);
-                    log.setFont(logFont);
+                    //log = new TextArea("");
+                    //log.setEditable(false);
+                    //log.setFont(logFont);
 
-                    System.out.println(String.format("Open tab <%s> index %d", nodeInfo, ind));
-                    log.setText(log.getText() + String.format("Open tab <%s>\n", nodeInfo));
+                    Component comp = work.getComponent();
 
-                    tabs.setSelectedComponent(tabs.add(nodeInfo, log));
+                    String msg = String.format("Open tab <%s> index %d", nodeInfo, ind);
+                    System.out.println(msg);
+                    //log.setText(log.getText() + String.format("Open tab <%s>\n", nodeInfo));
+                    work.writeLog(msg);
+
+                    tabs.setSelectedComponent(tabs.add(nodeInfo, comp));
 
                     //ind = tabs.indexOfTab(nodeInfo);
                 } else {
-                    System.out.println(String.format("Focus tab <%s> index %d", nodeInfo, ind));
-                    
+                    String msg = String.format("\nFocus tab <%s> index %d", nodeInfo, ind);
+                    System.out.println(msg);
+                    work.writeLog(msg);
                     tabs.setSelectedIndex(ind);
 
-                    log = (TextArea)tabs.getSelectedComponent();
-                    log.setText(log.getText() + String.format("Focus tab <%s>\n", nodeInfo));
-
+                    //Component comp = (TextArea)tabs.getSelectedComponent();
+                    //log.setText(log.getText() + String.format("Focus tab <%s>\n", nodeInfo));
                 }
 
-                Work work = works.get(nodeInfo);
-                work.run(log);
+                //Work work = works.get(nodeInfo);
+                work.run();
 
             }
         }

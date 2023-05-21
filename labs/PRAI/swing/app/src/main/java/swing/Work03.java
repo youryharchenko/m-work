@@ -6,7 +6,7 @@ import java.awt.TextArea;
 public class Work03 extends Work {
 
     @Override
-    public void run(TextArea log) {
+    public void run() {
 
         Font logFont = new Font(Font.MONOSPACED, Font.PLAIN, 14);
         log.setFont(logFont);

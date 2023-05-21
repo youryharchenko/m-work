@@ -7,7 +7,7 @@ import java.util.List;
 public class Work05 extends Work {
     
     @Override
-    public void run(TextArea log) {
+    public void run() {
 
         Node a = new Node("A", 0, 0);
         Node b = new Node("B", 10, 20);

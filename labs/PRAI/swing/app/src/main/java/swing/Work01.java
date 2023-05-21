@@ -5,7 +5,7 @@ import java.awt.TextArea;
 public class Work01 extends Work {
     
     @Override
-    public void run(TextArea log) {
+    public void run() {
 
         BreadFirstSearch bfs = new BreadFirstSearch(log);
 

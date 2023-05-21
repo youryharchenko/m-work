@@ -7,7 +7,7 @@ import java.util.List;
 public class Work04 extends Work {
     
     @Override
-    public void run(TextArea log) {
+    public void run() {
 
         Vertex a = new Vertex("A");
         Vertex b = new Vertex("B");
