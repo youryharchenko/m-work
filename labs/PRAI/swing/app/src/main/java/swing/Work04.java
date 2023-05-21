@@ -1,6 +1,5 @@
 package swing;
 
-import java.awt.TextArea;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,7 +1,5 @@
 package swing;
 
-import java.awt.TextArea;
-
 public class Work01 extends Work {
     
     @Override

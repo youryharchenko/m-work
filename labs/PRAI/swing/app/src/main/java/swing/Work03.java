@@ -1,7 +1,6 @@
 package swing;
 
 import java.awt.Font;
-import java.awt.TextArea;
 
 public class Work03 extends Work {
 
