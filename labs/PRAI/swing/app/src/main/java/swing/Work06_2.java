@@ -9,7 +9,7 @@ import java.awt.Graphics2D;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-public class Work06_1 extends Work {
+public class Work06_2 extends Work {
 
     class Plot extends JPanel {
 
@@ -108,11 +108,11 @@ public class Work06_1 extends Work {
     public Plot plot = new Plot();
     JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, plot, log);
 
-    public Work06_1() {
+    public Work06_2() {
         log.setEditable(false);
         pane.setDividerLocation(400);
 
-        plot.title = "Brute-force search";
+        plot.title = "Hill Climbing search";
 
     }
 
@@ -125,10 +125,10 @@ public class Work06_1 extends Work {
     public void run() {
 
         writeLog("\n Started...");
-        writeLog("\n Function: y=sin(1/x) (0;0.3]");
+        writeLog("\n Function: y=-0.09*(x-0.1)^4 + 3*(x-0.4)^2 +12");
 
-        BruteForce bruteForce = new BruteForce();
-        bruteForce.bruteForceSearch(this, 0.001, 0.3, 0.001);
+        HillClimbing hillClimbing = new HillClimbing();
+        hillClimbing.hillClimbingSearch(this, -7.0, 7.0, 0.001);
 
         //writeLog("\n Finish\n");
     }

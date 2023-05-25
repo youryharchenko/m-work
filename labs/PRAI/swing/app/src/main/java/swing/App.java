@@ -54,6 +54,8 @@ public class App {
             new DefaultMutableTreeNode("Work05 - AStarSearch");
     DefaultMutableTreeNode w06_1Node =
             new DefaultMutableTreeNode("Work06-1 - BruteForce");
+    DefaultMutableTreeNode w06_2Node =
+            new DefaultMutableTreeNode("Work06-2 - HillClimbing");
 
     JTree tree = new JTree(rootNode);
     JScrollPane treeScrollPane = new JScrollPane(tree);
@@ -109,6 +111,7 @@ public class App {
         rootNode.add(w04Node);
         rootNode.add(w05Node);
         rootNode.add(w06_1Node);
+        rootNode.add(w06_2Node);
     }
 
     void setupContent() {
@@ -143,6 +146,7 @@ public class App {
         works.put((String)w04Node.getUserObject(), new Work04());
         works.put((String)w05Node.getUserObject(), new Work05());
         works.put((String)w06_1Node.getUserObject(), new Work06_1());
+        works.put((String)w06_2Node.getUserObject(), new Work06_2());
     }
 
     void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
