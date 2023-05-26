@@ -12,7 +12,6 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class App {
@@ -56,6 +55,8 @@ public class App {
             new DefaultMutableTreeNode("Work06-1 - BruteForce");
     DefaultMutableTreeNode w06_2Node =
             new DefaultMutableTreeNode("Work06-2 - HillClimbing");
+    DefaultMutableTreeNode w07Node =
+            new DefaultMutableTreeNode("Work07 - TabuSearch");
 
     JTree tree = new JTree(rootNode);
     JScrollPane treeScrollPane = new JScrollPane(tree);
@@ -112,6 +113,7 @@ public class App {
         rootNode.add(w05Node);
         rootNode.add(w06_1Node);
         rootNode.add(w06_2Node);
+        rootNode.add(w07Node);
     }
 
     void setupContent() {
@@ -147,6 +149,7 @@ public class App {
         works.put((String)w05Node.getUserObject(), new Work05());
         works.put((String)w06_1Node.getUserObject(), new Work06_1());
         works.put((String)w06_2Node.getUserObject(), new Work06_2());
+        works.put((String)w07Node.getUserObject(), new Work07());
     }
 
     void run() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
