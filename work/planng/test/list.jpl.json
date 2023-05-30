@@ -1,0 +1,248 @@
+[
+  [
+    [
+      {
+        "Expr": null,
+        "Node": [],
+        "Name": "Alist",
+        "Value": [],
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": [
+          [
+            {
+              "Expr": null,
+              "Node": {
+                "Name": "INT",
+                "Value": "1",
+                "Position": 4,
+                "Attributes": {
+                  "class": [
+                    "term"
+                  ]
+                }
+              },
+              "Name": "Num",
+              "Value": 1,
+              "CtxName": "main"
+            }
+          ],
+          [
+            {
+              "Expr": null,
+              "Node": {
+                "Name": "INT",
+                "Value": "2",
+                "Position": 6,
+                "Attributes": {
+                  "class": [
+                    "term"
+                  ]
+                }
+              },
+              "Name": "Num",
+              "Value": 2,
+              "CtxName": "main"
+            }
+          ],
+          [
+            {
+              "Expr": null,
+              "Node": {
+                "Name": "INT",
+                "Value": "3",
+                "Position": 8,
+                "Attributes": {
+                  "class": [
+                    "term"
+                  ]
+                }
+              },
+              "Name": "Num",
+              "Value": 3,
+              "CtxName": "main"
+            }
+          ]
+        ],
+        "Name": "Alist",
+        "Value": [
+          {
+            "Expr": null,
+            "Node": {
+              "Name": "INT",
+              "Value": "1",
+              "Position": 4,
+              "Attributes": {
+                "class": [
+                  "term"
+                ]
+              }
+            },
+            "Name": "Num",
+            "Value": 1,
+            "CtxName": "main"
+          },
+          {
+            "Expr": null,
+            "Node": {
+              "Name": "INT",
+              "Value": "2",
+              "Position": 6,
+              "Attributes": {
+                "class": [
+                  "term"
+                ]
+              }
+            },
+            "Name": "Num",
+            "Value": 2,
+            "CtxName": "main"
+          },
+          {
+            "Expr": null,
+            "Node": {
+              "Name": "INT",
+              "Value": "3",
+              "Position": 8,
+              "Attributes": {
+                "class": [
+                  "term"
+                ]
+              }
+            },
+            "Name": "Num",
+            "Value": 3,
+            "CtxName": "main"
+          }
+        ],
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": [],
+        "Name": "Llist",
+        "Value": [],
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": [
+          [
+            {
+              "Expr": null,
+              "Node": {
+                "Name": "OP",
+                "Value": "=",
+                "Position": 16,
+                "Attributes": {
+                  "class": [
+                    "term"
+                  ]
+                }
+              },
+              "Name": "ID",
+              "Value": "=",
+              "CtxName": "main"
+            }
+          ],
+          [
+            {
+              "Expr": null,
+              "Node": {
+                "Name": "IDENT",
+                "Value": "b",
+                "Position": 18,
+                "Attributes": {
+                  "class": [
+                    "term"
+                  ]
+                }
+              },
+              "Name": "ID",
+              "Value": "b",
+              "CtxName": "main"
+            }
+          ],
+          [
+            {
+              "Expr": null,
+              "Node": {
+                "Name": "IDENT",
+                "Value": "c",
+                "Position": 20,
+                "Attributes": {
+                  "class": [
+                    "term"
+                  ]
+                }
+              },
+              "Name": "ID",
+              "Value": "c",
+              "CtxName": "main"
+            }
+          ]
+        ],
+        "Name": "Llist",
+        "Value": [
+          {
+            "Expr": null,
+            "Node": {
+              "Name": "OP",
+              "Value": "=",
+              "Position": 16,
+              "Attributes": {
+                "class": [
+                  "term"
+                ]
+              }
+            },
+            "Name": "ID",
+            "Value": "=",
+            "CtxName": "main"
+          },
+          {
+            "Expr": null,
+            "Node": {
+              "Name": "IDENT",
+              "Value": "b",
+              "Position": 18,
+              "Attributes": {
+                "class": [
+                  "term"
+                ]
+              }
+            },
+            "Name": "ID",
+            "Value": "b",
+            "CtxName": "main"
+          },
+          {
+            "Expr": null,
+            "Node": {
+              "Name": "IDENT",
+              "Value": "c",
+              "Position": 20,
+              "Attributes": {
+                "class": [
+                  "term"
+                ]
+              }
+            },
+            "Name": "ID",
+            "Value": "c",
+            "CtxName": "main"
+          }
+        ],
+        "CtxName": "main"
+      }
+    ]
+  ]
+]

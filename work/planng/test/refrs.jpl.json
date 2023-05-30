@@ -1,0 +1,79 @@
+[
+  [
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "IDENT",
+          "Value": "a",
+          "Position": 1,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "Refer",
+        "Value": "a",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Expr": null,
+          "Node": {
+            "Name": "IDENT",
+            "Value": "b",
+            "Position": 6,
+            "Attributes": {
+              "class": [
+                "term"
+              ]
+            }
+          },
+          "Name": "Refer",
+          "Value": "b",
+          "CtxName": "main"
+        },
+        "Name": "SegRefer",
+        "Value": {
+          "Expr": null,
+          "Node": {
+            "Name": "IDENT",
+            "Value": "b",
+            "Position": 6,
+            "Attributes": {
+              "class": [
+                "term"
+              ]
+            }
+          },
+          "Name": "Refer",
+          "Value": "b",
+          "CtxName": "main"
+        },
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "IDENT",
+          "Value": "c",
+          "Position": 10,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "AtRefer",
+        "Value": "c",
+        "CtxName": "main"
+      }
+    ]
+  ]
+]

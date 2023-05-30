@@ -1,0 +1,76 @@
+[
+  [
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "INT",
+          "Value": "1",
+          "Position": 0,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "Num",
+        "Value": 1,
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "FLOAT",
+          "Value": "2.0",
+          "Position": 3,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "Num",
+        "Value": 2,
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "HEX",
+          "Value": "0xff",
+          "Position": 8,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "Num",
+        "Value": 255,
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OCT",
+          "Value": "0o775",
+          "Position": 14,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "Num",
+        "Value": 509,
+        "CtxName": "main"
+      }
+    ]
+  ]
+]

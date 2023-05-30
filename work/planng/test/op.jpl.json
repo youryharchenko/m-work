@@ -1,0 +1,328 @@
+[
+  [
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "+",
+          "Position": 0,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "+",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "-",
+          "Position": 2,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "-",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "*",
+          "Position": 4,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "*",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "/",
+          "Position": 6,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "/",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "$",
+          "Position": 8,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "$",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "^",
+          "Position": 11,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "^",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "%",
+          "Position": 13,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "%",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "\u0026",
+          "Position": 15,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "\u0026",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "=",
+          "Position": 17,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "=",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": ":",
+          "Position": 19,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": ":",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": ";",
+          "Position": 21,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": ";",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "\u003e",
+          "Position": 23,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "\u003e",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "\u003c",
+          "Position": 25,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "\u003c",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "|",
+          "Position": 27,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "|",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": ":-",
+          "Position": 30,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": ":-",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "-\u003e",
+          "Position": 33,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "-\u003e",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "=\u003e",
+          "Position": 36,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "=\u003e",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "OP",
+          "Value": "|\u003e",
+          "Position": 39,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "|\u003e",
+        "CtxName": "main"
+      }
+    ]
+  ]
+]

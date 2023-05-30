@@ -49,3 +49,8 @@ text8*
 .ipynb_*
 *.arff
 .Rproj.user
+
+target
+.bloop
+.metals
+work/planng/planng

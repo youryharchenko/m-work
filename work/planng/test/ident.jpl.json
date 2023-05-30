@@ -1,0 +1,22 @@
+[
+  [
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "IDENT",
+          "Value": "a",
+          "Position": 0,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "a",
+        "CtxName": "main"
+      }
+    ]
+  ]
+]
