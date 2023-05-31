@@ -9,6 +9,7 @@ import (
 )
 
 func atomNode(ns []parsec.ParsecNode) parsec.ParsecNode {
+	fmt.Println("atomNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -18,20 +19,20 @@ func atomNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 		switch n.Name {
 		case "INT":
 			i, _ := strconv.Atoi(n.Value)
-			return &Int{Node: n, Value: i, Name: "Num", CtxName: "main"}
+			return &Int{BaseExpr: BaseExpr{Node: n, Name: "Num"}, Value: i, CtxName: "main"}
 		case "OCT":
 			i, _ := strconv.ParseInt(n.Value, 0, 0)
-			return &Int{Node: n, Value: int(i), Name: "Num", CtxName: "main"}
+			return &Int{BaseExpr: BaseExpr{Node: n, Name: "Num"}, Value: int(i), CtxName: "main"}
 		case "HEX":
 			i, _ := strconv.ParseInt(n.Value, 0, 0)
-			return &Int{Node: n, Value: int(i), Name: "Num", CtxName: "main"}
+			return &Int{BaseExpr: BaseExpr{Node: n, Name: "Num"}, Value: int(i), CtxName: "main"}
 		case "FLOAT":
 			f, _ := strconv.ParseFloat(n.Value, 64)
-			return &Float{Node: n, Value: f, Name: "Num", CtxName: "main"}
+			return &Float{BaseExpr: BaseExpr{Node: n, Name: "Num"}, Value: f, CtxName: "main"}
 		case "IDENT":
-			return &ID{Node: n, Value: n.Value, Name: "ID", CtxName: "main"}
+			return &ID{BaseExpr: BaseExpr{Node: n, Name: "ID"}, Value: n.Value, CtxName: "main"}
 		case "OP":
-			return &ID{Node: n, Value: n.Value, Name: "ID", CtxName: "main"}
+			return &ID{BaseExpr: BaseExpr{Node: n, Name: "ID"}, Value: n.Value, CtxName: "main"}
 		default:
 			fmt.Println("Unknown n.Name", n.Name)
 			return nil
@@ -43,7 +44,7 @@ func atomNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	//case map[string]interface{}:
 	//	return n
 	case string:
-		return &Text{Node: n, Value: strings.ReplaceAll(n, `"`, ""), Name: "Text", CtxName: "main"}
+		return &Text{BaseExpr: BaseExpr{Node: n, Name: "Text"}, Value: strings.ReplaceAll(n, `"`, ""), CtxName: "main"}
 	case *Refer:
 		return n
 	case *SegRefer:
@@ -58,36 +59,40 @@ func atomNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 }
 
 func referNode(ns []parsec.ParsecNode) parsec.ParsecNode {
+	fmt.Println("referNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
 	//engine.debug("referNode", ns)
 	//fmt.Println(ns)
 	id := nodeToExpr(ns[1]).String()
-	return &Refer{Node: ns[1], Value: id, Name: "Refer", CtxName: "main"}
+	return &Refer{BaseExpr: BaseExpr{Node: ns[1], Name: "Refer"}, Value: id, CtxName: "main"}
 }
 
 func segReferNode(ns []parsec.ParsecNode) parsec.ParsecNode {
+	fmt.Println("segReferNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
 	//engine.debug("referNode", ns)
 	//fmt.Println(ns)
 	ref := nodeToExpr(ns[1])
-	return &SegRefer{Node: ns[1], Value: ref, Name: "SegRefer", CtxName: "main"}
+	return &SegRefer{BaseExpr: BaseExpr{Node: ns[1], Name: "SegRefer"}, Value: ref, CtxName: "main"}
 }
 
 func atReferNode(ns []parsec.ParsecNode) parsec.ParsecNode {
+	fmt.Println("atReferNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
 	//engine.debug("referNode", ns)
 	//fmt.Println(ns)
 	id := nodeToExpr(ns[1]).String()
-	return &AtRefer{Node: ns[1], Value: id, Name: "AtRefer", CtxName: "main"}
+	return &AtRefer{BaseExpr: BaseExpr{Node: ns[1], Name: "AtRefer"}, Value: id, CtxName: "main"}
 }
 
 func alistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
+	fmt.Println("alistNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -96,11 +101,16 @@ func alistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	if !ok {
 		return nil
 	}
+
+	alist := &Alist{BaseExpr: BaseExpr{Node: ns[1], Name: "Alist"}, CtxName: "main"}
 	list := []Expr{}
 	for _, item := range ilist {
-		list = append(list, nodeToExpr(item))
+		iexpr := nodeToExpr(item)
+		iexpr.SetParent(alist)
+		list = append(list, iexpr)
 	}
-	return &Alist{Node: ns[1], Value: list, Name: "Alist", CtxName: "main"}
+	alist.Value = list
+	return alist //&Alist{BaseExpr: BaseExpr{Node: ns[1], Name: "Alist"}, Value: list, CtxName: "main"}
 }
 
 /*
@@ -121,6 +131,7 @@ func alistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	}
 */
 func llistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
+	fmt.Println("llistNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -129,11 +140,16 @@ func llistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	if !ok {
 		return nil
 	}
+
+	llist := &Llist{BaseExpr: BaseExpr{Node: ns[1], Name: "Llist"}, CtxName: "main"}
 	list := []Expr{}
 	for _, item := range ilist {
-		list = append(list, nodeToExpr(item))
+		iexpr := nodeToExpr(item)
+		iexpr.SetParent(llist)
+		list = append(list, iexpr)
 	}
-	return &Llist{Node: ns[1], Value: list, Name: "Llist", CtxName: "main"}
+	llist.Value = list
+	return llist
 }
 
 /*
@@ -211,16 +227,19 @@ func nodeToExpr(node parsec.ParsecNode) (res Expr) {
 	case *Text:
 		res = node.(*Text)
 	case string:
-		return &Text{Node: node, Value: strings.ReplaceAll(n, `"`, ""), Name: "Text", CtxName: "main"}
+		return &Text{BaseExpr: BaseExpr{Node: node, Name: "Text"}, Value: strings.ReplaceAll(n, `"`, ""), CtxName: "main"}
 	//case *Comment:
 	//	res = node.(*Comment)
 	case []parsec.ParsecNode:
 		//engine.debug("nodeToExpr: []parsec.ParsecNode:", node)
+		fmt.Println("nodeToExpr: []parsec.ParsecNode:", node)
 		nodes := node.([]parsec.ParsecNode)
 		if len(nodes) == 1 {
 			res = nodeToExpr(nodes[0])
 		} else {
 			//engine.debug("nodeToExpr: []parsec.ParsecNode: len > 1", node)
+			//fmt.Println("nodeToExpr: []parsec.ParsecNode: len != 1", node)
+			//res =
 		}
 	case *parsec.Terminal:
 		//engine.debug("nodeToExpr: *parsec.Terminal", node)
@@ -228,14 +247,14 @@ func nodeToExpr(node parsec.ParsecNode) (res Expr) {
 		switch n.Name {
 		case "INT":
 			i, _ := strconv.Atoi(n.Value)
-			res = &Int{Node: n, Value: i, Name: "Num", CtxName: "main"}
+			res = &Int{BaseExpr: BaseExpr{Node: n, Name: "Num"}, Value: i, CtxName: "main"}
 		case "FLOAT":
 			f, _ := strconv.ParseFloat(n.Value, 64)
-			res = &Float{Node: n, Value: f, Name: "Num", CtxName: "main"}
+			res = &Float{BaseExpr: BaseExpr{Node: n, Name: "Num"}, Value: f, CtxName: "main"}
 		case "IDENT":
-			res = &ID{Node: n, Value: n.Value, Name: "ID", CtxName: "main"}
+			res = &ID{BaseExpr: BaseExpr{Node: n, Name: "ID"}, Value: n.Value, CtxName: "main"}
 		case "OP":
-			res = &ID{Node: n, Value: n.Value, Name: "ID", CtxName: "main"}
+			res = &ID{BaseExpr: BaseExpr{Node: n, Name: "ID"}, Value: n.Value, CtxName: "main"}
 		}
 	default:
 		//engine.debug("nodeToExpr: unknown type", reflect.TypeOf(node))

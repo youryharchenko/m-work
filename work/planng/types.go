@@ -9,6 +9,9 @@ import (
 // Expr -
 type Expr interface {
 	fmt.Stringer
+	SetParent(Expr)
+	GetParent() Expr
+	GetCtx() *Context
 	Eval() Expr
 	Equals(Expr) bool
 	//Clone() Expr
@@ -16,13 +19,39 @@ type Expr interface {
 	//Debug() string
 }
 
+type BaseExpr struct {
+	Expr
+
+	Parent Expr
+	Node   parsec.ParsecNode
+	Ctx    *Context
+	Name   string
+}
+
+func (expr *BaseExpr) SetParent(parent Expr) {
+	fmt.Println("SetParent", parent)
+	expr.Parent = parent
+}
+
+func (expr *BaseExpr) GetParent() (parent Expr) {
+	parent = expr.Parent
+	return
+}
+
+func (expr *BaseExpr) GetCtx() (ctx *Context) {
+	ctx = expr.Ctx
+	return
+}
+
 // ID -
 type ID struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
 	//json.Unmarshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   string
 	CtxName string
 }
@@ -38,11 +67,13 @@ func (id *ID) Eval() (res Expr) {
 
 // Int -
 type Int struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
 	//json.Unmarshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   int
 	CtxName string
 }
@@ -58,11 +89,13 @@ func (num *Int) Eval() (res Expr) {
 
 // Float -
 type Float struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
 	//json.Unmarshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   float64
 	CtxName string
 }
@@ -78,11 +111,13 @@ func (num *Float) Eval() (res Expr) {
 
 // Text -
 type Text struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
 	//json.Unmarshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   string
 	CtxName string
 }
@@ -93,10 +128,12 @@ func (text *Text) String() (res string) {
 
 // Refer -
 type Refer struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   string
 	CtxName string
 }
@@ -107,6 +144,7 @@ func (ref *Refer) String() (res string) {
 
 // Eval -
 func (ref *Refer) Eval() (res Expr) {
+	res = FindRef(ref)
 	//c, _ := engine.current.Load(ref.CtxName)
 	//return c.(*Context).get(ref.Value)
 	//return engine.current[ref.CtxName].get(ref.Value)
@@ -115,10 +153,12 @@ func (ref *Refer) Eval() (res Expr) {
 
 // SegRefer -
 type SegRefer struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   Expr
 	CtxName string
 }
@@ -137,10 +177,12 @@ func (ref *SegRefer) Eval() (res Expr) {
 
 // Refer -
 type AtRefer struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   string
 	CtxName string
 }
@@ -159,11 +201,13 @@ func (ref *AtRefer) Eval() (res Expr) {
 
 // Alist -
 type Alist struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
 	//json.Unmarshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   []Expr
 	CtxName string
 }
@@ -183,27 +227,33 @@ func (alist *Alist) String() (res string) {
 func (alist *Alist) Eval() (res Expr) {
 	a := []Expr{}
 	for _, item := range alist.Value {
-		a = append(a, item.Eval())
+		e := item.Eval()
+		//fmt.Println("expr:", item, "=>", e, "parent:", item.GetParent())
+		a = append(a, e)
 	}
-	return &Alist{Node: alist.Node, Name: alist.Name, Value: a, CtxName: alist.CtxName}
+	return &Alist{BaseExpr: alist.BaseExpr, Value: a, CtxName: alist.CtxName}
 }
 
 // Mlist -
 type Mlist struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   []Expr
 	CtxName string
 }
 
 // Llist -
 type Llist struct {
-	Expr
+	BaseExpr
+
 	//json.Marshaler
-	Node    parsec.ParsecNode
-	Name    string
+	//Node    parsec.ParsecNode
+	//Name    string
+
 	Value   []Expr
 	CtxName string
 }
@@ -221,9 +271,13 @@ func (llist *Llist) String() (res string) {
 
 // Eval -
 func (llist *Llist) Eval() (res Expr) {
-	//if len(llist.Value) == 0 {
-	//	return nullID
-	//}
-	//return applyFunc(llist.CtxName, llist.Value[0].Eval(), llist.Value[1:])
+	if len(llist.Value) == 0 {
+		return NullID
+	}
+	//res = applyFunc(llist.Value[0].Eval(), llist.Value[1:])
+	res = applyFunc(llist)
 	return
 }
+
+// Func -
+type Func func([]Expr) Expr

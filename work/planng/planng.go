@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -25,10 +24,10 @@ func main() {
 	eng := New(true)
 	nodes := eng.Parse(src)
 
-	json, err := json.MarshalIndent(nodes, "", "  ")
-	if err == nil {
-		ioutil.WriteFile(file+".json", json, 0755)
-	}
+	//json, err := json.MarshalIndent(nodes, "", "  ")
+	//if err == nil {
+	//	ioutil.WriteFile(file+".json", json, 0755)
+	//}
 
 	//fmt.Println(nodes)
 	eng.EvalNodes(nodes)

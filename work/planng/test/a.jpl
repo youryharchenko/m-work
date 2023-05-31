@@ -19,10 +19,13 @@
 (eval)
 (eval (+ 1 1))
 (eval (quote (+ 1 1)))
+(eval (quote (quote (+ 1 1))))
+(quote (eval (quote (quote (+ 1 1)))))
 
-(pow 2 10)
-(pow 2 0.5)
-(pow 1.5 2)
+
+(^ 2 10)
+(^ 2 0.5)
+(^ 1.5 2)
 
 .a
 (set a 0)

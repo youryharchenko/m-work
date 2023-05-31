@@ -3,6 +3,7 @@
     [
       {
         "Expr": null,
+        "Parent": null,
         "Node": [],
         "Name": "Alist",
         "Value": [],
@@ -12,10 +13,12 @@
     [
       {
         "Expr": null,
+        "Parent": null,
         "Node": [
           [
             {
               "Expr": null,
+              "Parent": null,
               "Node": {
                 "Name": "INT",
                 "Value": "1",
@@ -34,6 +37,7 @@
           [
             {
               "Expr": null,
+              "Parent": null,
               "Node": {
                 "Name": "INT",
                 "Value": "2",
@@ -52,6 +56,7 @@
           [
             {
               "Expr": null,
+              "Parent": null,
               "Node": {
                 "Name": "INT",
                 "Value": "3",
@@ -72,6 +77,7 @@
         "Value": [
           {
             "Expr": null,
+            "Parent": null,
             "Node": {
               "Name": "INT",
               "Value": "1",
@@ -88,6 +94,7 @@
           },
           {
             "Expr": null,
+            "Parent": null,
             "Node": {
               "Name": "INT",
               "Value": "2",
@@ -104,6 +111,7 @@
           },
           {
             "Expr": null,
+            "Parent": null,
             "Node": {
               "Name": "INT",
               "Value": "3",
@@ -125,6 +133,7 @@
     [
       {
         "Expr": null,
+        "Parent": null,
         "Node": [],
         "Name": "Llist",
         "Value": [],
@@ -134,10 +143,12 @@
     [
       {
         "Expr": null,
+        "Parent": null,
         "Node": [
           [
             {
               "Expr": null,
+              "Parent": null,
               "Node": {
                 "Name": "OP",
                 "Value": "=",
@@ -156,6 +167,7 @@
           [
             {
               "Expr": null,
+              "Parent": null,
               "Node": {
                 "Name": "IDENT",
                 "Value": "b",
@@ -174,6 +186,7 @@
           [
             {
               "Expr": null,
+              "Parent": null,
               "Node": {
                 "Name": "IDENT",
                 "Value": "c",
@@ -194,6 +207,7 @@
         "Value": [
           {
             "Expr": null,
+            "Parent": null,
             "Node": {
               "Name": "OP",
               "Value": "=",
@@ -210,6 +224,7 @@
           },
           {
             "Expr": null,
+            "Parent": null,
             "Node": {
               "Name": "IDENT",
               "Value": "b",
@@ -226,6 +241,7 @@
           },
           {
             "Expr": null,
+            "Parent": null,
             "Node": {
               "Name": "IDENT",
               "Value": "c",

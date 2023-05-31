@@ -17,6 +17,42 @@
         "Value": "a",
         "CtxName": "main"
       }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "IDENT",
+          "Value": "b",
+          "Position": 2,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "b",
+        "CtxName": "main"
+      }
+    ],
+    [
+      {
+        "Expr": null,
+        "Node": {
+          "Name": "IDENT",
+          "Value": "c",
+          "Position": 5,
+          "Attributes": {
+            "class": [
+              "term"
+            ]
+          }
+        },
+        "Name": "ID",
+        "Value": "c",
+        "CtxName": "main"
+      }
     ]
   ]
 ]

@@ -35,7 +35,7 @@ func (eng *Engine) Parse(src []byte) []parsec.ParsecNode {
 func (eng *Engine) EvalNodes(nodes []parsec.ParsecNode) {
 	var node any
 	for _, node = range nodes {
-		eng.debug("evalNodes", node)
+		//eng.debug("evalNodes", node)
 		switch node.(type) {
 		case []parsec.ParsecNode:
 			v := node.([]parsec.ParsecNode)
@@ -43,7 +43,7 @@ func (eng *Engine) EvalNodes(nodes []parsec.ParsecNode) {
 		default:
 			expr := nodeToExpr(node)
 			res := expr.Eval()
-			eng.debug("expr:", expr, "=>", res)
+			eng.debug("expr:", expr, "=>", res, "parent:", expr.GetParent())
 		}
 	}
 }
@@ -106,6 +106,8 @@ func (eng *Engine) initParser() {
 	var openPar = parsec.Atom("(", "OPENPAR")
 	var closePar = parsec.Atom(")", "CLOSEPAR")
 	var llist = parsec.And(llistNode, openPar, values, closePar)
+
+	//var unOper = parseAnd(unOperNode, Op(), v)
 
 	//var openAng = parsec.Atom("<", "OPENANG")
 	//var closeAng = parsec.Atom(">", "CLOSEANG")
