@@ -24,6 +24,9 @@ func main() {
 	eng := New(true)
 	nodes := eng.Parse(src)
 
+	TopCtx.AddFuncs(coreFuncs())
+	TopCtx.AddFuncs(mathFuncs())
+
 	//json, err := json.MarshalIndent(nodes, "", "  ")
 	//if err == nil {
 	//	ioutil.WriteFile(file+".json", json, 0755)

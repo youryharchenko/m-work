@@ -1,19 +1,57 @@
 package main
 
+func coreFuncs() map[string]Func {
+	return map[string]Func{
+		//"parse": parse,
+		"quote": quote,
+		"eval":  eval,
+		"func":  lambda,
+		"set":   set,
+		"print": printExprs,
+		"let":   let,
+		"do":    do,
+		"==":    eq,
+	}
+}
+
 type Context struct {
-	vars map[string]Expr
+	stack *Stack
+	vars  *Dict
+	funcs map[string]Func
 }
 
 var TopCtx = Context{
-	vars: map[string]Expr{},
+	stack: &Stack{a: []Expr{}, i: -1},
+	vars:  &Dict{BaseExpr: BaseExpr{Name: "TopCtx"}, Value: map[string]Expr{}, CtxName: "main"},
+	funcs: map[string]Func{},
+}
+
+func (ctx *Context) GetFunc(name string) (f Func, ok bool) {
+	f, ok = ctx.funcs[name]
+	return
+}
+
+func (ctx *Context) AddFuncs(funcs map[string]Func) {
+	for key, fn := range funcs {
+		ctx.funcs[key] = fn
+	}
+}
+
+func (ctx *Context) Push(expr Expr) {
+	ctx.stack.Push(expr)
+}
+
+func (ctx *Context) Pop() (expr Expr) {
+	expr = ctx.stack.Pop()
+	return
 }
 
 func (ctx *Context) Set(id *ID, expr Expr) {
-	ctx.vars[id.Value] = expr
+	ctx.vars.Set(id.Value, expr)
 }
 
 func (ctx *Context) Get(ref *Refer) (Expr, bool) {
-	expr, ok := ctx.vars[ref.Value]
+	expr, ok := ctx.vars.Get(ref.Value)
 	return expr, ok
 }
 

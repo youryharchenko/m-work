@@ -42,8 +42,11 @@ func (eng *Engine) EvalNodes(nodes []parsec.ParsecNode) {
 			eng.EvalNodes(v)
 		default:
 			expr := nodeToExpr(node)
+			TopCtx.Push(expr)
 			res := expr.Eval()
-			eng.debug("expr:", expr, "=>", res, "parent:", expr.GetParent())
+			eng.debug("expr:", expr, "=>", res) // "parent:", expr.GetParent()
+			TopCtx.Pop()
+
 		}
 	}
 }
@@ -113,16 +116,16 @@ func (eng *Engine) initParser() {
 	//var closeAng = parsec.Atom(">", "CLOSEANG")
 	//var mlist = parsec.And(mlistNode, openAng, values, closeAng)
 
-	//var colon = parsec.Atom(":", "COLON")
-	//var property = parsec.And(propNode, parsec.Ident(), colon, &value)
+	var colon = parsec.Atom(":", "COLON")
+	var property = parsec.And(propNode, parsec.Ident(), colon, &value)
 	//var property = parsec.And(propNode, parsec.OrdChoice(nil, parsec.Ident(), parsec.String()), colon, &value)
-	//var properties = parsec.Kleene(nil, property)
+	var properties = parsec.Kleene(nil, property)
 
-	//var openBra = parsec.Atom("{", "OPENBRA")
-	//var closeBra = parsec.Atom("}", "CLOSEBRA")
-	//var dict = parsec.And(dictNode, openBra, properties, closeBra)
+	var openBra = parsec.Atom("{", "OPENBRA")
+	var closeBra = parsec.Atom("}", "CLOSEBRA")
+	var dict = parsec.And(dictNode, openBra, properties, closeBra)
 
-	value = parsec.OrdChoice(nil, atom, alist, llist) //, mlist) //, dict)
+	value = parsec.OrdChoice(nil, atom, alist, llist, dict) //, mlist) //)
 
 	eng.Y = parsec.OrdChoice(nil, values)
 

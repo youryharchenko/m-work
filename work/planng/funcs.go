@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
 // Constants -
@@ -24,22 +23,6 @@ var (
 	UndefID = &ID{Value: UNDEFINED, BaseExpr: BaseExpr{Name: "ID"}}
 )
 
-func coreFuncs() map[string]Func {
-	return map[string]Func{
-		//"parse": parse,
-		"quote": quote,
-		"eval":  eval,
-		"set":   set,
-		"print": printExprs,
-		"+":     sum,
-		"*":     prod,
-		"-":     sub,
-		"/":     div,
-		"%":     mod,
-		"^":     pow,
-	}
-}
-
 func applyFunc(llist *Llist) Expr {
 
 	fn := llist.Value[0].Eval()
@@ -48,17 +31,17 @@ func applyFunc(llist *Llist) Expr {
 	switch fnExpr := fn.(type) {
 	case *ID:
 		name := fnExpr.Value
-		f, ok := coreFuncs()[name]
+		f, ok := TopCtx.GetFunc(name)
 		if !ok {
 			return UndefID
 		}
 		res := f(args)
 		//engine.debug("applyFunc", fn.Debug(), args, res)
 		return res
-		//case *Lamb:
-		//	res := fnExpr.Apply(args, ctxName)
+	case *Lambda:
+		res := fnExpr.Apply(args)
 		//engine.debug("applyFunc", ctxName, fn.Debug(), args, res)
-		//	return res
+		return res
 	}
 	//engine.debug("applyFunc", fn.Debug(), args, UndefID)
 	return UndefID
@@ -112,176 +95,77 @@ func set(args []Expr) Expr {
 	//return engine.current[ctxName].set(args[0].Eval().String(), args[1].Eval())
 }
 
-func sum(args []Expr) Expr {
-	if len(args) < 2 {
+func let(args []Expr) Expr {
+	if len(args) < 1 {
+		return ErrID
+	}
+	parent := args[0].GetParent()
+
+	d, ok := args[0].Eval().(*Dict)
+	if !ok {
 		return ErrID
 	}
 
-	bInt := true
-	si := 0
-	sf := 0.0
-	for _, arg := range args {
-		a := arg.Eval()
-		switch a.(type) {
-		case *Int:
-			si += a.(*Int).Value
-		case *Float:
-			sf += a.(*Float).Value
-			bInt = false
-		}
-	}
-	if bInt {
-		//return &Int{Value: si, Name: "Num"}
-		return &Int{BaseExpr: BaseExpr{Name: "Num"}, Value: si, CtxName: "sum"}
-	}
-	sf += float64(si)
-	//return &Float{Value: sf, Name: "Num", CtxName: ctxName}
-	return &Float{BaseExpr: BaseExpr{Name: "Num"}, Value: sf, CtxName: "sum"}
+	parent.SetCtx(&Context{vars: d})
+
+	res := do(args[1:])
+
+	//engine.debug("let", d.CtxName)
+	//c, _ := engine.current.Load(ctxName)
+	//c.(*Context).push(d.Value, ctxName)
+
+	//engine.current[ctxName].push(d.Value, ctxName)
+	//do(args[1:], ctxName)
+	//c, _ = engine.current.Load(ctxName)
+	//res = c.(*Context).dict()
+	//res = engine.current[ctxName].dict()
+	//c, _ = engine.current.Load(ctxName)
+	//c.(*Context).pop(ctxName)
+	//engine.current[ctxName].pop(ctxName)
+	return res
 }
 
-func prod(args []Expr) Expr {
-	if len(args) < 2 {
-		return ErrID
+func do(args []Expr) Expr {
+	var res Expr = NullID
+	for _, item := range args {
+		res = item.Eval()
+		//id, ok := res.(*ID)
+		//if ok && id.Value == BREAK {
+		//	break
+		//}
+		//if ok && id.Value == CONTINUE {
+		//	break
+		//}
 	}
-	bInt := true
-	si := 1
-	sf := 1.0
-	for _, arg := range args {
-		a := arg.Eval()
-		switch a.(type) {
-		case *Int:
-			si *= a.(*Int).Value
-		case *Float:
-			sf *= a.(*Float).Value
-			bInt = false
-		}
-	}
-	if bInt {
-		//return &Int{Value: si, Name: "Num", CtxName: ctxName}
-		return &Int{BaseExpr: BaseExpr{Name: "Num"}, Value: si, CtxName: "prod"}
-	}
-	sf *= float64(si)
-	//return &Float{Value: sf, Name: "Num", CtxName: ctxName}
-	return &Float{BaseExpr: BaseExpr{Name: "Num"}, Value: sf, CtxName: "prod"}
+	return res
 }
 
-func sub(args []Expr) Expr {
+func lambda(args []Expr) Expr {
 	if len(args) != 2 {
 		return ErrID
 	}
-	bInt := true
-	var si int
-	var sf float64
-	for i, arg := range args[:2] {
-		a := arg.Eval()
-		switch a.(type) {
-		case *Int:
-			if i == 0 {
-				si = a.(*Int).Value
-				sf = float64(a.(*Int).Value)
-			} else {
-				si -= a.(*Int).Value
-				sf -= float64(a.(*Int).Value)
-			}
-		case *Float:
-			if i == 0 {
-				sf = a.(*Float).Value
-			} else {
-				sf -= a.(*Float).Value
-			}
-			bInt = false
+	alist, ok := args[0].(*Alist)
+	if !ok {
+		return ErrID
+	}
+	params := []*ID{}
+	for _, item := range alist.Value {
+		param, ok := item.Eval().(*ID)
+		if !ok {
+			return ErrID
 		}
+		params = append(params, param)
 	}
-	if bInt {
-		//return &Int{Value: si, Name: "Num", CtxName: ctxName}
-		return &Int{BaseExpr: BaseExpr{Name: "Num"}, Value: si, CtxName: "sub"}
-	}
-	//return &Float{Value: sf, Name: "Num", CtxName: ctxName}
-	return &Float{BaseExpr: BaseExpr{Name: "Num"}, Value: sf, CtxName: "sub"}
+	body := args[1]
+	return &Lambda{BaseExpr: BaseExpr{Name: "Lambda", Parent: args[0].GetParent()}, Params: params, Body: body, CtxName: "lambda"}
 }
 
-func div(args []Expr) Expr {
+func eq(args []Expr) Expr {
 	if len(args) != 2 {
 		return ErrID
 	}
-	var sf float64
-	for i, arg := range args[:2] {
-		a := arg.Eval()
-		switch a.(type) {
-		case *Int:
-			if i == 0 {
-				sf = float64(a.(*Int).Value)
-			} else {
-				sf /= float64(a.(*Int).Value)
-			}
-		case *Float:
-			if i == 0 {
-				sf = a.(*Float).Value
-			} else {
-				sf /= a.(*Float).Value
-			}
-		}
+	if args[0].Eval().Equals(args[1].Eval()) {
+		return TrueID
 	}
-	//return &Float{Value: sf, Name: "Num", CtxName: ctxName}
-	return &Float{BaseExpr: BaseExpr{Name: "Num"}, Value: sf, CtxName: "div"}
-}
-
-func mod(args []Expr) Expr {
-	if len(args) != 2 {
-		return ErrID
-	}
-	var si int
-	for i, arg := range args[:2] {
-		a := arg.Eval()
-		switch a.(type) {
-		case *Int:
-			if i == 0 {
-				si = a.(*Int).Value
-			} else {
-				si %= a.(*Int).Value
-			}
-		case *Float:
-			if i == 0 {
-				si = int(a.(*Float).Value)
-			} else {
-				si %= int(a.(*Float).Value)
-			}
-		}
-	}
-	//return &Int{Value: si, Name: "Num", CtxName: ctxName}
-	return &Int{BaseExpr: BaseExpr{Name: "Num"}, Value: si, CtxName: "mod"}
-}
-
-func pow(args []Expr) Expr {
-	if len(args) != 2 {
-		return ErrID
-	}
-
-	bInt := true
-	var x float64
-	var y float64
-	for i, arg := range args[:2] {
-		a := arg.Eval()
-		switch a.(type) {
-		case *Int:
-			if i == 0 {
-				x = float64(a.(*Int).Value)
-			} else {
-				y = float64(a.(*Int).Value)
-			}
-		case *Float:
-			if i == 0 {
-				x = a.(*Float).Value
-			} else {
-				y = a.(*Float).Value
-			}
-			bInt = false
-		}
-	}
-	if bInt {
-		//return &Int{Value: int(math.Pow(x, y)), Name: "Num", CtxName: ctxName}
-		return &Int{BaseExpr: BaseExpr{Name: "Num"}, Value: int(math.Pow(x, y)), CtxName: "pow"}
-	}
-	//return &Float{Value: math.Pow(x, y), Name: "Num"}
-	return &Float{BaseExpr: BaseExpr{Name: "Num"}, Value: math.Pow(x, y), CtxName: "pow"}
+	return FalseID
 }

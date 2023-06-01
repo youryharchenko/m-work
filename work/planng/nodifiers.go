@@ -152,7 +152,6 @@ func llistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	return llist
 }
 
-/*
 func propNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	if ns == nil || len(ns) < 1 {
 		return nil
@@ -162,16 +161,15 @@ func propNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	switch e := nodeToExpr(ns[0]).(type) {
 	case *ID:
 		key = e.Value
-	case *Text:
-		key = e.Value
+	//case *Text:
+	//	key = e.Value
 	default:
 		key = e.String()
 	}
 	item := nodeToExpr(ns[2])
-	return &Prop{Node: ns[1], Key: key, Value: item, Name: "Prop", CtxName: "main"}
+	return &Prop{BaseExpr: BaseExpr{Node: ns[1], Name: "Prop"}, Key: key, Value: item, CtxName: "main"}
 }
-*/
-/*
+
 func dictNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	if ns == nil || len(ns) < 1 {
 		return nil
@@ -181,14 +179,20 @@ func dictNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	if !ok {
 		return nil
 	}
+	dict := &Dict{BaseExpr: BaseExpr{Node: ns[1], Name: "Dict"}, CtxName: "main"}
 	m := map[string]Expr{}
 	for _, item := range ilist {
 		prop := nodeToExpr(item).(*Prop)
-		m[prop.Key] = nodeToExpr(prop.Value)
+
+		iexpr := nodeToExpr(prop.Value)
+		iexpr.SetParent(dict)
+
+		m[prop.Key] = iexpr
 	}
-	return &Dict{Node: ns[1], Value: m, Name: "Dict", CtxName: "main"}
+	dict.Value = m
+	return dict
 }
-*/
+
 /*
 func commentNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	if ns == nil || len(ns) < 1 {
@@ -220,10 +224,10 @@ func nodeToExpr(node parsec.ParsecNode) (res Expr) {
 	//	res = node.(*Mlist)
 	case *Llist:
 		res = node.(*Llist)
-	//case *Prop:
-	//	res = node.(*Prop)
-	//case *Dict:
-	//	res = node.(*Dict)
+	case *Prop:
+		res = node.(*Prop)
+	case *Dict:
+		res = node.(*Dict)
 	case *Text:
 		res = node.(*Text)
 	case string:
