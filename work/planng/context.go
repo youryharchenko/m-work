@@ -10,7 +10,11 @@ func coreFuncs() map[string]Func {
 		"print": printExprs,
 		"let":   let,
 		"do":    do,
+		"if":    iff,
 		"==":    eq,
+		"<>":    neq,
+		"not":   not,
+		"is":    is,
 	}
 }
 
@@ -18,12 +22,20 @@ type Context struct {
 	stack *Stack
 	vars  *Dict
 	funcs map[string]Func
+	patts map[string]Match
 }
 
 var TopCtx = Context{
 	stack: &Stack{a: []Expr{}, i: -1},
 	vars:  &Dict{BaseExpr: BaseExpr{Name: "TopCtx"}, Value: map[string]Expr{}, CtxName: "main"},
 	funcs: map[string]Func{},
+	patts: map[string]Match{},
+}
+
+func (ctx *Context) MergeVars(nctx *Context) {
+	for k, v := range nctx.vars.Value {
+		ctx.vars.Value[k] = v
+	}
 }
 
 func (ctx *Context) GetFunc(name string) (f Func, ok bool) {
@@ -31,9 +43,20 @@ func (ctx *Context) GetFunc(name string) (f Func, ok bool) {
 	return
 }
 
+func (ctx *Context) GetPat(name string) (f Match, ok bool) {
+	f, ok = ctx.patts[name]
+	return
+}
+
 func (ctx *Context) AddFuncs(funcs map[string]Func) {
 	for key, fn := range funcs {
 		ctx.funcs[key] = fn
+	}
+}
+
+func (ctx *Context) AddMatches(matches map[string]Match) {
+	for key, fn := range matches {
+		ctx.patts[key] = fn
 	}
 }
 

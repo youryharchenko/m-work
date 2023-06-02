@@ -524,3 +524,6 @@ func (lamb *Lambda) Apply(args []Expr) (res Expr) {
 
 // Func -
 type Func func([]Expr) Expr
+
+// Match -
+type Match func([]Expr, Expr) bool

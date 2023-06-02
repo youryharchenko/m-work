@@ -160,6 +160,24 @@ func lambda(args []Expr) Expr {
 	return &Lambda{BaseExpr: BaseExpr{Name: "Lambda", Parent: args[0].GetParent()}, Params: params, Body: body, CtxName: "lambda"}
 }
 
+func iff(args []Expr) Expr {
+	if len(args) < 2 || len(args) > 3 {
+		return ErrID
+	}
+	cond, ok := args[0].Eval().(*ID)
+	if !ok {
+		return ErrID
+	}
+	fmt.Println(cond)
+	if cond.Value == TRUE {
+		return args[1].Eval()
+	}
+	if cond.Value == FALSE && len(args) == 3 {
+		return args[2].Eval()
+	}
+	return NullID
+}
+
 func eq(args []Expr) Expr {
 	if len(args) != 2 {
 		return ErrID
@@ -168,4 +186,34 @@ func eq(args []Expr) Expr {
 		return TrueID
 	}
 	return FalseID
+}
+
+func neq(args []Expr) Expr {
+	if len(args) != 2 {
+		return ErrID
+	}
+	if args[0].Eval().Equals(args[1].Eval()) {
+		return FalseID
+	}
+	return TrueID
+}
+
+func not(args []Expr) Expr {
+	if len(args) != 1 {
+		return ErrID
+	}
+	e := args[0].Eval()
+	if e.Equals(TrueID) {
+		return FalseID
+	} else if e.Equals(FalseID) {
+		return TrueID
+	}
+	return ErrID
+}
+
+func is(args []Expr) Expr {
+	if len(args) != 2 {
+		return ErrID
+	}
+	return match(args[0], args[1].Eval())
 }

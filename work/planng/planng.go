@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+// PLANnlaNGuage
+
 func main() {
 	flag.Parse()
 
@@ -26,6 +28,7 @@ func main() {
 
 	TopCtx.AddFuncs(coreFuncs())
 	TopCtx.AddFuncs(mathFuncs())
+	TopCtx.AddMatches(coreMathes())
 
 	//json, err := json.MarshalIndent(nodes, "", "  ")
 	//if err == nil {
