@@ -15,11 +15,14 @@ func coreFuncs() map[string]Func {
 		"<>":    neq,
 		"not":   not,
 		"is":    is,
+		"test":  test,
+		"among": among,
 	}
 }
 
 type Context struct {
 	stack *Stack
+	stat  *ID
 	vars  *Dict
 	funcs map[string]Func
 	patts map[string]Match
@@ -67,6 +70,18 @@ func (ctx *Context) Push(expr Expr) {
 func (ctx *Context) Pop() (expr Expr) {
 	expr = ctx.stack.Pop()
 	return
+}
+
+func (ctx *Context) Len() int {
+	return ctx.stack.Len()
+}
+
+func (ctx *Context) SetStat(stat *ID) {
+	ctx.stat = stat
+}
+
+func (ctx *Context) GetStat() *ID {
+	return ctx.stat
 }
 
 func (ctx *Context) Set(id *ID, expr Expr) {

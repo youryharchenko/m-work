@@ -1,0 +1,23 @@
+(let {} 
+    (among [] )
+
+)
+
+(let {} 
+    (among [1])
+)
+
+(let {f: (func [i] (if (> .i 3) .i fail))} 
+    (among [1 2 3 4] .f)
+        
+)
+
+(let {f: (func [i] (if (< .i 3) .i fail))} 
+    (among [1 2 3 4] .f)
+        
+)
+
+(let {f: (func [i] (if (> .i 4) .i fail))} 
+    (among [1 2 3 4] .f)
+        
+)

@@ -9,7 +9,7 @@ import (
 )
 
 func atomNode(ns []parsec.ParsecNode) parsec.ParsecNode {
-	fmt.Println("atomNode:", ns)
+	//fmt.Println("atomNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -59,7 +59,7 @@ func atomNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 }
 
 func referNode(ns []parsec.ParsecNode) parsec.ParsecNode {
-	fmt.Println("referNode:", ns)
+	//fmt.Println("referNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -70,7 +70,7 @@ func referNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 }
 
 func segReferNode(ns []parsec.ParsecNode) parsec.ParsecNode {
-	fmt.Println("segReferNode:", ns)
+	//fmt.Println("segReferNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -81,7 +81,7 @@ func segReferNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 }
 
 func atReferNode(ns []parsec.ParsecNode) parsec.ParsecNode {
-	fmt.Println("atReferNode:", ns)
+	//fmt.Println("atReferNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -92,7 +92,7 @@ func atReferNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 }
 
 func alistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
-	fmt.Println("alistNode:", ns)
+	//fmt.Println("alistNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -131,7 +131,7 @@ func alistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
 	}
 */
 func llistNode(ns []parsec.ParsecNode) parsec.ParsecNode {
-	fmt.Println("llistNode:", ns)
+	//fmt.Println("llistNode:", ns)
 	if ns == nil || len(ns) < 1 {
 		return nil
 	}
@@ -236,7 +236,7 @@ func nodeToExpr(node parsec.ParsecNode) (res Expr) {
 	//	res = node.(*Comment)
 	case []parsec.ParsecNode:
 		//engine.debug("nodeToExpr: []parsec.ParsecNode:", node)
-		fmt.Println("nodeToExpr: []parsec.ParsecNode:", node)
+		//fmt.Println("nodeToExpr: []parsec.ParsecNode:", node)
 		nodes := node.([]parsec.ParsecNode)
 		if len(nodes) == 1 {
 			res = nodeToExpr(nodes[0])
@@ -247,7 +247,7 @@ func nodeToExpr(node parsec.ParsecNode) (res Expr) {
 		}
 	case *parsec.Terminal:
 		//engine.debug("nodeToExpr: *parsec.Terminal", node)
-		fmt.Println("nodeToExpr: *parsec.Terminal", node)
+		//fmt.Println("nodeToExpr: *parsec.Terminal", node)
 		switch n.Name {
 		case "INT":
 			i, _ := strconv.Atoi(n.Value)

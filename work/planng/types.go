@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"sort"
 
 	parsec "github.com/prataprc/goparsec"
 )
+
+const EPSILON float64 = 1e-4
 
 // Expr -
 type Expr interface {
@@ -34,7 +37,7 @@ type BaseExpr struct {
 }
 
 func (expr *BaseExpr) SetParent(parent Expr) {
-	fmt.Println("SetParent", parent)
+	//fmt.Println("SetParent", parent)
 	expr.Parent = parent
 }
 
@@ -141,9 +144,9 @@ func (num *Float) Equals(e Expr) (res bool) {
 	v, ok := e.(*Float)
 	if !ok {
 		v, ok := e.(*Int)
-		return ok && num.Value == float64(v.Value)
+		return ok && math.Abs(num.Value-float64(v.Value)) < EPSILON
 	}
-	res = ok && num.Value == v.Value
+	res = ok && math.Abs(num.Value-v.Value) < EPSILON
 	return
 }
 
@@ -309,6 +312,9 @@ func (alist *Alist) Eval() (res Expr) {
 func (alist *Alist) Equals(e Expr) (res bool) {
 	v, ok := e.(*Alist)
 	if !ok {
+		return false
+	}
+	if len(alist.Value) != len(v.Value) {
 		return false
 	}
 	res = true

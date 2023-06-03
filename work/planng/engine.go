@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"log"
+	"fmt"
 
 	parsec "github.com/prataprc/goparsec"
 )
@@ -41,11 +41,22 @@ func (eng *Engine) EvalNodes(nodes []parsec.ParsecNode) {
 			v := node.([]parsec.ParsecNode)
 			eng.EvalNodes(v)
 		default:
+
 			expr := nodeToExpr(node)
-			TopCtx.Push(expr)
 			res := expr.Eval()
-			eng.debug("expr:", expr, "=>", res) // "parent:", expr.GetParent()
-			TopCtx.Pop()
+			/*
+				var res Expr
+				var expr Expr
+
+				TopCtx.Push(nodeToExpr(node))
+				TopCtx.SetStat(OkID)
+
+				for TopCtx.Len() > 0 {
+					expr = TopCtx.Pop()
+					res = expr.Eval()
+				}
+			*/
+			eng.debug(TopCtx.GetStat(), " : ", expr, "=>", res) // "parent:", expr.GetParent()
 
 		}
 	}
@@ -74,7 +85,7 @@ func (eng *Engine) skipComments(src []byte) []byte {
 
 func (eng *Engine) debug(args ...interface{}) {
 	if eng.Debug {
-		log.Println(args...)
+		fmt.Println(args...)
 	}
 }
 

@@ -11,6 +11,8 @@ const (
 	ERROR     = "error"
 	NULL      = "null"
 	UNDEFINED = "undefined"
+	OK        = "ok"
+	FAIL      = "fail"
 	//BREAK     = "break"
 	//CONTINUE  = "contunue"
 )
@@ -21,6 +23,8 @@ var (
 	ErrID   = &ID{Value: ERROR, BaseExpr: BaseExpr{Name: "ID"}}
 	NullID  = &ID{Value: NULL, BaseExpr: BaseExpr{Name: "ID"}}
 	UndefID = &ID{Value: UNDEFINED, BaseExpr: BaseExpr{Name: "ID"}}
+	OkID    = &ID{Value: OK, BaseExpr: BaseExpr{Name: "ID"}}
+	FailID  = &ID{Value: FAIL, BaseExpr: BaseExpr{Name: "ID"}}
 )
 
 func applyFunc(llist *Llist) Expr {
@@ -168,7 +172,7 @@ func iff(args []Expr) Expr {
 	if !ok {
 		return ErrID
 	}
-	fmt.Println(cond)
+	//fmt.Println(cond)
 	if cond.Value == TRUE {
 		return args[1].Eval()
 	}
@@ -216,4 +220,31 @@ func is(args []Expr) Expr {
 		return ErrID
 	}
 	return match(args[0], args[1].Eval())
+}
+
+func test(args []Expr) Expr {
+
+	res := TrueID
+	for _, arg := range args {
+		test, ok := arg.(*Alist)
+		if !ok {
+			fmt.Printf("error: '%s', must be list\n", arg)
+			return ErrID
+		}
+		if len(test.Value) != 2 {
+			fmt.Printf("error: '%s', length must be 2\n", arg)
+			return ErrID
+		}
+		expr := test.Value[0]
+		val := expr.Eval()
+		must := test.Value[1]
+
+		if !val.Equals(must) {
+			fmt.Printf("FAIL - expr: '%s', result: '%s', must: '%s'\n", expr, val, must)
+			res = FalseID
+		}
+
+	}
+
+	return res
 }
