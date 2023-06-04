@@ -1,0 +1,22 @@
+(test 
+
+
+[(among [1 2 3 4] (func [i]  (if (> .i 4) .i fail))) []]
+
+[(set c [1 2 3 4]) [1 2 3 4]]
+
+[(among .c (func [i]  (if (< .i 2) .i fail))) [1]]
+
+#[(among .c (func [i]  (if (> .i 3) .i fail))) [4]]
+
+#[(set d [1 2 3]) []]
+#[(among .d 
+#    (func [i] 
+#        (among .d 
+#            (func [j] {i:.i j:.j}))
+#
+#    )) []]
+
+#[(ctx (root null)) {c:[1 2 3 4] d:[1 2]}]
+
+)

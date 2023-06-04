@@ -1,22 +1,29 @@
 package main
 
+import "fmt"
+
 func coreFuncs() map[string]Func {
 	return map[string]Func{
 		//"parse": parse,
-		"quote": quote,
-		"eval":  eval,
-		"func":  lambda,
-		"set":   set,
-		"print": printExprs,
-		"let":   let,
-		"do":    do,
-		"if":    iff,
-		"==":    eq,
-		"<>":    neq,
-		"not":   not,
-		"is":    is,
-		"test":  test,
-		"among": among,
+		"quote":   quote,
+		"eval":    eval,
+		"func":    lambda,
+		"set":     set,
+		"print":   printExprs,
+		"let":     let,
+		"do":      do,
+		"if":      iff,
+		"==":      eq,
+		"<>":      neq,
+		"not":     not,
+		"is":      is,
+		"test":    test,
+		"among":   among,
+		"type":    type_,
+		"reftype": reftype,
+		"ctx":     findctx,
+		"parent":  parent,
+		"root":    root,
 	}
 }
 
@@ -110,14 +117,16 @@ func FindCtx(expr Expr) (ctx *Context) {
 
 func FindRef(ref *Refer) Expr {
 	var expr Expr = ref
-
+	fmt.Println("FindRef:----start: ", ref)
 	for expr != nil {
 		parent := expr.GetParent()
 		if parent != nil {
 			ctx := parent.GetCtx()
 			if ctx != nil {
+				fmt.Println("FindRef: ", expr.GetName(), expr, ctx.vars.Value, expr.GetParent())
 				val, ok := ctx.Get(ref)
 				if ok {
+					fmt.Println("FindRef:---finish: ", val)
 					return val
 				}
 			}
@@ -131,4 +140,15 @@ func FindRef(ref *Refer) Expr {
 	}
 
 	return UndefID
+}
+
+func TraceCtx(expr Expr) {
+	for expr != nil {
+		if expr.GetCtx() != nil {
+			//fmt.Println("TraceCtx: ", expr, expr.GetCtx().vars)
+		} else {
+			//fmt.Println("TraceCtx: ", expr, expr.GetCtx())
+		}
+		expr = expr.GetParent()
+	}
 }

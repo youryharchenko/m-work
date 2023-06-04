@@ -22,7 +22,10 @@ type Expr interface {
 
 	Eval() Expr
 	Equals(Expr) bool
-	//Clone() Expr
+
+	GetName() string
+
+	Clone() Expr
 	//ChangeContext(string)
 	//Debug() string
 }
@@ -34,6 +37,10 @@ type BaseExpr struct {
 	Node   parsec.ParsecNode
 	Ctx    *Context
 	Name   string
+}
+
+func (expr *BaseExpr) GetName() string {
+	return expr.Name
 }
 
 func (expr *BaseExpr) SetParent(parent Expr) {
@@ -386,6 +393,20 @@ func (llist *Llist) Equals(e Expr) (res bool) {
 	return
 }
 
+// Clone -
+func (llist *Llist) Clone() (expr Expr) {
+	return &Llist{
+		BaseExpr: BaseExpr{
+			Parent: llist.BaseExpr.Parent,
+			Node:   llist.BaseExpr.Node,
+			Ctx:    llist.BaseExpr.Ctx,
+			Name:   llist.BaseExpr.Name,
+		},
+		Value:   llist.Value,
+		CtxName: llist.CtxName,
+	}
+}
+
 // Dict -
 type Dict struct {
 	BaseExpr
@@ -493,6 +514,21 @@ func (lamb *Lambda) Equals(e Expr) (res bool) {
 	return
 }
 
+// Clone -
+func (lamb *Lambda) Clone() (expr Expr) {
+	return &Lambda{
+		BaseExpr: BaseExpr{
+			Parent: lamb.BaseExpr.Parent,
+			Node:   lamb.BaseExpr.Node,
+			Ctx:    lamb.BaseExpr.Ctx,
+			Name:   lamb.BaseExpr.Name,
+		},
+		Params:  lamb.Params,
+		Body:    lamb.Body,
+		CtxName: lamb.CtxName,
+	}
+}
+
 // Apply -
 func (lamb *Lambda) Apply(args []Expr) (res Expr) {
 	//engine.debug(lamb.Debug(), args, ctxName)
@@ -505,7 +541,31 @@ func (lamb *Lambda) Apply(args []Expr) (res Expr) {
 		vars[item.Value] = args[i].Eval()
 	}
 
-	lamb.GetParent().SetCtx(&Context{vars: &Dict{BaseExpr: lamb.BaseExpr, Value: vars}})
+	// lamb.GetParent().SetCtx(&Context{vars: &Dict{Value: vars}})
+	// fmt.Println("Lambda Apply GetParent ", lamb.GetParent(), lamb.GetParent().GetCtx())
+	// fmt.Println("Lambda Apply GetParent GetParent ctx", lamb.GetParent().GetParent(), lamb.GetParent().GetParent().GetCtx())
+
+	// TraceCtx(lamb.Body)
+
+	// res = lamb.Body.Eval()
+
+	vars["##"] = &ID{Value: fmt.Sprint(args), BaseExpr: BaseExpr{Name: "ID"}}
+
+	clonedParent := lamb.GetParent().Clone()
+	clonedLamb := lamb.Clone().(*Lambda)
+	clonedLamb.SetParent(clonedParent)
+	clonedLamb.GetParent().SetCtx(&Context{vars: &Dict{BaseExpr: clonedLamb.BaseExpr, Value: vars}})
+	clonedLamb.Body.SetParent(clonedLamb)
+
+	//fmt.Println("Lambda Apply cloned GetParent ", clonedLamb.GetParent(), clonedLamb.GetParent().GetCtx())
+	//fmt.Println("Lambda Apply cloned GetParent GetParent ctx", clonedLamb.GetParent().GetParent(), clonedLamb.GetParent().GetParent().GetCtx())
+
+	TraceCtx(clonedLamb.Body)
+
+	res = clonedLamb.Body.Eval()
+
+	//lamb.SetCtx(&Context{vars: &Dict{BaseExpr: lamb.BaseExpr, Value: vars}})
+
 	//if ctxName != lamb.CtxName && ctxName == "main" {
 	//	ctxName = lamb.CtxName
 	//}
@@ -519,7 +579,7 @@ func (lamb *Lambda) Apply(args []Expr) (res Expr) {
 	//fmt.Println("Lambda Apply expr: ", lamb)
 	//fmt.Println("Lambda Apply parent: ", lamb.GetParent())
 	//fmt.Println("Lambda Apply Body Parent: ", lamb.Body.GetParent())
-	res = lamb.Body.Eval()
+
 	//c, _ = engine.current.Load(ctxName)
 	//c.(*Context).pop(ctxName)
 	//engine.current[ctxName].pop(ctxName)

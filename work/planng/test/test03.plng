@@ -1,0 +1,33 @@
+(test
+
+[(type a) ID]
+[(type 1) Num]
+[(type (do)) Llist]
+[(type []) Alist]
+[(type {}) Dict]
+[(type .a) Refer]
+
+[(reftype .a) ID]
+[(let {a:0 b:(func [] null)} [(reftype .a)(reftype .b)]) [Num Lambda]]
+
+[(ctx null) {}]
+[(let {a:0 b:[]} (ctx null)) {a:0 b:[]}]
+
+[(set c {a:0 b:[]}) {a:0 b:[]}]
+[(let .c (ctx null)) {a:0 b:[]}]
+[(ctx null) {c:{a:0 b:[]}}]
+
+[(parent null) (parent null)]
+[(parent (parent null)) (parent (parent null))]
+
+[.c {a:0 b:[]}]
+[(parent .c) (set c {a:0 b:[]})]
+
+[.a undefined]
+[(parent .a) null]
+
+[(ctx (root null)) {c:{a:0 b:[]}}]
+
+[(type (let {} (root null))) Llist]
+
+)

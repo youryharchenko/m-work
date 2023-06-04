@@ -41,6 +41,7 @@ func (eng *Engine) EvalNodes(nodes []parsec.ParsecNode) {
 			v := node.([]parsec.ParsecNode)
 			eng.EvalNodes(v)
 		default:
+			TopCtx.SetStat(OkID)
 
 			expr := nodeToExpr(node)
 			res := expr.Eval()
