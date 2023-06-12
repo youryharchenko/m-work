@@ -25,12 +25,27 @@ func among(args []Expr) Expr {
 	}
 
 	fw := args[1].Eval()
+
+	var fn Expr
+
+	fmt.Println("Among func: ", fw, fw.GetName())
+	switch f := fw.(type) {
+	case *Lambda:
+		clonedParent := f.GetParent().Clone()
+		fn = f.Clone().(*Lambda)
+		fn.SetParent(clonedParent)
+		fmt.Println("Among clone func: ", fn, fw.GetName())
+	case *ID:
+		fn = fw
+	}
+
 	out := make(chan Expr, len(alter.Value))
+	//out := make(chan Expr, 0)
 
 	TopCtx.SetStat(FailID)
 
 	for _, expr := range alter.Value {
-		go gosub(out, fw, []Expr{expr})
+		go gosub(out, fn, []Expr{expr})
 	}
 
 	i := 0
@@ -70,7 +85,9 @@ func gosub(out chan Expr, f Expr, args []Expr) {
 		}
 		res = f(args)
 	case *Lambda:
+		fmt.Println("gosub apply:", fn, args)
 		res = fn.Apply(args)
+		fmt.Println("gosub res:", res)
 	}
 	if !res.Equals(FailID) {
 		//TopCtx.SetStat(OkID)

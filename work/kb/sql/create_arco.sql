@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS arco
+(
+    id INT PRIMARY KEY,
+    rco INT NOT NULL,
+    a INT NOT NULL,
+    v INT NOT NULL,
+    FOREIGN KEY(rco) REFERENCES rco(id), 
+    FOREIGN KEY(a) REFERENCES a(id), 
+    FOREIGN KEY(v) REFERENCES v(id),
+    UNIQUE(rco, a) 
+)

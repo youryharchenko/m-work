@@ -54,3 +54,9 @@ target
 .bloop
 .metals
 work/planng/planng
+
+deploy
+kb.cgi
+deploy.sh
+
+

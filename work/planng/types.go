@@ -541,28 +541,28 @@ func (lamb *Lambda) Apply(args []Expr) (res Expr) {
 		vars[item.Value] = args[i].Eval()
 	}
 
-	// lamb.GetParent().SetCtx(&Context{vars: &Dict{Value: vars}})
-	// fmt.Println("Lambda Apply GetParent ", lamb.GetParent(), lamb.GetParent().GetCtx())
-	// fmt.Println("Lambda Apply GetParent GetParent ctx", lamb.GetParent().GetParent(), lamb.GetParent().GetParent().GetCtx())
+	lamb.GetParent().SetCtx(&Context{vars: &Dict{Value: vars}})
+	//fmt.Println("Lambda Apply GetParent ", lamb.GetParent(), lamb.GetParent().GetCtx())
+	//fmt.Println("Lambda Apply GetParent GetParent ctx", lamb.GetParent().GetParent(), lamb.GetParent().GetParent().GetCtx())
 
-	// TraceCtx(lamb.Body)
+	//TraceCtx(lamb.Body)
 
-	// res = lamb.Body.Eval()
+	res = lamb.Body.Eval()
 
-	vars["##"] = &ID{Value: fmt.Sprint(args), BaseExpr: BaseExpr{Name: "ID"}}
+	// vars["##"] = &ID{Value: fmt.Sprint(args), BaseExpr: BaseExpr{Name: "ID"}}
 
-	clonedParent := lamb.GetParent().Clone()
-	clonedLamb := lamb.Clone().(*Lambda)
-	clonedLamb.SetParent(clonedParent)
-	clonedLamb.GetParent().SetCtx(&Context{vars: &Dict{BaseExpr: clonedLamb.BaseExpr, Value: vars}})
-	clonedLamb.Body.SetParent(clonedLamb)
+	// clonedParent := lamb.GetParent().Clone()
+	// clonedLamb := lamb.Clone().(*Lambda)
+	// clonedLamb.SetParent(clonedParent)
+	// clonedLamb.GetParent().SetCtx(&Context{vars: &Dict{BaseExpr: clonedLamb.BaseExpr, Value: vars}})
+	// clonedLamb.Body.SetParent(clonedLamb)
 
 	//fmt.Println("Lambda Apply cloned GetParent ", clonedLamb.GetParent(), clonedLamb.GetParent().GetCtx())
 	//fmt.Println("Lambda Apply cloned GetParent GetParent ctx", clonedLamb.GetParent().GetParent(), clonedLamb.GetParent().GetParent().GetCtx())
 
-	TraceCtx(clonedLamb.Body)
+	// TraceCtx(clonedLamb.Body)
 
-	res = clonedLamb.Body.Eval()
+	// res = clonedLamb.Body.Eval()
 
 	//lamb.SetCtx(&Context{vars: &Dict{BaseExpr: lamb.BaseExpr, Value: vars}})
 

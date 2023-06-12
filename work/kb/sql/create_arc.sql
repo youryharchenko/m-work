@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS arc
+(
+    id INT PRIMARY KEY,
+    rc INT NOT NULL,
+    a INT NOT NULL,
+    v INT NOT NULL,
+    FOREIGN KEY(rc) REFERENCES rc(id), 
+    FOREIGN KEY(a) REFERENCES a(id), 
+    FOREIGN KEY(v) REFERENCES v(id),
+    UNIQUE(rc, a) 
+);
+    

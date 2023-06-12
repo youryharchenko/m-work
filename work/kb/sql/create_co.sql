@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS co
+(
+    id INT PRIMARY KEY,
+    c INT NOT NULL,
+    o INT NOT NULL,
+    FOREIGN KEY(c) REFERENCES c(id), 
+    FOREIGN KEY(o) REFERENCES o(id),
+    UNIQUE(c, o) 
+);
+ 

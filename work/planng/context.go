@@ -123,7 +123,7 @@ func FindRef(ref *Refer) Expr {
 		if parent != nil {
 			ctx := parent.GetCtx()
 			if ctx != nil {
-				fmt.Println("FindRef: ", expr.GetName(), expr, ctx.vars.Value, expr.GetParent())
+				fmt.Println("FindRef: ", parent.GetName(), ctx, ctx.vars.Value, expr.GetParent())
 				val, ok := ctx.Get(ref)
 				if ok {
 					fmt.Println("FindRef:---finish: ", val)
@@ -145,9 +145,9 @@ func FindRef(ref *Refer) Expr {
 func TraceCtx(expr Expr) {
 	for expr != nil {
 		if expr.GetCtx() != nil {
-			//fmt.Println("TraceCtx: ", expr, expr.GetCtx().vars)
+			fmt.Println("TraceCtx: ", expr, expr.GetCtx().vars)
 		} else {
-			//fmt.Println("TraceCtx: ", expr, expr.GetCtx())
+			fmt.Println("TraceCtx: ", expr, expr.GetCtx())
 		}
 		expr = expr.GetParent()
 	}
