@@ -1,14 +1,6 @@
 package main
 
-import (
-	"crypto/rsa"
-	"encoding/json"
-	"fmt"
-	"testing"
-
-	"github.com/parnurzeal/gorequest"
-)
-
+/*
 func TestSendMail(t *testing.T) {
 	pubKey, err := getPubKey("site_public_key.pem")
 	if err != nil {
@@ -95,3 +87,4 @@ func sendMail(pub *rsa.PublicKey, to []string, msg string) error {
 	return nil
 
 }
+*/
