@@ -1,20 +1,21 @@
 
-CALL make_v(0, 'cat1', @v_id_cat1);
-CALL make_c(@v_id_cat1, @c_id_cat1);
+CALL  make_v(0, 'Document', @v_id_doc);
+CALL  make_v(0, 'Sentence', @v_id_sent);
 
+CALL make_c(@v_id_doc, @c_id_doc);
+CALL make_c(@v_id_sent, @c_id_sent);
 
-CALL make_v(0, 'cat2', @v_id_cat2);
-CALL make_c(@v_id_cat2, @c_id_cat2);
+CALL  make_v(0, 'Document01', @v_id_doc1);
+CALL  make_v(0, 'Sentence01', @v_id_sent1);
+CALL  make_v(0, 'Sentence02', @v_id_sent2);
 
-CALL make_v(0, 'obj1', @v_id_obj1);
-CALL make_o(@v_id_obj1, @o_id_obj1);
+CALL make_o(@v_id_doc1, @o_id_doc1);
+CALL make_o(@v_id_sent1, @o_id_sent1);
+CALL make_o(@v_id_sent2, @o_id_sent2);
 
-CALL make_v(0, 'obj2', @v_id_obj2);
-CALL make_o(@v_id_obj2, @o_id_obj2);
+CALL make_co(@c_id_doc, @o_id_doc1, @co_id_doc_doc1);
+CALL make_co(@c_id_sent, @o_id_sent1, @co_id_doc_sent1);
+CALL make_co(@c_id_sent, @o_id_sent2, @co_id_doc_sent2);
 
-CALL make_co(@c_id_cat1, @o_id_obj1, @co_id_cat1_obj1);
-CALL make_co(@c_id_cat2, @o_id_obj2, @co_id_cat2_obj2);
-
-
-SELECT @co_id_cat1_obj1, @co_id_cat2_obj2;
+SELECT @co_id_doc_doc1, @co_id_doc_sent1, @co_id_doc_sent2;
 

@@ -1,10 +1,13 @@
 
-CALL make_v(0, 'obj1', @v_id_obj1);
-CALL make_o(@v_id_obj1, @o_id_obj1);
 
-CALL make_v(0, 'obj2', @v_id_obj2);
-CALL make_o(@v_id_obj2, @o_id_obj2);
+CALL  make_v(0, 'Document01', @v_id_doc1);
+CALL  make_v(0, 'Sentence01', @v_id_sent1);
+CALL  make_v(0, 'Sentence02', @v_id_sent2);
 
-SELECT @o_id_obj1;
-SELECT @o_id_obj2;
+CALL make_o(@v_id_doc1, @o_id_doc1);
+CALL make_o(@v_id_sent1, @o_id_sent1);
+CALL make_o(@v_id_sent2, @o_id_sent2);
+
+SELECT @o_id_doc1, @o_id_sent1, @o_id_sent2;
+
 
