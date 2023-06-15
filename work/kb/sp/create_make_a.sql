@@ -1,0 +1,12 @@
+DROP PROCEDURE IF EXISTS make_a;
+
+DELIMITER //
+
+CREATE PROCEDURE make_a(IN val BIGINT UNSIGNED, OUT id BIGINT UNSIGNED) BEGIN
+    IF NOT EXISTS(SELECT a.id FROM a WHERE a.v = val) THEN
+        INSERT INTO a(v) VALUES(val);
+    END IF;
+   
+    SELECT a.id INTO id FROM a WHERE a.v = val;
+    SELECT id, val;
+END //
