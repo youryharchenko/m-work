@@ -57,6 +57,8 @@ work/planng/planng
 
 deploy
 kb.cgi
-deploy.sh
+
+.kb
+test*.json
 
 
