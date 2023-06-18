@@ -10,5 +10,5 @@ CREATE PROCEDURE make_ac(IN cat BIGINT UNSIGNED, IN attr BIGINT UNSIGNED, IN val
     END IF;
    
     SELECT ac.id INTO id FROM ac WHERE ac.c = cat AND ac.a = attr;
-    SELECT id, cat, attr, val;
+    SELECT id, cat as c, attr as a, val as v;
 END //

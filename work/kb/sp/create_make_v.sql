@@ -8,5 +8,5 @@ CREATE PROCEDURE make_v(IN t TINYINT, IN val VARCHAR(1024), OUT id BIGINT UNSIGN
     END IF;
    
     SELECT v.id INTO id FROM v WHERE v.type_ = t AND v.value = val;
-    SELECT id, t, val;
+    SELECT id, t as type_, val as value;
 END //

@@ -10,5 +10,5 @@ CREATE PROCEDURE make_arc(IN relc BIGINT UNSIGNED, IN rattr BIGINT UNSIGNED, IN 
     END IF;
    
     SELECT arc.id INTO id FROM arc WHERE arc.rc = relc AND arc.ar = rattr;
-    SELECT id, relc, rattr, val;
+    SELECT id, relc as rc, rattr as ar, val as v;
 END //

@@ -1,23 +1,17 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"work/lib"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
-type V struct {
-	ID    uint64 `db:"id"`
-	Type  uint8  `db:"type_"`
-	Value string `db:"value"`
-}
-
-func (v V) String() string {
-	return fmt.Sprintf("v(id: %d, type: %d, value: %s)", v.ID, v.Type, v.Value)
-}
+const fname = "./data/test01.json"
 
 func main() {
 
@@ -38,15 +32,34 @@ func main() {
 	}
 	defer conn.Close()
 
-	res := []V{}
-	err = conn.Select(&res, "SELECT * FROM v;")
+	jsonDoc, err := os.ReadFile(fname)
 	if err != nil {
-		log.Println("Exec error:", err)
-		return
+		log.Fatalln(err)
 	}
-	log.Println(res)
-	for _, v := range res {
-		log.Println(v)
+
+	document := new(lib.Document)
+
+	err = json.Unmarshal(jsonDoc, document)
+	if err != nil {
+		log.Fatalln(err)
 	}
+
+	err = lib.UploadDocument(conn, document)
+	if err != nil {
+		log.Println("uploadDocument error:", err)
+	}
+
+	/*
+		res := []lib.V{}
+		err = conn.Select(&res, "SELECT * FROM v;")
+		if err != nil {
+			log.Println("Exec error:", err)
+			return
+		}
+		log.Println(res)
+		for _, v := range res {
+			log.Println(v)
+		}
+	*/
 
 }

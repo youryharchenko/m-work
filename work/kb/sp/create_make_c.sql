@@ -8,5 +8,5 @@ CREATE PROCEDURE make_c(IN val BIGINT UNSIGNED, OUT id BIGINT UNSIGNED) BEGIN
     END IF;
    
     SELECT c.id INTO id FROM c WHERE c.v = val;
-    SELECT id, val;
+    SELECT id, val as v;
 END //

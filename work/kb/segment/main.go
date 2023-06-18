@@ -6,24 +6,14 @@ import (
 	"log"
 	"os"
 	"strings"
+	"work/lib"
 
 	"github.com/jdkato/prose/v2"
 )
 
-type Document struct {
-	Sents []Sentence `json:"sents"`
-	Inds  []uint64   `json:"inds"`
-}
-
-type Sentence struct {
-	Sent string   `json:"sent"`
-	Toks []string `json:"toks"`
-	Inds []uint64 `json:"inds"`
-}
-
 func main() {
 
-	fname := "./data/test02"
+	fname := "./data/test01"
 
 	buf, err := os.ReadFile(fname + ".txt")
 	if err != nil {
@@ -41,7 +31,7 @@ func main() {
 
 	sents := doc.Sentences()
 
-	normSents := make([]Sentence, len(sents))
+	normSents := make([]lib.Sentence, len(sents))
 	normInds := make([]uint64, len(sents))
 	cntSents := make(map[string]uint64)
 
@@ -90,7 +80,8 @@ func main() {
 
 	}
 
-	document := Document{
+	document := lib.Document{
+		Name:  fname,
 		Sents: normSents,
 		Inds:  normInds,
 	}

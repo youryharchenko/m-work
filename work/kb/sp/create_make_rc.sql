@@ -8,5 +8,5 @@ CREATE PROCEDURE make_rc(IN rel BIGINT UNSIGNED, IN cfrom BIGINT UNSIGNED, IN ct
     END IF;
    
     SELECT rc.id INTO id FROM rc WHERE rc.r = rel AND rc.cf = cfrom AND rc.ct = cto;
-    SELECT id, rel, cfrom, cto;
+    SELECT id, rel as r, cfrom as cf, cto as ct;
 END //

@@ -10,5 +10,5 @@ CREATE PROCEDURE make_ar(IN rel BIGINT UNSIGNED, IN attr BIGINT UNSIGNED, IN val
     END IF;
    
     SELECT ar.id INTO id FROM ar WHERE ar.r = rel AND ar.a = attr;
-    SELECT id, rel, attr, val;
+    SELECT id, rel as r, attr as a, val as v;
 END //
