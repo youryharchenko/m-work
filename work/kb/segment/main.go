@@ -14,6 +14,7 @@ import (
 func main() {
 
 	fname := "./data/test01"
+	title := "aima4 intro"
 
 	buf, err := os.ReadFile(fname + ".txt")
 	if err != nil {
@@ -46,6 +47,7 @@ func main() {
 
 		toks := make([]string, len(sdoc.Tokens()))
 		inds := make([]uint64, len(sdoc.Tokens()))
+		tags := make([]string, len(sdoc.Tokens()))
 		cnt := make(map[string]uint64)
 
 		for j, tok := range sdoc.Tokens() {
@@ -58,9 +60,11 @@ func main() {
 				cnt[lowtok] = ind + 1
 			}
 			inds[j] = ind
+			tags[j] = strings.ToLower(tok.Tag)
 			toks[j] = lowtok
 		}
 		normSents[i].Inds = inds
+		normSents[i].Tags = tags
 		normSents[i].Toks = toks
 		normSent := strings.Join(toks, " ")
 		normSents[i].Sent = normSent
@@ -76,12 +80,14 @@ func main() {
 		normInds[i] = indSent
 
 		fmt.Println(normSents[i].Sent)
+		fmt.Println(normSents[i].Tags)
 		fmt.Println(normSents[i].Inds)
 
 	}
 
 	document := lib.Document{
 		Name:  fname,
+		Title: title,
 		Sents: normSents,
 		Inds:  normInds,
 	}

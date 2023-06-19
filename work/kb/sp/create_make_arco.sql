@@ -10,5 +10,5 @@ CREATE PROCEDURE make_arco(IN relco BIGINT UNSIGNED, IN rcattr BIGINT UNSIGNED, 
     END IF;
    
     SELECT arco.id INTO id FROM arco WHERE arco.rco = relco AND arco.arc = rcattr;
-    SELECT id, relco, rcattr, val;
+    SELECT id, relco as rco, rcattr as arc, val as v;
 END //

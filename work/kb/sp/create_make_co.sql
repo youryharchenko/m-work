@@ -8,5 +8,5 @@ CREATE PROCEDURE make_co(IN cat BIGINT UNSIGNED, IN obj BIGINT UNSIGNED, OUT id 
     END IF;
    
     SELECT co.id INTO id FROM co WHERE co.c = cat AND co.o = obj;
-    SELECT id, cat, obj;
+    SELECT id, cat as c, obj as o;
 END //

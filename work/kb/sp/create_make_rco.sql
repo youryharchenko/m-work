@@ -13,5 +13,5 @@ CREATE PROCEDURE make_rco(IN rcid BIGINT UNSIGNED, IN cofrom BIGINT UNSIGNED, IN
     END IF;
    
     SELECT rco.id INTO id FROM rco WHERE rco.rc = rcid AND rco.cof = cofrom AND rco.cot = coto AND rco.i = ind;
-    SELECT id, rcid, cofrom, coto, ind;
+    SELECT id, rcid as rc, cofrom as cof, coto as cot, ind as i;
 END //

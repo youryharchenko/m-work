@@ -10,5 +10,5 @@ CREATE PROCEDURE make_aco(IN cobj BIGINT UNSIGNED, IN cattr BIGINT UNSIGNED, IN 
     END IF;
    
     SELECT aco.id INTO id FROM aco WHERE aco.co = cobj AND aco.ac = cattr;
-    SELECT id, cobj, cattr, val;
+    SELECT id, cobj as co, cattr as ac, val as v;
 END //
