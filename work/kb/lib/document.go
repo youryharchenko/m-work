@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -13,6 +14,7 @@ var modelV = map[string]uint64{
 	"sentence": 0,
 	"token":    0,
 	"tag":      0,
+	"pattern":  0,
 	"consists": 0,
 	"is":       0,
 	"number":   0,
@@ -26,6 +28,7 @@ var modelC = map[string]uint64{
 	"sentence": 0,
 	"token":    0,
 	"tag":      0,
+	"pattern":  0,
 }
 
 var modelR = map[string]uint64{
@@ -37,6 +40,7 @@ var modelRC = map[[3]string]uint64{
 	{"consists", "document", "sentence"}: 0,
 	{"consists", "sentence", "token"}:    0,
 	{"is", "token", "tag"}:               0,
+	{"is", "sentence", "pattern"}:        0,
 }
 
 var modelA = map[string]uint64{
@@ -84,9 +88,19 @@ func UploadDocument(conn *sqlx.DB, doc *Document) (err error) {
 		return fmt.Errorf("UploadDocument: %s is missing", "sentence")
 	}
 
+	c_id_pattern, ok := modelC["pattern"]
+	if !ok {
+		return fmt.Errorf("UploadDocument: %s is missing", "pattern")
+	}
+
 	rc_id_doc_sent, ok := modelRC[[3]string{"consists", "document", "sentence"}]
 	if !ok {
 		return fmt.Errorf("UploadDocument: %s is missing", [3]string{"consists", "document", "sentence"})
+	}
+
+	rc_id_sent_pattern, ok := modelRC[[3]string{"is", "sentence", "pattern"}]
+	if !ok {
+		return fmt.Errorf("UploadDocument: %s is missing", [3]string{"is", "sentence", "pattern"})
 	}
 
 	co_id_doc, err := makeCO(conn, c_id_doc, o_id_doc)
@@ -114,49 +128,124 @@ func UploadDocument(conn *sqlx.DB, doc *Document) (err error) {
 		return fmt.Errorf("UploadDocument: %s is missing", [5]string{"consists", "document", "sentence", "number", "0"})
 	}
 
-	//arc_id_tok_number, ok := modelARC[[5]string{"consists", "document", "sentence", "number", "0"}]
-	//if !ok {
-	//	return fmt.Errorf("UploadDocument: %s is missing", [5]string{"consists", "document", "sentence", "number", "0"})
-	//}
+	c_id_tok, ok := modelC["token"]
+	if !ok {
+		return fmt.Errorf("UploadDocument: %s is missing", "token")
+	}
+
+	rc_id_sent_tok, ok := modelRC[[3]string{"consists", "sentence", "token"}]
+	if !ok {
+		return fmt.Errorf("UploadDocument: %s is missing", [3]string{"consists", "sentence", "token"})
+	}
+
+	arc_id_tok_number, ok := modelARC[[5]string{"consists", "sentence", "token", "number", "0"}]
+	if !ok {
+		return fmt.Errorf("UploadDocument: %s is missing", [5]string{"consists", "sentence", "token", "number", "0"})
+	}
+
+	c_id_tag, ok := modelC["tag"]
+	if !ok {
+		return fmt.Errorf("UploadDocument: %s is missing", "tag")
+	}
+
+	rc_id_tok_tag, ok := modelRC[[3]string{"is", "token", "tag"}]
+	if !ok {
+		return fmt.Errorf("UploadDocument: %s is missing", [3]string{"is", "token", "tag"})
+	}
 
 	log.Println("v_id_doc:", v_id_doc, "o_id_doc:", o_id_doc, "co_id_doc:", co_id_doc, "aco_id_doc_title:", aco_id_doc_title)
 
 	for i, sent := range doc.Sents {
 
-		v_id_sent, err := makeV(conn, typeOf(sent.Sent), sent.Sent)
+		co_id_sent, err := makeConsistsNumber(conn, sent.Sent, doc.Inds[i], i+1,
+			co_id_doc, c_id_sent, rc_id_doc_sent, arc_id_sent_number)
 		if err != nil {
 			return err
 		}
 
-		o_id_sent, err := makeO(conn, v_id_sent)
+		err = makeIs(conn, strings.Join(sent.Tags, " "), c_id_pattern, co_id_sent, rc_id_sent_pattern)
 		if err != nil {
 			return err
 		}
 
-		co_id_sent, err := makeCO(conn, c_id_sent, o_id_sent)
-		if err != nil {
-			return err
+		for j, tok := range sent.Toks {
+
+			co_id_tok, err := makeConsistsNumber(conn, tok, sent.Inds[j], j+1,
+				co_id_sent, c_id_tok, rc_id_sent_tok, arc_id_tok_number)
+			if err != nil {
+				return err
+			}
+
+			err = makeIs(conn, sent.Tags[j], c_id_tag, co_id_tok, rc_id_tok_tag)
+			if err != nil {
+				return err
+			}
+
 		}
 
-		rco_id_doc_sent, err := makeRCO(conn, rc_id_doc_sent, co_id_doc, co_id_sent, doc.Inds[i])
-		if err != nil {
-			return err
-		}
-
-		v_id_sent_number, err := makeV(conn, INT, fmt.Sprintf("%d", i+1))
-		if err != nil {
-			return err
-		}
-
-		arco_id_sent_number, err := makeARCO(conn, rco_id_doc_sent, arc_id_sent_number, v_id_sent_number)
-		if err != nil {
-			return err
-		}
-
-		log.Println(i, co_id_sent, rco_id_doc_sent, arco_id_sent_number, sent)
+		log.Println(i, co_id_sent, sent)
 
 	}
 
+	return
+}
+
+func makeIs(conn *sqlx.DB, val_to string, c_id_to uint64, co_id_from uint64, rc_id uint64) (err error) {
+	v_id_to, err := makeV(conn, typeOf(val_to), val_to)
+	if err != nil {
+		return
+	}
+
+	o_id_to, err := makeO(conn, v_id_to)
+	if err != nil {
+		return
+	}
+
+	co_id_to, err := makeCO(conn, c_id_to, o_id_to)
+	if err != nil {
+		return
+	}
+
+	_, err = makeRCO(conn, rc_id, co_id_from, co_id_to, 0)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func makeConsistsNumber(conn *sqlx.DB, val string, ind uint64, num int,
+	co_id_parent uint64, c_id_child uint64, rc_id uint64, arc_id uint64) (co_id_child uint64, err error) {
+
+	v_id_child, err := makeV(conn, typeOf(val), val)
+	if err != nil {
+		return
+	}
+
+	o_id_child, err := makeO(conn, v_id_child)
+	if err != nil {
+		return
+	}
+
+	co_id_child, err = makeCO(conn, c_id_child, o_id_child)
+	if err != nil {
+		return
+	}
+
+	rco_id, err := makeRCO(conn, rc_id, co_id_parent, co_id_child, ind)
+	if err != nil {
+		return
+	}
+
+	v_id_number, err := makeV(conn, INT, fmt.Sprintf("%d", num))
+	if err != nil {
+		return
+	}
+
+	_, err = makeARCO(conn, rco_id, arc_id, v_id_number)
+	if err != nil {
+		return
+	}
 	return
 }
 

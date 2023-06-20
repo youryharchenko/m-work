@@ -11,7 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const fname = "./data/test01.json"
+//const fname = "./data/test01.json"
 
 func main() {
 
@@ -19,6 +19,7 @@ func main() {
 	kbDB := os.Getenv("KB_DB")
 	kbUser := os.Getenv("KB_USER")
 	kbPwd := os.Getenv("KB_PWD")
+	fname := os.Getenv("DOC_JSON")
 
 	log.Printf("host: %s, db: %s, user: %s, pwd: %s\n", kbHost, kbDB, kbUser, kbPwd)
 

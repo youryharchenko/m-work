@@ -59,6 +59,8 @@ deploy
 kb.cgi
 
 .kb
+.kb-local
+
 test*.json
 
 

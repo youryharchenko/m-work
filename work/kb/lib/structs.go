@@ -83,7 +83,7 @@ type RCO struct {
 }
 
 func (rco RCO) String() string {
-	return fmt.Sprintf("rco(id: %d, rc: %d, cof: %d, cot: %d)", rco.ID, rco.RC, rco.COF, rco.COT, rco.Ind)
+	return fmt.Sprintf("rco(id: %d, rc: %d, cof: %d, cot: %d, i: %d)", rco.ID, rco.RC, rco.COF, rco.COT, rco.Ind)
 }
 
 type A struct {

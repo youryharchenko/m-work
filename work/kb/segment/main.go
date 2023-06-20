@@ -13,7 +13,10 @@ import (
 
 func main() {
 
-	fname := "./data/test01"
+	//fname := "./data/test01"
+	//title := "aima4 intro"
+
+	fname := "./data/test03"
 	title := "aima4 intro"
 
 	buf, err := os.ReadFile(fname + ".txt")
