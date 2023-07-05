@@ -63,4 +63,6 @@ kb.cgi
 
 test*.json
 
+builddir
+
 
