@@ -4,6 +4,9 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 3c4ee829-c1e9-494b-b989-e02dd140ee1a
+using DataStructures
+
 # ╔═╡ 4f1097a7-8912-4a8a-b637-8a83d85fd292
 const Term = Union{Symbol, Tuple}
 
@@ -17,36 +20,36 @@ end
 
 # ╔═╡ 76863221-93cf-4584-87ed-f26a88d51172
 @kwdef mutable struct Problem
-	state::Set{Term} = Set()
-	goals::Set{Term} = Set()
+	state::Set{Term} = Set{Term}()
+	goals::Set{Term} = Set{Term}()
+	stack::Stack{Term} = Stack{Term}()
 	ops::Set{Op} = Set()
 end
 
 # ╔═╡ e4af48a2-199a-11ee-391a-1da131422d10
-
+@kwdef struct Result
+	problem::Problem = nothing
+	succ::Bool = false
+end
 
 # ╔═╡ a355034f-f71b-4134-94e0-724ad39f3766
 begin
 
-function GPS(problem::Problem)::Term 
+function GPS(problem::Problem)::Result 
 	# (defun GPS (*state* goals *ops*)
 	# 	"General Problem Solver: achieve all goals using *ops*."
     #	(if (every #'achieve goals) 'solved))
-	
-	if achieve_goals(problem) 
+
+	result = achieve_goals(problem) 
+	if result.succ
 		println("Solved")
-  		:solved
 	else
 		println("Not Solved")
-		:not_solved
   	end
+	result
 end
 
 function appropriate_p(goal::Term, op::Op)::Bool
-	# (defun appropriate-p (goal op)
-  	# 	"An op is appropriate to a goal if it is in its add list."
-  	# 	(member goal (op-add-list op)))
-
 	goal in op.add_list
 end
 
@@ -54,68 +57,72 @@ function find_all(pred::Function, item::Term, list::Set{Op})::Set{Op}
 	filter((i) -> pred(item, i), list)
 end
 
-function apply_op(problem::Problem, op::Op)::Bool
-	# (defun apply-op (op)
-  	# 	"Print a message and update *state* if op is applicable."
-  	# 	(when (every #'achieve (op-preconds op))
-    # 		(print (list 'executing (op-action op)))
-    # 		(setf *state* (set-difference *state* (op-del-list op)))
-    # 		(setf *state* (union *state* (op-add-list op)))
-    # 		t))
+function appropriated(problem::Problem, goal::Term)::Set{Op}
+	find_all(appropriate_p, goal, problem.ops)
+end
 
-	if achieve_preconds(problem, op) 
-		println("Executing: $(op.action)")
-		problem.state = setdiff(problem.state, op.del_list)
-		problem.state = union(problem.state, op.add_list)
-		true
+function apply_op(problem::Problem, goal::Term, op::Op)::Result
+	println("Consider: $(op.action)")
+	push!(problem.stack, goal)
+	#println("Stack: $(problem.stack)")
+	result = achieve_preconds(problem, op)
+	
+	if result.succ 
+		println("Action: $(op.action)")
+		state = setdiff(result.problem.state, op.del_list)
+		result.problem.state = union(state, op.add_list)
+		result
 	else
-		false
+		result
 	end
 end
 
-function achieve_goals(problem::Problem)::Bool 
-	for g in problem.goals
-		if !achieve(problem, g)
-			return false
+function achieve_all(problem::Problem, goals::Set{Term})::Result
+	current_problem = copy(problem)
+	for g in goals
+		result = achieve(current_problem, g)
+		if !result.succ
+			return result
 		end
+		current_problem.state = result.problem.state
 	end
-	true
+	if !issubset(goals, current_problem.state)
+		return Result(problem=current_problem, succ=false)
+	end
+	Result(problem=current_problem, succ=true)
 end
 
-function achieve_preconds(problem::Problem, op::Op)::Bool
-	for g in op.preconds
-		if !achieve(problem, g)
-			return false
-		end
-	end
-	true
+function achieve_goals(problem::Problem)::Result
+	achieve_all(problem, problem.goals)
 end
 
-function achieve(problem::Problem, goal::Term)::Bool
-	# (defun achieve (goal)
-	#	"A goal is achieved if it already holds,
-	#	or if there is an appropriate op for it that is applicable."
-	#	(or (member goal *state*)
-   	#		(some #'apply-op
-    #    		(find-all goal *ops* :test #'appropriate-p))))
+function achieve_preconds(problem::Problem, op::Op)::Result
+	achieve_all(problem, op.preconds)
+end
 
-	# goal in state || 
-	#	any(apply_op.(find_all(appropriate_p, goal, ops)))
-
-	if goal in problem.state
-		true
+function achieve(problem::Problem, goal::Term)::Result
+	println("Goal: $goal")
+	if goal in problem.stack
+		Result(problem=problem, succ=false)
+	elseif goal in problem.state
+		Result(problem=problem, succ=true)
 	else 
-		for op in find_all(appropriate_p, goal, problem.ops)
-			if apply_op(problem, op)
-				return true
+		for op in appropriated(problem, goal) 
+			result = apply_op(problem, goal, op)
+			if result.succ
+				return result
 			end
 		end
-		false
+		Result(problem=problem, succ=false)
 	end
 end
 
 function Terms(list)::Set{Term}
 	Set(list)	
+end
+
+function copy(problem::Problem)
+	Problem(state=problem.state, goals=problem.goals, stack=problem.stack, ops=problem.ops)
 end
 
 end;
@@ -207,7 +214,128 @@ GPS(
 	), 
 )
 
+# ╔═╡ 465c198b-9124-41a8-bac7-b18323acb2ad
+banana = Set((
+	Op(
+		action = :climb_on_chair,
+      	preconds = Set((:chair_at_middle_room, :at_middle_room, :on_floor)),
+      	add_list = Set((:at_bananas, :on_chair)),
+      	del_list = Set((:at_middle_room, :on_floor)),
+	),
+	Op(
+		action = :push_chair_from_door_to_middle_room,
+      	preconds = Set((:chair_at_door, :at_door)),
+      	add_list = Set((:chair_at_middle_room, :at_middle_room)),
+      	del_list = Set((:chair_at_door, :at_door)),
+	),
+	Op(
+		action = :walk_from_door_to_middle_room,
+      	preconds = Set((:at_door, :on_floor)),
+      	add_list = Set((:at_middle_room,)),
+      	del_list = Set((:at_door,)),
+	),
+	Op(
+		action = :grasp_bananas,
+      	preconds = Set((:at_bananas, :empty_handed)),
+      	add_list = Set((:has_bananas,)),
+      	del_list = Set((:empty_handed,)),
+	),
+	Op(
+		action = :drop_ball,
+      	preconds = Set((:has_ball,)),
+      	add_list = Set((:empty_handed,)),
+      	del_list = Set((:has_ball,)),
+	),
+	Op(
+		action = :eat_bananas,
+      	preconds = Set((:has_bananas,)),
+      	add_list = Set((:empty_handed, :not_hungry)),
+      	del_list = Set((:has_bananas, :hungry)),
+	),
+))
+
+# ╔═╡ 488972d6-1b84-4fd2-affa-16e2b97de2f2
+GPS(
+	Problem(
+		state = Terms((:at_door, :on_floor, :has_ball, :hungry, :chair_at_door)), 
+		goals = Terms((:not_hungry,)),
+		ops = banana
+	), 
+)
+
+# ╔═╡ 26a66cff-02c2-42c1-bfc7-425aa50fa3e3
+
+
+# ╔═╡ 00000000-0000-0000-0000-000000000001
+PLUTO_PROJECT_TOML_CONTENTS = """
+[deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+
+[compat]
+DataStructures = "~0.18.14"
+"""
+
+# ╔═╡ 00000000-0000-0000-0000-000000000002
+PLUTO_MANIFEST_TOML_CONTENTS = """
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.9.1"
+manifest_format = "2.0"
+project_hash = "e3a8422b0e28175696b10e5286e7a9c342411687"
+
+[[deps.Base64]]
+uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.Compat]]
+deps = ["UUIDs"]
+git-tree-sha1 = "4e88377ae7ebeaf29a047aa1ee40826e0b708a5d"
+uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
+version = "4.7.0"
+
+    [deps.Compat.extensions]
+    CompatLinearAlgebraExt = "LinearAlgebra"
+
+    [deps.Compat.weakdeps]
+    Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+    LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
+[[deps.DataStructures]]
+deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
+git-tree-sha1 = "cf25ccb972fec4e4817764d01c82386ae94f77b4"
+uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+version = "0.18.14"
+
+[[deps.InteractiveUtils]]
+deps = ["Markdown"]
+uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+
+[[deps.Markdown]]
+deps = ["Base64"]
+uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+
+[[deps.OrderedCollections]]
+git-tree-sha1 = "d321bf2de576bf25ec4d3e4360faca399afca282"
+uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+version = "1.6.0"
+
+[[deps.Random]]
+deps = ["SHA", "Serialization"]
+uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[[deps.SHA]]
+uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+version = "0.7.0"
+
+[[deps.Serialization]]
+uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+
+[[deps.UUIDs]]
+deps = ["Random", "SHA"]
+uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
+"""
+
 # ╔═╡ Cell order:
+# ╠═3c4ee829-c1e9-494b-b989-e02dd140ee1a
 # ╠═4f1097a7-8912-4a8a-b637-8a83d85fd292
 # ╠═76863221-93cf-4584-87ed-f26a88d51172
 # ╠═3f74b3dd-0cf1-4b8e-a138-b773df57ba13
@@ -221,3 +349,8 @@ GPS(
 # ╠═526add69-9922-433b-ab04-57413f2b0b5b
 # ╠═55c13881-e9de-4830-9fa3-7b889f7a2b6e
 # ╠═2a88cbd1-00e3-4ff9-ab69-f5bbcfd2d6f8
+# ╠═488972d6-1b84-4fd2-affa-16e2b97de2f2
+# ╠═465c198b-9124-41a8-bac7-b18323acb2ad
+# ╠═26a66cff-02c2-42c1-bfc7-425aa50fa3e3
+# ╟─00000000-0000-0000-0000-000000000001
+# ╟─00000000-0000-0000-0000-000000000002
