@@ -102,10 +102,11 @@ end
 
 function achieve(problem::Problem, goal::Term)::Result
 	println("Goal: $goal")
-	if goal in problem.stack
-		Result(problem=problem, succ=false)
-	elseif goal in problem.state
+	
+	if goal in problem.state
 		Result(problem=problem, succ=true)
+	elseif goal in problem.stack
+		Result(problem=problem, succ=false)
 	else 
 		for op in appropriated(problem, goal) 
 			result = apply_op(problem, goal, op)
@@ -235,6 +236,12 @@ banana = Set((
       	del_list = Set((:at_door,)),
 	),
 	Op(
+		action = :walk_from_middle_room_to_door,
+      	preconds = Set((:at_middle_room, :on_floor)),
+      	add_list = Set((:at_door,)),
+      	del_list = Set((:at_middle_room,)),
+	),
+	Op(
 		action = :grasp_bananas,
       	preconds = Set((:at_bananas, :empty_handed)),
       	add_list = Set((:has_bananas,)),
@@ -264,7 +271,32 @@ GPS(
 )
 
 # ╔═╡ 26a66cff-02c2-42c1-bfc7-425aa50fa3e3
+maze = ((1, 2), (2, 3), (3, 4), (4, 9), (9, 14), (9, 8), (8, 7), (7, 12), (12, 13),
+       (12, 11), (11, 6), (11, 16), (16, 17), (17, 22), (21, 22), (22, 23),
+       (23, 18), (23, 24), (24, 19), (19, 20), (20, 15), (15, 10), (10, 5), (20, 25))
 
+# ╔═╡ e8749a9f-cf3a-4f1a-a5e5-bc39c41dd903
+maze_ops = let
+	ops = Set{Op}()
+	for o in maze
+		push!(ops, Op(
+			action=Symbol("move_from_$(o[1])_to_$(o[2])"),
+			preconds=Set{Term}((Symbol("at_$(o[1])"),)),
+			add_list=Set{Term}((Symbol("at_$(o[2])"),)),
+			del_list=Set{Term}((Symbol("at_$(o[1])"),)),
+		))
+	end
+	ops
+end
+
+# ╔═╡ 53bfbe74-cef0-457c-9120-5cd144b34675
+GPS(
+	Problem(
+		state = Terms((:at_1,)), 
+		goals = Terms((:at_25,)),
+		ops = maze_ops
+	), 
+)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -351,6 +383,8 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 # ╠═2a88cbd1-00e3-4ff9-ab69-f5bbcfd2d6f8
 # ╠═488972d6-1b84-4fd2-affa-16e2b97de2f2
 # ╠═465c198b-9124-41a8-bac7-b18323acb2ad
+# ╠═53bfbe74-cef0-457c-9120-5cd144b34675
 # ╠═26a66cff-02c2-42c1-bfc7-425aa50fa3e3
+# ╠═e8749a9f-cf3a-4f1a-a5e5-bc39c41dd903
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
