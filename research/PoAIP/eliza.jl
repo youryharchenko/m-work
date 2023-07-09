@@ -88,6 +88,10 @@ function segment_match(pattern, input, bindings, start=1)
     #                 				(segment-match pattern input bindings (+ pos 1))
     #                 				(match-variable var (subseq input 0 pos) 			# 									b2))))))))
 
+	if length(pattern) == 0
+		return bindings 
+	end
+	
 	var = pattern[1][2]
 	pat = pattern[2:end]
 	
@@ -99,9 +103,16 @@ function segment_match(pattern, input, bindings, start=1)
 		println("segment_match :: pat: $pat, input: $subseq")
 		pos = findfirst(isequal(pat[1]), subseq)
 		if isnothing(pos)
-			println("segment_match :: isnothing(pos) -> return fail")
-			bindings.succ = false
-			bindings
+			println("segment_match :: isnothing(pos) == true")
+			if variable_p(pat[1])
+				println("segment_match :: isnothing(pos) variable_p(pat[1]) == true -> return segment_match")
+				
+				segment_match(pat[2:end], subseq[2:end], match_variable(pat[1], subseq[1], bindings), start+1)
+			else
+				println("segment_match :: isnothing(pos) else -> return fail")
+				bindings.succ = false
+				bindings
+			end
 		else
 			println("segment_match :: pos: $pos  -> pat_match")
 			b2 = pat_match(pat, input[pos:end], bindings)
@@ -141,18 +152,18 @@ function pat_match(pattern, input, bindings=Result(Dict{Symbol, Any}(), true))
 		match_variable(pattern, input, bindings)
 	elseif pattern == input
 		bindings
-	elseif segment_pattern_p(pattern)
-		println("pat_match :: segment_pattern_p(pattern) == true   -> segment_match")
-		segment_match(pattern, input, bindings)
+	#elseif segment_pattern_p(pattern)
+	#	println("pat_match :: segment_pattern_p(pattern) == true   -> segment_match")
+	#	segment_match(pattern, input, bindings)
 	elseif iterable_p(pattern) && iterable_p(input) && 
 		length(pattern) > 0 && length(input) > 0
 		
 		println("pat_match :: iterable == true (pattern[1]: $(pattern[1]))")
 		if segment_pattern_p(pattern[1])
-			println("pat_match :: iterable == true (pattern[1]: $(pattern[1]))  -> segment_match")
+			println("pat_match :: segment_pattern_p == true -> segment_match")
 			segment_match(pattern, input, bindings)
 		else
-			println("pat_match :: iterable == true   -> pat_match")
+			println("pat_match :: else -> iterate pat_match")
 			pat_match(pattern[2:end], input[2:end],
 				pat_match(pattern[1], input[1], bindings))
 		end
@@ -164,49 +175,67 @@ function pat_match(pattern, input, bindings=Result(Dict{Symbol, Any}(), true))
 	
 end
 
-# ╔═╡ 0072bc7f-01e0-4ef7-beba-4fae7162112b
-pat_match(1, 1)
+# ╔═╡ ac2fc16e-7ee0-4b9a-8510-b3dd146486f5
 
-# ╔═╡ 889d759e-dabe-4228-932d-6ff2f6bc5b94
-pat_match(:a, :a)
 
-# ╔═╡ ff45c3a3-f42e-4939-a95b-3694f6dbdb25
-pat_match([], [])
-
-# ╔═╡ 3705238f-f78f-44f6-8fbe-a415ffe2f1aa
-env = pat_match(var(:a), :b)
-
-# ╔═╡ 4d9098c4-d4a9-4535-bf76-2ae33d296549
-pat_match(var(:a), :b, env)
-
-# ╔═╡ e291fa43-69f9-40af-8256-64b2c4f943c9
-pat_match(var(:a), :c, env)
+# ╔═╡ 637a7d2c-5725-4839-9c3f-2dcb36367114
+let
+	all((
+		pat_match(1, 1).succ,
+		pat_match(:a, :a).succ,
+		pat_match([], []).succ,
+		let
+			env = pat_match(var(:a), :b)
+			all((
+				env.succ,
+				pat_match(var(:a), :b, env).succ,
+				!pat_match(var(:a), :c, env).succ,
+			))
+		end,
+		let
+			env = pat_match((seg(var(:a)),), (:c,))
+			all((
+				env.succ,
+				pat_match((seg(var(:a)),), (:c,), env).succ,
+				!pat_match((seg(var(:a)),), (:d,), env).succ,
+			))
+		end,
+		pat_match((seg(var(:a)),), (:c, :d)).succ,
+		pat_match((seg(var(:p)), :need, seg(var(:x))),
+			(:Mr, :Hulot, :and, :I, :need, :a, :vacation)).succ,
+		pat_match((:what, :he, :is, :a, :fool, :(!)),
+			(:what, :he, :is, :a, :fool, :(!))).succ,
+		pat_match((:what, :he, :is, :a, :fool, var(:x)),
+			(:what, :he, :is, :a, :fool, :(!))).succ,
+		pat_match((var(:x), :he, :is, :a, :fool, var(:y)),
+			(:what, :he, :is, :a, :fool, :(!))).succ,
+		pat_match((var(:x), :b, :c, :b, var(:x)),
+			(:a, :b, :c, :b, :a)).succ,
+		pat_match((var(:x), var(:y), :c, var(:y), var(:x)),
+			(:a, :b, :c, :b, :a)).succ,
+		pat_match((seg(var(:x)), :c, seg(var(:x))),
+			(:a, :b, :c, :a, :b)).succ,
+		pat_match((seg(var(:x)),),
+			(:a, :b, :a, :b)).succ,
+		pat_match((:what, seg(var(:x)), :is, seg(var(:y)), :fool, seg(var(:z))), 
+			(:what, :he, :is, :a, :fool, :(!))).succ,
+	
+	))
+end
 
 # ╔═╡ 64972166-4a00-4817-b0c9-6ded4706dffd
 (seg(var(:a)),)
 
-# ╔═╡ fe43a10f-0174-4de6-bac9-1354dfe54e1b
-env2 = pat_match((seg(var(:a)),), (:c,))
-
-# ╔═╡ 01e32c31-d334-4a11-8543-2ca73dbc92e7
-pat_match((seg(var(:a)),), (:c,), env2)
-
-# ╔═╡ 88ea76b8-1cd1-4eeb-ad2c-97b0fcd2a23c
-pat_match((seg(var(:a)),), (:d,), env2)
-
-# ╔═╡ c110f742-da6c-47e5-b764-83e79eede3e1
-pat_match((seg(var(:a)),), (:c, :d))
-
 # ╔═╡ d111e474-df3a-4eb7-8ba6-b61b5e24b6f3
 (seg(var(:p)), :need, seg(var(:x)))
 
-# ╔═╡ 5f4944d5-1b41-48d6-963c-2fd97633d3e8
-pat_match((seg(var(:p)), :need, seg(var(:x))), 
-	(:Mr, :Hulot, :and, :I, :need, :a, :vacation))
+# ╔═╡ 24fe221f-dd12-470b-8121-2b0f0bc267d3
+pat_match((seg(var(:x)), var(:y)), 
+	(:a, :b, :a, :b))
 
-# ╔═╡ 8693c811-94b8-450e-95f9-2983440ccf75
-pat_match((:what, seg(var(:x)), :is, seg(var(:y)), :fool, seg(var(:z))), 
-	(:what, :he, :is, :a, :fool, :(!)))
+# ╔═╡ 16f75817-a5e7-4f00-880d-b35236adcdf0
+pat_match((seg(var(:x)), seg(var(:y))), 
+	(:a, :b, :a, :b))
 
 # ╔═╡ 05b8c7b4-201c-4332-b457-b0744038a187
 variable_p(var(:a))
@@ -257,20 +286,12 @@ findfirst(isequal(:c), (:a, :b))
 # ╠═d3da6eee-6002-46f0-9f57-cc697faa87e0
 # ╠═6fda8747-f5de-45f6-bb4d-ddc2fc7fa817
 # ╠═0d452a5d-186f-42aa-a797-c00556124b5d
-# ╠═0072bc7f-01e0-4ef7-beba-4fae7162112b
-# ╠═889d759e-dabe-4228-932d-6ff2f6bc5b94
-# ╠═ff45c3a3-f42e-4939-a95b-3694f6dbdb25
-# ╠═3705238f-f78f-44f6-8fbe-a415ffe2f1aa
-# ╠═4d9098c4-d4a9-4535-bf76-2ae33d296549
-# ╠═e291fa43-69f9-40af-8256-64b2c4f943c9
+# ╠═ac2fc16e-7ee0-4b9a-8510-b3dd146486f5
+# ╠═637a7d2c-5725-4839-9c3f-2dcb36367114
 # ╠═64972166-4a00-4817-b0c9-6ded4706dffd
-# ╠═fe43a10f-0174-4de6-bac9-1354dfe54e1b
-# ╠═01e32c31-d334-4a11-8543-2ca73dbc92e7
-# ╠═88ea76b8-1cd1-4eeb-ad2c-97b0fcd2a23c
-# ╠═c110f742-da6c-47e5-b764-83e79eede3e1
 # ╠═d111e474-df3a-4eb7-8ba6-b61b5e24b6f3
-# ╠═5f4944d5-1b41-48d6-963c-2fd97633d3e8
-# ╠═8693c811-94b8-450e-95f9-2983440ccf75
+# ╠═24fe221f-dd12-470b-8121-2b0f0bc267d3
+# ╠═16f75817-a5e7-4f00-880d-b35236adcdf0
 # ╠═05b8c7b4-201c-4332-b457-b0744038a187
 # ╠═5e6ab8c2-9a37-4049-b134-8b1f1e4899aa
 # ╠═20920cdb-4046-42fb-99b2-1ac1e293a1c1
