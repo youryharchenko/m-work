@@ -4,6 +4,18 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ e5a2a403-afda-435c-9406-c12f102684f2
+using LispSyntax
+
+# ╔═╡ fbb81814-b90a-40a2-a11d-18a05abfed46
+lisp"(+ 1 2)"
+
+# ╔═╡ f8d7d109-ac33-4331-99e3-bc9339305fff
+lisp"(defn ident [x] x)"
+
+# ╔═╡ 46c7213a-d827-4eac-bd4f-2a888ad59b7b
+ident(1)
+
 # ╔═╡ 241370aa-7ebd-4a49-b036-ddaa3d316324
 mutable struct Result
 	vars::Dict{Symbol, Any}
@@ -276,7 +288,77 @@ segment_pattern_p((seg(:a)))
 # ╔═╡ c3cefcd1-8a47-4f17-9a7f-07be367bcb25
 findfirst(isequal(:c), (:a, :b))
 
+# ╔═╡ 00000000-0000-0000-0000-000000000001
+PLUTO_PROJECT_TOML_CONTENTS = """
+[deps]
+LispSyntax = "51c06dcf-91d3-5c9e-a52e-02df4e7cbcf5"
+
+[compat]
+LispSyntax = "~0.2.1"
+"""
+
+# ╔═╡ 00000000-0000-0000-0000-000000000002
+PLUTO_MANIFEST_TOML_CONTENTS = """
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.9.1"
+manifest_format = "2.0"
+project_hash = "d3288ae7dc1d8267a62fbb67043ac8c492051134"
+
+[[deps.AutoHashEquals]]
+git-tree-sha1 = "45bb6705d93be619b81451bb2006b7ee5d4e4453"
+uuid = "15f4f7f2-30c1-5605-9d31-71845cf9641f"
+version = "0.2.0"
+
+[[deps.Base64]]
+uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.InteractiveUtils]]
+deps = ["Markdown"]
+uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+
+[[deps.LispSyntax]]
+deps = ["ParserCombinator", "REPL", "ReplMaker"]
+git-tree-sha1 = "a6df629a9e5bac55b68df7215ede9bb9b14fdab6"
+uuid = "51c06dcf-91d3-5c9e-a52e-02df4e7cbcf5"
+version = "0.2.1"
+
+[[deps.Markdown]]
+deps = ["Base64"]
+uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+
+[[deps.ParserCombinator]]
+deps = ["AutoHashEquals", "Printf"]
+git-tree-sha1 = "3a0e65d9a73e3bb6ed28017760a1664423d7e37c"
+uuid = "fae87a5f-d1ad-5cf0-8f61-c941e1580b46"
+version = "2.1.1"
+
+[[deps.Printf]]
+deps = ["Unicode"]
+uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[deps.REPL]]
+deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
+uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
+
+[[deps.ReplMaker]]
+deps = ["REPL", "Unicode"]
+git-tree-sha1 = "f8bb680b97ee232c4c6591e213adc9c1e4ba0349"
+uuid = "b873ce64-0db9-51f5-a568-4457d8e49576"
+version = "0.2.7"
+
+[[deps.Sockets]]
+uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
+
+[[deps.Unicode]]
+uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+"""
+
 # ╔═╡ Cell order:
+# ╠═e5a2a403-afda-435c-9406-c12f102684f2
+# ╠═fbb81814-b90a-40a2-a11d-18a05abfed46
+# ╠═f8d7d109-ac33-4331-99e3-bc9339305fff
+# ╠═46c7213a-d827-4eac-bd4f-2a888ad59b7b
 # ╠═241370aa-7ebd-4a49-b036-ddaa3d316324
 # ╠═2fda8f26-1d74-11ee-144e-eb6252bd077a
 # ╠═80d592b1-fea7-4fb9-9b34-7e391f266d2a
@@ -305,3 +387,5 @@ findfirst(isequal(:c), (:a, :b))
 # ╠═55401198-7e26-4951-9d58-c57fb16245da
 # ╠═8e47a83d-3973-4200-8c0e-c700d6548779
 # ╠═c3cefcd1-8a47-4f17-9a7f-07be367bcb25
+# ╟─00000000-0000-0000-0000-000000000001
+# ╟─00000000-0000-0000-0000-000000000002

@@ -16,18 +16,21 @@ abstract type AbstractNode end
 # ╔═╡ 5fb611fe-b9ea-4d3e-b0f8-eddb4e0f9b69
 abstract type AbstractAction end
 
+# ╔═╡ 7811a736-4116-40ec-a47d-539bc4659678
+const ID = Union{Symbol, String, Int}
+
 # ╔═╡ 21cc727a-1e58-11ee-1a11-f34307c928bf
 @kwdef struct In <: AbstractState
-	name::Symbol = nothing
+	id::ID = nothing
 end
 
 # ╔═╡ 700aff0b-904e-4a34-883f-eba2249e80cb
-isequal(in1::AbstractState, in2::AbstractState)::Bool = in1.name == in2.name
+isequal(in1::In, in2::In)::Bool = in1.id == in2.id
 
 
 # ╔═╡ daa8c017-2170-421b-b4b0-46f6712a449a
 @kwdef struct Go <: AbstractAction
-	name = nothing
+	id::ID = nothing
 end
 
 # ╔═╡ 94f38634-78b0-4579-ac31-23cd27f293e7
@@ -52,7 +55,7 @@ end
 # ╔═╡ bfc8d89b-db80-4ba6-94c4-4491b54f8c6a
 function summary(result::Result)
 	(result.succ, result.count,
-	[[n.action.name for n in s] for s in result.solution])
+	[[n.action.id for n in s] for s in result.solution])
 end
 
 # ╔═╡ 176506d8-fa09-4511-8ab3-f19c350ae885
@@ -70,8 +73,8 @@ end
 
 # ╔═╡ 815acc89-6590-4153-92ac-82dde80653c5
 function successors(problem, state)
-	[(Go(name=s), In(name=s)) 
-		for s in keys(problem.graph[state.name])]
+	[(Go(id=s), In(id=s)) 
+		for s in keys(problem.graph[state.id])]
 end
 
 # ╔═╡ ee04e931-26cf-4ec7-a403-db6983984e61
@@ -178,31 +181,31 @@ romania = Dict(
 
 # ╔═╡ a9958620-13a1-4bc1-afea-723f2434de91
 tree_search(
-	Problem(initial_state=In(name=:A), initial_action=Go(name=:A), goal=In(name=:B), graph=romania),
+	Problem(initial_state=In(id=:A), initial_action=Go(id=:A), goal=In(id=:B), graph=romania),
 	20
 ) |> summary
 
 # ╔═╡ d640649c-5fd3-413f-a0a1-b013587beddc
 tree_search(
-	Problem(initial_state=In(name=:L), initial_action=Go(name=:L), goal=In(name=:F), graph=romania),
+	Problem(initial_state=In(id=:L), initial_action=Go(id=:L), goal=In(id=:F), graph=romania),
 	20
 ) |> summary
 
 # ╔═╡ 8626f57e-73d9-451e-945b-3573ec13c412
 tree_search(
-	Problem(initial_state=In(name=:L), initial_action=Go(name=:L), goal=In(name=:B), graph=romania),
+	Problem(initial_state=In(id=:L), initial_action=Go(id=:L), goal=In(id=:B), graph=romania),
 	20
 ) |> summary
 
 # ╔═╡ b0872b58-a70a-4806-a8cb-bab1f8efdff7
 tree_search(
-	Problem(initial_state=In(name=:C), initial_action=Go(name=:C), goal=In(name=:F), graph=romania),
+	Problem(initial_state=In(id=:C), initial_action=Go(id=:C), goal=In(id=:F), graph=romania),
 	20
 ) |> summary
 
 # ╔═╡ 569fa42c-ad77-468d-9a67-0d84db6ff1ee
 tree_search(
-	Problem(initial_state=In(name=:O), initial_action=Go(name=:O), goal=In(name=:U), graph=romania),
+	Problem(initial_state=In(id=:O), initial_action=Go(id=:O), goal=In(id=:U), graph=romania),
 	20
 ) |> summary
 
@@ -294,6 +297,7 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 # ╠═1c90223e-72ba-4054-8512-6e37e22da767
 # ╠═6df51de2-5a01-449a-ada9-3adb64b2813b
 # ╠═5fb611fe-b9ea-4d3e-b0f8-eddb4e0f9b69
+# ╠═7811a736-4116-40ec-a47d-539bc4659678
 # ╠═21cc727a-1e58-11ee-1a11-f34307c928bf
 # ╠═700aff0b-904e-4a34-883f-eba2249e80cb
 # ╠═daa8c017-2170-421b-b4b0-46f6712a449a
