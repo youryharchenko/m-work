@@ -19,25 +19,53 @@ abstract type AbstractAction end
 # ╔═╡ 7811a736-4116-40ec-a47d-539bc4659678
 const ID = Union{Symbol, String, Int}
 
+# ╔═╡ 0e3e7536-da59-429c-8b5a-9f991251b844
+struct Var
+	id::Symbol
+end
+
 # ╔═╡ 21cc727a-1e58-11ee-1a11-f34307c928bf
-@kwdef struct In <: AbstractState
-	id::ID = nothing
+@kwdef struct StateAtom <: AbstractState
+	succ::Bool = false
+	pos::Int = 1
+	len::Int = 1
+	env = Dict()
+end
+
+# ╔═╡ ef1c2954-a130-48e6-887a-5320fc3afb67
+@kwdef struct StateIter <: AbstractState
+	succ::Bool = false
+	pos::Int = 0
+	len::Int = 0
+	env = Dict()
 end
 
 # ╔═╡ 700aff0b-904e-4a34-883f-eba2249e80cb
-isequal(in1::In, in2::In)::Bool = in1.id == in2.id
+#isequal(in1::State, in2::In)::Bool = in1.id == in2.id
 
 
 # ╔═╡ daa8c017-2170-421b-b4b0-46f6712a449a
-@kwdef struct Go <: AbstractAction
-	id::ID = nothing
+@kwdef struct MatchAtom <: AbstractAction
+	pattern = nothing
+	input = nothing
+	pos_pat::Int = 1
+	pos_inp::Int = 1
+end
+
+# ╔═╡ 85881b65-3159-409c-9bb9-40507eda9bd3
+@kwdef struct MatchIter <: AbstractAction
+	pattern = nothing
+	input = nothing
+	pos_pat::Int = 1
+	pos_inp::Int = 1
 end
 
 # ╔═╡ 94f38634-78b0-4579-ac31-23cd27f293e7
-@kwdef struct Node <: AbstractNode 
+@kwdef mutable struct Node <: AbstractNode 
 	state::Union{AbstractState, Nothing} = nothing
 	parent::Union{AbstractNode, Nothing} = nothing
 	action::Union{AbstractAction, Nothing} = nothing
+	children::Array{Node} = Node[]
 	cost::Int = 0
 	depth::Int = 0
 end
@@ -55,20 +83,22 @@ end
 # ╔═╡ bfc8d89b-db80-4ba6-94c4-4491b54f8c6a
 function summary(result::Result)
 	(result.succ, result.count,
-	[[n.action.id for n in s] for s in result.solution])
+	[[n.state for n in s] for s in result.solution])
 end
 
 # ╔═╡ 176506d8-fa09-4511-8ab3-f19c350ae885
 @kwdef struct Problem
-	initial_state::AbstractState = nothing
+	#initial_state::AbstractState = nothing
+	pattern = nothing
+	input = nothing
 	initial_action::AbstractAction = nothing
-	goal::AbstractState = nothing
-	graph::Dict = nothing
+	#goal_test::AbstractState = nothing
+	#graph::Dict = nothing
 end
 
 # ╔═╡ b51516db-a317-4b17-ac61-b22f2f8a9e96
 function goal_test(problem, state)
-	isequal(problem.goal, state)
+	state.succ && state.pos == state.len
 end
 
 # ╔═╡ 815acc89-6590-4153-92ac-82dde80653c5
@@ -100,26 +130,90 @@ function can_cycle(node::AbstractNode)
 	false
 end
 
+# ╔═╡ e73af586-c7a8-4477-8b36-d07464176c32
+isiterable(x) = applicable(length, x)
+
 # ╔═╡ 58ff17d7-d5ee-4bce-a94a-2ac45da07ad3
 function expand(problem, node)
-	filter((n)->!can_cycle(n), [Node(state=s[2], parent=node, action=s[1]) 
-		for s in successors(problem, node.state)])
+	nodes = Node[]
+	if node.state isa StateIter
+		pattern = node.action.pattern
+		input = node.action.input
+		for i in eachindex(node.action.pattern)
+			pat = pattern[i]
+			inp = (i > length(input)) ? nothing : input[i]
+			println("$pat, $inp")
+			if isiterable(pat) 
+				push!(nodes, Node(action=MatchIter(pattern=pat, input=inp)))
+			else
+				push!(nodes, Node(action=MatchAtom(pattern=pat, input=inp)))
+			end
+			
+		end
+	end
+	node.children = nodes
+	nodes
 end
 
-# ╔═╡ e871997b-84bf-4c48-bc33-8312f2195469
+# ╔═╡ 891d8023-bab0-4c22-a607-66c0b69707eb
+function var_match!(var, input, env)
+	if haskey(env, var.id)
+		env[var.id] == input
+	else
+		env[var.id] = input
+		true
+	end
+end
 
+# ╔═╡ db4e5c32-95c3-4a05-84f4-a1d39ce9ca9b
+function apply_action!(node)
+	action = node.action
+	env = isnothing(node.parent) ? Dict() : node.parent.state.env
+
+	 
+	if action isa MatchAtom
+		succ = if action.pattern isa Var
+			var_match!(action.pattern, action.input, env)
+		elseif action.pattern == action.input
+			true
+		else
+			false
+		end
+		node.state = StateAtom(succ=succ, env=env)
+	elseif action isa MatchIter
+		succ, pos, len = if length(action.pattern) == 0 && length(action.input) == 0
+			(true, 1, 1)
+		else
+			(false, 0, 0)	
+		end
+		node.state = StateIter(succ=succ, pos=pos, len=len, env=env)
+	else 
+		node.state = StateAtom(succ=false, env=env)
+	end
+
+	
+	node
+end
 
 # ╔═╡ f15d6a76-637d-451f-b20e-fab74183de57
 function tree_search(problem, n=1)
 	fringe = Queue{Node}()
 	#visited = []
-	enqueue!(fringe, Node(state=problem.initial_state, action=problem.initial_action))
+	node = Node(
+		action=problem.initial_action,
+	)
+	enqueue!(fringe, node)
 	solutions = []
 	succ = false
 	count = 1
-	while !isempty(fringe)
-		node = dequeue!(fringe)
+	k = 0
+	while !isempty(fringe) && k < 100
+		k += 1 
+		node = apply_action!(dequeue!(fringe))
+
+		println(node)
 		#push!(visited, node.state.name)
+		
 		if goal_test(problem, node.state)
 			#return Result(solution=make_solution(node), succ=true)
 			succ = true
@@ -143,89 +237,44 @@ function tree_search(problem, n=1)
 	
 end
 
-# ╔═╡ 55f9b410-6fd9-452e-aa55-9afa855f3a70
-q = Queue{Int}()
+# ╔═╡ 30cbb93f-89b7-4454-a3e2-87106ff05c1e
+function pat_match(pattern, input)
+	problem = Problem(
+		pattern=pattern, input=input, 
+		initial_action=isiterable(pattern) ? 
+			MatchIter(pattern=pattern, input=input) : 
+			MatchAtom(pattern=pattern, input=input)
+	)  
 
-# ╔═╡ ec2ed73b-ca2d-4ba2-8a0a-a6d30c9705d7
-enqueue!(q, 1)
+	tree_search(problem, 20)
+end
 
-# ╔═╡ f623dc6f-294b-45fa-8b22-5210d50f3367
-isempty(q)
+# ╔═╡ e0df6b04-d8b1-42cd-88bd-5924e93222d8
+pat_match(Var(:x), :b) |> summary
 
-# ╔═╡ 147c9821-a587-471b-94c2-7c5aca5cf327
-eltype(q)
-
-# ╔═╡ 8242a749-2c59-4a59-afb8-660952a0017e
-1 in q
-
-# ╔═╡ ea5ed506-4462-43e7-beff-0b498eed9817
-romania = Dict(
-    	:A=>Dict(:Z=>75, :S=>140, :T=>118),
-		:Z=>Dict(:A=>75, :O=>71),
-		:S=>Dict(:A=>140, :F=>99, :R=>80, :O=>151),
-		:T=>Dict(:A=>118, :L=>111),
-		:O=>Dict(:Z=>71, :S=>151),
-		:F=>Dict(:S=>99, :B=>211),
-		:R=>Dict(:S=>80, :C=>146, :P=>97),
-		:L=>Dict(:T=>111, :M=>70),
-        :B=>Dict(:F=>211, :U=>85, :P=>101, :G=>90),
-        :C=>Dict(:R=>146, :D=>120, :P=>138),
-		:P=>Dict(:R=>97, :C=>138, :B=>101),
-		:M=>Dict(:L=>70, :D=>75),
-        :D=>Dict(:M=>75, :C=>120),
-		:U=>Dict(:B=>85, :H=>98, :V=>142),
-		:G=>Dict(:B=>90),
-		:H=>Dict(:U=>98, :E=>86),
-        :E=>Dict(:H=>86),
-        :V=>Dict(:U=>142, :I=>92),
-        :I=>Dict(:V=>92, :N=>87),
-		:N=>Dict(:I=>87),
-   )
+# ╔═╡ df1f1b1b-e675-4530-8dea-3c3fb4237717
+pat_match(Var(:x), :a) |> summary
 
 # ╔═╡ a9958620-13a1-4bc1-afea-723f2434de91
-tree_search(
-	Problem(initial_state=In(id=:A), initial_action=Go(id=:A), goal=In(id=:B), graph=romania),
-	20
-) |> summary
+pat_match(:a, :a) |> summary
 
-# ╔═╡ d640649c-5fd3-413f-a0a1-b013587beddc
-tree_search(
-	Problem(initial_state=In(id=:L), initial_action=Go(id=:L), goal=In(id=:F), graph=romania),
-	20
-) |> summary
+# ╔═╡ 284efdf3-6413-49df-a947-b7e0ee9d1482
+pat_match(:a, 1) |> summary
 
-# ╔═╡ 8626f57e-73d9-451e-945b-3573ec13c412
-tree_search(
-	Problem(initial_state=In(id=:L), initial_action=Go(id=:L), goal=In(id=:B), graph=romania),
-	20
-) |> summary
+# ╔═╡ 9aa2df82-d2e9-456f-9343-f17043b7e28e
+pat_match(:a, :b) |> summary
 
-# ╔═╡ b0872b58-a70a-4806-a8cb-bab1f8efdff7
-tree_search(
-	Problem(initial_state=In(id=:C), initial_action=Go(id=:C), goal=In(id=:F), graph=romania),
-	20
-) |> summary
+# ╔═╡ 5ba01bbc-2894-4804-97f8-b36f6c18b101
+pat_match([], []) |> summary
 
-# ╔═╡ 569fa42c-ad77-468d-9a67-0d84db6ff1ee
-tree_search(
-	Problem(initial_state=In(id=:O), initial_action=Go(id=:O), goal=In(id=:U), graph=romania),
-	20
-) |> summary
+# ╔═╡ e6e29636-1b74-4028-9407-d47a993780d9
+pat_match([:a, :b], [:a, :b]) |> summary
 
-# ╔═╡ 916e97ee-6670-4448-8a84-404a5df47b00
-for k1 in keys(romania)
-	d1 = romania[k1]
-	for k2 in keys(d1)
-		d2 = romania[k2]
-		if !(k1 in keys(d2))
-			println("$k1 not in $(keys(d2))")
-		else
-			if d1[k2] != d2[k1]
-				println("$(d1[k2]) != $(d2[k1])")
-			end
-		end
-	end
-end
+# ╔═╡ 405cc43c-5803-43f1-bef9-7f3c5dd0db0d
+pat_match([:a, :b], [:a, :c]) |> summary
+
+# ╔═╡ 41c9a86b-f1c2-47e6-9fa4-aff25f228a5d
+isiterable(:a) 
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -301,32 +350,35 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 # ╠═6df51de2-5a01-449a-ada9-3adb64b2813b
 # ╠═5fb611fe-b9ea-4d3e-b0f8-eddb4e0f9b69
 # ╠═7811a736-4116-40ec-a47d-539bc4659678
+# ╠═0e3e7536-da59-429c-8b5a-9f991251b844
 # ╠═21cc727a-1e58-11ee-1a11-f34307c928bf
+# ╠═ef1c2954-a130-48e6-887a-5320fc3afb67
 # ╠═700aff0b-904e-4a34-883f-eba2249e80cb
 # ╠═daa8c017-2170-421b-b4b0-46f6712a449a
+# ╠═85881b65-3159-409c-9bb9-40507eda9bd3
 # ╠═94f38634-78b0-4579-ac31-23cd27f293e7
 # ╠═1bdfa350-4c08-4fa9-be8a-a92cb3c3f5f5
 # ╠═989946aa-106d-44a5-a674-05b6d3b36b85
 # ╠═bfc8d89b-db80-4ba6-94c4-4491b54f8c6a
 # ╠═176506d8-fa09-4511-8ab3-f19c350ae885
+# ╠═30cbb93f-89b7-4454-a3e2-87106ff05c1e
 # ╠═b51516db-a317-4b17-ac61-b22f2f8a9e96
 # ╠═58ff17d7-d5ee-4bce-a94a-2ac45da07ad3
 # ╠═815acc89-6590-4153-92ac-82dde80653c5
 # ╠═ee04e931-26cf-4ec7-a403-db6983984e61
 # ╠═b2e140e7-8a3e-4765-8756-54962d16ca13
-# ╠═e871997b-84bf-4c48-bc33-8312f2195469
+# ╠═e73af586-c7a8-4477-8b36-d07464176c32
+# ╠═db4e5c32-95c3-4a05-84f4-a1d39ce9ca9b
+# ╠═891d8023-bab0-4c22-a607-66c0b69707eb
 # ╠═f15d6a76-637d-451f-b20e-fab74183de57
+# ╠═e0df6b04-d8b1-42cd-88bd-5924e93222d8
+# ╠═df1f1b1b-e675-4530-8dea-3c3fb4237717
 # ╠═a9958620-13a1-4bc1-afea-723f2434de91
-# ╠═d640649c-5fd3-413f-a0a1-b013587beddc
-# ╠═8626f57e-73d9-451e-945b-3573ec13c412
-# ╠═b0872b58-a70a-4806-a8cb-bab1f8efdff7
-# ╠═569fa42c-ad77-468d-9a67-0d84db6ff1ee
-# ╠═55f9b410-6fd9-452e-aa55-9afa855f3a70
-# ╠═ec2ed73b-ca2d-4ba2-8a0a-a6d30c9705d7
-# ╠═f623dc6f-294b-45fa-8b22-5210d50f3367
-# ╠═147c9821-a587-471b-94c2-7c5aca5cf327
-# ╠═8242a749-2c59-4a59-afb8-660952a0017e
-# ╠═ea5ed506-4462-43e7-beff-0b498eed9817
-# ╠═916e97ee-6670-4448-8a84-404a5df47b00
+# ╠═284efdf3-6413-49df-a947-b7e0ee9d1482
+# ╠═9aa2df82-d2e9-456f-9343-f17043b7e28e
+# ╠═5ba01bbc-2894-4804-97f8-b36f6c18b101
+# ╠═e6e29636-1b74-4028-9407-d47a993780d9
+# ╠═405cc43c-5803-43f1-bef9-7f3c5dd0db0d
+# ╠═41c9a86b-f1c2-47e6-9fa4-aff25f228a5d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
