@@ -65,4 +65,12 @@ test*.json
 
 builddir
 
+research/wikipedia/data
+research/wikipedia/result
+work/text/template
+
+*.gif
+
+
+
 
