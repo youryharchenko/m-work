@@ -20,7 +20,8 @@
       <div class="col-sm-3">
         <h3> 2. Створення мета-даних</h3>
         <p>
-          За інформацією з освітніх стандартів зформуємо граф верхнього рівня в базі знань
+          За інформацією з освітніх стандартів МОН та освітніх програм НУБіП (ФІТ)
+          зформуємо граф верхнього рівня в базі знань 
         </p>
         <hr>
         <p>
@@ -36,69 +37,107 @@
           <p>Створити граф мета-даних</p>
           <div class="ui form content">
             <pre style="color: #333" class="pre-scrollable code runnable">
-CREATE (level1:Рівень {name:'Бакалавр'}) 
-CREATE (level2:Рівень {name:'Магістр'})
 
-CREATE (software:Об_єкт {name:'ПЗ Програмне забезпечення'})
-CREATE (software_dev:Об_єкт {name:'Розробка ПЗ'})
-CREATE (software_sup:Об_єкт {name:'Супровід ПЗ'})
-CREATE (software_qa:Об_єкт {name:'Якість ПЗ'})
-CREATE (software_tool:Об_єкт {name:'Інструменти ПЗ'})
-CREATE (software_res:Об_єкт {name:'Ресурси ПЗ'})
+CREATE 
+  (level1:Level {name:'Бакалавр'}), 
+  (level2:Level {name:'Магістр'}),
+  (level3:Level {name:'Доктор'})
 
-CREATE (model_math:Об_єкт {name:'Математичні моделі'})
-CREATE (model_info:Об_єкт {name:'Інформаційні моделі'})
-CREATE (model_sim:Об_єкт {name:'Імітаційні моделі'})
-CREATE (model_dom:Об_єкт {name:'Моделі предметної області'})
-CREATE (model_dr:Об_єкт {name:'Представлення даних'})
-CREATE (model_kr:Об_єкт {name:'Представлення знань'})
+CREATE 
+  (branch12:Branch {name:'12-ІТ', title:'Інформаційні технології'}),
+  (branch05:Branch {name:'05-СПН', title:'Соціальні та поведінкові науки'})
 
-CREATE (soft_hard:Об_єкт {name:'ПТЗ Програмно-технічні засоби'})
-CREATE (prot_inter:Об_єкт {name:'Інтерфейси та протоколи'})
-CREATE (network:Об_єкт {name:'Мережі комп’ютерні'})
-CREATE (proj_man:Об_єкт {name:'Керування проєктами'})
-CREATE (design_tools:Об_єкт {name:'Системи проєктування'})
-CREATE (meth_calc:Об_єкт {name:'Методи обчислень'})
+CREATE
+  (speciality051:Speciality {name:'051-ЕК', title:'Економіка'}),
+  (speciality121:Speciality {name:'121-ІПЗ', title:'Інженерія програмного забезпечення'}),
+  (speciality122:Speciality {name:'122-КН', title:'Комп’ютерні науки'}),
+  (speciality123:Speciality {name:'123-КІ', title:'Комп’ютерна інженерія'}),
+  (speciality125:Speciality {name:'125-КБ', title:'Кібербезпека'}),
+  (speciality126:Speciality {name:'126-ІСТ', title:'Інформаційні системи та технології'})
 
+CREATE
+  (st_051_ek_bak:Standard {name:'СТ-051 ЕК-Б', title:'Економіка (Бакалавр)'}),
+  (st_121_ipz_bak:Standard {name:'СТ-121 ІПЗ-Б', title:'Інженерія програмного забезпечення (Бакалавр)'}),
+  (st_122_kn_bak:Standard {name:'СТ-122 КН-Б', title:'Комп’ютерні науки (Бакалавр)'}),
+  (st_123_ki_bak:Standard {name:'СТ-123 КІ-Б', title:'Комп’ютерна інженерія (Бакалавр)'}),
+  (st_125_kb_bak:Standard {name:'СТ-125 КБ-Б', title:'Кібербезпека (Бакалавр)'}),
+  (st_126_ist_bak:Standard {name:'СТ-126 ІСТ-Б', title:'Інформаційні системи та технології (Бакалавр)'})
 
-CREATE (branch12:Галузь {name:'12-ІТ Інформаційні технології'})
+CREATE
+  (st_051_ek_mag:Standard {name:'СТ-051 ЕК-М', title:'Економіка (Магістр)'}),
+  (st_121_ipz_mag:Standard {name:'СТ-121 ІПЗ-М', title:'Інженерія програмного забезпечення (Магістр)'}),
+  (st_122_kn_mag:Standard {name:'СТ-122 КН-М', title:'Комп’ютерні науки (Магістр)'}),
+  (st_123_ki_mag:Standard {name:'СТ-123 КІ-М', title:'Комп’ютерна інженерія (Магістр)'}),
+  (st_125_kb_mag:Standard {name:'СТ-125 КБ-М', title:'Кібербезпека (Магістр)'}),
+  (st_126_ist_mag:Standard {name:'СТ-126 ІСТ-М', title:'Інформаційні системи та технології (Магістр)'})
 
-CREATE (speciality121:Спеціальність {name:'121-ІПЗ Інженерія програмного забезпечення'})
-MERGE (software)-[:Є_ОБ_ЄКТОМ]->(speciality121)
-MERGE (software_dev)-[:Є_ОБ_ЄКТОМ]->(speciality121)
-MERGE (software_sup)-[:Є_ОБ_ЄКТОМ]->(speciality121)
-MERGE (software_qa)-[:Є_ОБ_ЄКТОМ]->(speciality121)
-MERGE (software_tool)-[:Є_ОБ_ЄКТОМ]->(speciality121)
-MERGE (software_res)-[:Є_ОБ_ЄКТОМ]->(speciality121)
+CREATE
+  (opp_051_ekk_bak:EducationalProgram {name:'ОПП-051 ЕКК-Б', title:'Економічна кібернетика (Бакалавр)'}),
+  (opp_051_ce_bak:EducationalProgram {name:'ОПП-051 ЦЕ-Б', title:'Цифрова економіка (Бакалавр)'}),
+  (opp_121_ipz_bak:EducationalProgram {name:'ОПП-121 ІПЗ-Б', title:'Інженерія програмного забезпечення (Бакалавр)'}),
+  (opp_122_kn_bak:EducationalProgram {name:'ОПП-122 КН-Б', title:'Комп’ютерні науки (Бакалавр)'}),
+  (opp_123_ki_bak:EducationalProgram {name:'ОПП-123 КІ-Б', title:'Комп’ютерна інженерія (Бакалавр)'}),
+  (opp_125_kb_bak:EducationalProgram {name:'ОПП-125 КБ-Б', title:'Кібербезпека (Бакалавр)'}),
+  (opp_126_ist_bak:EducationalProgram {name:'ОПП-126 ІСТ-Б', title:'Інформаційні системи та технології (Бакалавр)'})
 
+CREATE
+  (opp_051_ekk_mag:EducationalProgram {name:'ОПП-051 ЕКК-М', title:'Економічна кібернетика (Магістр)'}),
+  (opp_121_pzis_mag:EducationalProgram {name:'ОПП-121 ПЗІС-М', title:'Програмне забезпечення інформаційних систем (Магістр)'}),
+  (opp_122_iust_mag:EducationalProgram {name:'ОПП-122 ІУСТ-М', title:'Інформаційні управляючі системи і технології (Магістр)'}),
+  (opp_122_keem_mag:EducationalProgram {name:'ОПП-122 КЕЕМ-М', title:'Комп’ютерний еколого-економічний моніторинг (Магістр)'}),
+  (opp_123_ksm_mag:EducationalProgram {name:'ОПП-123 КСМ-М', title:'Комп’ютерні системи і мережі (Магістр)'})
+  
 
-CREATE (speciality122:Спеціальність {name:'122-КН Комп’ютерні науки'})
-MERGE (model_math)-[:Є_ОБ_ЄКТОМ]->(speciality122)
-MERGE (model_info)-[:Є_ОБ_ЄКТОМ]->(speciality122)
-MERGE (model_sim)-[:Є_ОБ_ЄКТОМ]->(speciality122)
-MERGE (model_dom)-[:Є_ОБ_ЄКТОМ]->(speciality122)
-MERGE (model_dr)-[:Є_ОБ_ЄКТОМ]->(speciality122)
-MERGE (model_kr)-[:Є_ОБ_ЄКТОМ]->(speciality122)
+  
 
-CREATE (speciality123:Спеціальність {name:'123-КІ Комп’ютерна інженерія'})
-MERGE (soft_hard)-[:Є_ОБ_ЄКТОМ]->(speciality123)
-MERGE (prot_inter)-[:Є_ОБ_ЄКТОМ]->(speciality123)
-MERGE (software)-[:Є_ОБ_ЄКТОМ]->(speciality123)
-MERGE (network)-[:Є_ОБ_ЄКТОМ]->(speciality123)
-MERGE (proj_man)-[:Є_ОБ_ЄКТОМ]->(speciality123)
-MERGE (design_tools)-[:Є_ОБ_ЄКТОМ]->(speciality123)
-MERGE (meth_calc)-[:Є_ОБ_ЄКТОМ]->(speciality123)
+MERGE (branch05) -[:INCLUDES]-> (speciality051)
+MERGE (branch12) -[:INCLUDES]-> (speciality121)
+MERGE (branch12) -[:INCLUDES]-> (speciality122)
+MERGE (branch12) -[:INCLUDES]-> (speciality123)
+MERGE (branch12) -[:INCLUDES]-> (speciality125)
+MERGE (branch12) -[:INCLUDES]-> (speciality126)
 
+MERGE (st_051_ek_bak) -[:RELATES_TO]-> (speciality051)
+MERGE (st_121_ipz_bak) -[:RELATES_TO]-> (speciality121)
+MERGE (st_122_kn_bak) -[:RELATES_TO]-> (speciality122)
+MERGE (st_123_ki_bak) -[:RELATES_TO]-> (speciality123)
+MERGE (st_125_kb_bak) -[:RELATES_TO]-> (speciality125)
+MERGE (st_126_ist_bak) -[:RELATES_TO]-> (speciality126)
 
-MERGE (branch12)-[:ВКЛЮЧАЄ]->(speciality121)
-MERGE (branch12)-[:ВКЛЮЧАЄ]->(speciality122)
-MERGE (branch12)-[:ВКЛЮЧАЄ]->(speciality123)
+MERGE (st_051_ek_mag) -[:RELATES_TO]-> (speciality051)
+MERGE (st_121_ipz_mag) -[:RELATES_TO]-> (speciality121)
+MERGE (st_122_kn_mag) -[:RELATES_TO]-> (speciality122)
+MERGE (st_123_ki_mag) -[:RELATES_TO]-> (speciality123)
+MERGE (st_125_kb_mag) -[:RELATES_TO]-> (speciality125)
+MERGE (st_126_ist_mag) -[:RELATES_TO]-> (speciality126)
 
-CREATE (branch05:Галузь {name:'05 Соціальні та поведінкові науки'})
-CREATE (speciality051:Спеціальність {name:'051 Економіка'})
-MERGE (branch05)-[:ВКЛЮЧАЄ]->(speciality051)
+MERGE (st_051_ek_bak) -[:RELATES_TO]-> (level1)
+MERGE (st_121_ipz_bak) -[:RELATES_TO]-> (level1)
+MERGE (st_122_kn_bak) -[:RELATES_TO]-> (level1)
+MERGE (st_123_ki_bak) -[:RELATES_TO]-> (level1)
+MERGE (st_125_kb_bak) -[:RELATES_TO]-> (level1)
+MERGE (st_126_ist_bak) -[:RELATES_TO]-> (level1)
 
+MERGE (st_051_ek_mag) -[:RELATES_TO]-> (level2)
+MERGE (st_121_ipz_mag) -[:RELATES_TO]-> (level2)
+MERGE (st_122_kn_mag) -[:RELATES_TO]-> (level2)
+MERGE (st_123_ki_mag) -[:RELATES_TO]-> (level2)
+MERGE (st_125_kb_mag) -[:RELATES_TO]-> (level2)
+MERGE (st_126_ist_mag) -[:RELATES_TO]-> (level2)
 
+MERGE (opp_051_ce_bak) -[:BASED_ON]-> (st_051_ek_bak)
+MERGE (opp_051_ekk_bak) -[:BASED_ON]-> (st_051_ek_bak)
+MERGE (opp_121_ipz_bak) -[:BASED_ON]-> (st_121_ipz_bak)
+MERGE (opp_122_kn_bak) -[:BASED_ON]-> (st_122_kn_bak)
+MERGE (opp_123_ki_bak) -[:BASED_ON]-> (st_123_ki_bak)
+MERGE (opp_125_kb_bak) -[:BASED_ON]-> (st_125_kb_bak)
+MERGE (opp_126_ist_bak) -[:BASED_ON]-> (st_126_ist_bak)
+
+MERGE (opp_051_ekk_mag) -[:BASED_ON]-> (st_051_ek_mag)
+MERGE (opp_121_pzis_mag) -[:BASED_ON]-> (st_121_ipz_mag)
+MERGE (opp_122_iust_mag) -[:BASED_ON]-> (st_122_kn_mag)
+MERGE (opp_122_keem_mag) -[:BASED_ON]-> (st_122_kn_mag)
+MERGE (opp_123_ksm_mag) -[:BASED_ON]-> (st_123_ki_mag)
 
 
 
@@ -111,7 +150,7 @@ MERGE (branch05)-[:ВКЛЮЧАЄ]->(speciality051)
           <div class="ui form content">
             <pre style="color: #333"
               class="pre-scrollable code runnable">
-MATCH (n) WHERE (n:Рівень OR n:Галузь OR n:Спеціальність OR n:Об_єкт) DETACH DELETE n
+MATCH (n) WHERE (n:Level OR n:Branch OR n:Speciality OR n:Standard OR n:EducationalProgram) DETACH DELETE n
             </pre>
           </div>
         </div>
