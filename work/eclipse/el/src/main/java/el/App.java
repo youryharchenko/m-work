@@ -32,6 +32,8 @@ public class App {
 	
 	Conf conf = new Conf("el.ini");
 	
+	Neo neo = new Neo(conf); 
+	
     UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
     JFrame frame = new JFrame("EL - Ontologies + Agent-Oriented Design");
 
@@ -61,7 +63,7 @@ public class App {
 
     OWLOntologyManager man = OWLManager.createOWLOntologyManager();
     
-    Env env = new Env(conf, frame, man);
+    Env env = new Env(conf, frame, man, neo);
 
     void run() {
 
