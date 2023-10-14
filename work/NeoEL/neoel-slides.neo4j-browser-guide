@@ -38,6 +38,24 @@
           <div class="ui form content">
             <pre style="color: #333" class="pre-scrollable code runnable">
 
+CREATE
+  (conc_level:Concept {name:'Рівень'}),
+  (conc_branch:Concept {name:'Галузь'}),
+  (conc_spec:Concept {name:'Спецільність'}),
+  (conc_st:Concept {name:'Стандарт'}),
+  (conc_comp:Concept {name:'Компетентність'}),
+  (conc_ed_prog:Concept {name:'Освітня програма'}),
+  (conc_work_prog:Concept {name:'Робоча програма'})
+
+MERGE (conc_branch) -[:INCLUDES]-> (conc_spec)
+MERGE (conc_st) -[:RELATES_TO]-> (conc_spec)
+MERGE (conc_st) -[:RELATES_TO]-> (conc_level)
+MERGE (conc_st) -[:DEFINES]-> (conc_comp)
+MERGE (conc_ed_prog) -[:BASED_ON]-> (conc_st)
+MERGE (conc_work_prog) -[:BASED_ON]-> (conc_ed_prog)
+MERGE (conc_work_prog) -[:IMPLEMENTS]-> (conc_comp)
+
+
 CREATE 
   (level1:Level {name:'Бакалавр'}), 
   (level2:Level {name:'Магістр'}),
@@ -150,7 +168,7 @@ MERGE (opp_123_ksm_mag) -[:BASED_ON]-> (st_123_ki_mag)
           <div class="ui form content">
             <pre style="color: #333"
               class="pre-scrollable code runnable">
-MATCH (n) WHERE (n:Level OR n:Branch OR n:Speciality OR n:Standard OR n:EducationalProgram) DETACH DELETE n
+MATCH (n) WHERE (n:Level OR n:Branch OR n:Speciality OR n:Standard OR n:EducationalProgram OR n.Concept) DETACH DELETE n
             </pre>
           </div>
         </div>
