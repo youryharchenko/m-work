@@ -1,0 +1,5 @@
+[Neo4j]
+url = "bolt://localhost"
+user = "Neo4j"
+pwd = "87654321"
+database = "neo4j"
